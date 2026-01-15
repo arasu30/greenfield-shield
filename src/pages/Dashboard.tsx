@@ -1,5 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import Navbar from "@/components/Navbar";
+import { AnimatedParticles } from "@/components/AnimatedParticles";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ShieldCheck, FileText, AlertTriangle, Satellite, ArrowRight } from "lucide-react";
@@ -45,11 +46,7 @@ const Dashboard = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-950 via-green-900 to-slate-950 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 relative overflow-hidden">
       {/* Animated background particles */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-1/4 right-1/4 w-2 h-2 bg-green-400 rounded-full animate-pulse opacity-60"></div>
-        <div className="absolute top-1/3 left-1/3 w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse opacity-50" style={{animationDelay: '1s'}}></div>
-        <div className="absolute bottom-1/4 right-1/3 w-2 h-2 bg-cyan-400 rounded-full animate-pulse opacity-60" style={{animationDelay: '2s'}}></div>
-      </div>
+      <AnimatedParticles />
 
       {/* Gradient overlay blobs */}
       <div className="absolute top-0 left-0 w-96 h-96 bg-green-500 rounded-full mix-blend-multiply filter blur-3xl opacity-5 animate-pulse"></div>

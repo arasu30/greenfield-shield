@@ -8,6 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Leaf, Shield, Smartphone, Lock, User, X, Users } from "lucide-react";
 import { toast } from "sonner";
+import { AnimatedParticles } from "@/components/AnimatedParticles";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -153,14 +154,8 @@ const Login = () => {
         </DialogContent>
       </Dialog>
 
-      {/* Animated background particles/dots */}
-      <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute top-20 right-10 w-1 h-1 bg-cyan-400 rounded-full animate-pulse opacity-60"></div>
-        <div className="absolute top-40 left-20 w-1 h-1 bg-emerald-400 rounded-full animate-pulse opacity-60" style={{animationDelay: '0.5s'}}></div>
-        <div className="absolute bottom-20 right-32 w-1.5 h-1.5 bg-cyan-300 rounded-full animate-pulse opacity-50" style={{animationDelay: '1s'}}></div>
-        <div className="absolute top-1/3 right-1/4 w-1 h-1 bg-green-400 rounded-full animate-pulse opacity-60" style={{animationDelay: '1.5s'}}></div>
-        <div className="absolute bottom-1/3 left-1/3 w-1.5 h-1.5 bg-emerald-300 rounded-full animate-pulse opacity-50" style={{animationDelay: '2s'}}></div>
-      </div>
+      {/* Animated background particles */}
+      <AnimatedParticles />
       
       {/* Decorative animated gradient blobs */}
       <div className="absolute top-0 right-0 w-96 h-96 bg-cyan-500 dark:bg-cyan-600 rounded-full mix-blend-multiply filter blur-3xl opacity-10 animate-pulse"></div>
@@ -306,9 +301,9 @@ const Login = () => {
           </CardContent>
         </Card>
 
-        <p className="text-center text-sm text-slate-500 dark:text-slate-400 mt-8 font-medium">
+        {/* <p className="text-center text-sm text-slate-500 dark:text-slate-400 mt-8 font-medium">
           🛡️ Bank-grade security | 🌾 AI-powered | 🛰️ Satellite-backed
-        </p>
+        </p> */}
       </div>
     </div>
   );

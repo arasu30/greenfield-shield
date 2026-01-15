@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "@/components/Navbar";
+import { AnimatedParticles } from "@/components/AnimatedParticles";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -33,11 +34,7 @@ const ClaimDamage = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-950 via-red-900 to-slate-950 relative overflow-hidden">
       {/* Animated background particles */}
-      <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute top-1/4 right-1/4 w-1.5 h-1.5 bg-red-400 rounded-full animate-pulse opacity-60"></div>
-        <div className="absolute top-2/3 left-1/3 w-1 h-1 bg-orange-400 rounded-full animate-pulse opacity-50" style={{animationDelay: '0.5s'}}></div>
-        <div className="absolute bottom-1/4 right-1/3 w-1.5 h-1.5 bg-red-300 rounded-full animate-pulse opacity-60" style={{animationDelay: '1s'}}></div>
-      </div>
+      <AnimatedParticles />
 
       {/* Gradient blobs */}
       <div className="absolute top-0 right-0 w-96 h-96 bg-red-500 rounded-full mix-blend-multiply filter blur-3xl opacity-5 animate-pulse"></div>

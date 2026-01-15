@@ -57,35 +57,46 @@ const BuyPolicy = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-green-50 to-slate-100 dark:from-slate-950 dark:via-green-950 dark:to-slate-900">
+    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-emerald-900 to-slate-950 relative overflow-hidden">
+      {/* Animated background particles */}
+      <div className="absolute inset-0 overflow-hidden">
+        <div className="absolute top-1/4 left-1/3 w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse opacity-60"></div>
+        <div className="absolute top-1/3 right-1/4 w-1 h-1 bg-emerald-400 rounded-full animate-pulse opacity-50" style={{animationDelay: '0.5s'}}></div>
+        <div className="absolute bottom-1/4 left-1/2 w-1.5 h-1.5 bg-cyan-300 rounded-full animate-pulse opacity-60" style={{animationDelay: '1s'}}></div>
+      </div>
+
+      {/* Gradient blobs */}
+      <div className="absolute top-0 right-0 w-96 h-96 bg-green-500 rounded-full mix-blend-multiply filter blur-3xl opacity-5 animate-pulse"></div>
+      <div className="absolute bottom-0 left-0 w-96 h-96 bg-cyan-500 rounded-full mix-blend-multiply filter blur-3xl opacity-5 animate-pulse" style={{animationDelay: '2s'}}></div>
+
       <Navbar userName="Rajesh Kumar" userRole="farmer" />
       
-      <div className="container mx-auto px-4 py-12 max-w-5xl">
-        <Button variant="ghost" onClick={() => navigate("/dashboard")} className="mb-8 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-slate-100 transition-colors">
+      <div className="container mx-auto px-4 py-12 max-w-5xl relative z-10">
+        <Button variant="ghost" onClick={() => navigate("/dashboard")} className="mb-8 text-slate-300 hover:text-emerald-400 transition-all duration-300">
           <ArrowLeft className="w-5 h-5 mr-2" />
           Back to Dashboard
         </Button>
 
         <div className="mb-10">
-          <h2 className="text-5xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 dark:from-green-400 dark:to-emerald-400 bg-clip-text text-transparent mb-3">Buy Insurance Policy</h2>
-          <p className="text-lg text-slate-600 dark:text-slate-300 font-medium">Protect your crops with comprehensive AI-powered coverage</p>
+          <h2 className="text-5xl font-bold bg-gradient-to-r from-emerald-400 via-green-400 to-cyan-400 bg-clip-text text-transparent mb-3">Buy Insurance Policy</h2>
+          <p className="text-lg text-slate-300 font-medium">Protect your crops with comprehensive AI-powered coverage</p>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2 space-y-6">
-            <Card className="bg-white/70 dark:bg-slate-900/70 border border-slate-200 dark:border-slate-700 backdrop-blur-sm shadow-lg">
-              <CardHeader className="pb-4">
-                <CardTitle className="text-2xl font-bold text-slate-900 dark:text-slate-100">Policy Details</CardTitle>
-                <CardDescription className="text-slate-600 dark:text-slate-300">Fill in your crop information to get instant premium</CardDescription>
+            <Card className="backdrop-blur-2xl bg-slate-900/80 border border-emerald-500/30 shadow-2xl shadow-emerald-500/20 hover:border-emerald-400/50 hover:shadow-emerald-400/30 transition-all duration-300">
+              <CardHeader className="pb-4 border-b border-emerald-500/20">
+                <CardTitle className="text-2xl font-bold text-emerald-100">Policy Details</CardTitle>
+                <CardDescription className="text-slate-300">Fill in your crop information to get instant premium</CardDescription>
               </CardHeader>
-              <CardContent className="space-y-5">
+              <CardContent className="space-y-5 pt-4">
                 <div className="space-y-2">
-                  <Label htmlFor="crop-type" className="font-semibold text-slate-700 dark:text-slate-200">Crop Type *</Label>
+                  <Label htmlFor="crop-type" className="font-semibold text-emerald-200">Crop Type *</Label>
                   <Select onValueChange={handleCropChange}>
-                    <SelectTrigger id="crop-type" className="py-6 text-base border-slate-200 dark:border-slate-700 rounded-lg">
+                    <SelectTrigger id="crop-type" className="py-6 bg-slate-800/50 border border-emerald-500/30 text-slate-100 placeholder-slate-500 rounded-lg focus:border-emerald-400 focus:ring-2 focus:ring-emerald-500/50">
                       <SelectValue placeholder="Select crop type" />
                     </SelectTrigger>
-                    <SelectContent className="bg-card">
+                    <SelectContent className="bg-slate-900 border border-emerald-500/30">
                       <SelectItem value="Rice">🍚 Rice</SelectItem>
                       <SelectItem value="Wheat">🌾 Wheat</SelectItem>
                       <SelectItem value="Cotton">🟤 Cotton</SelectItem>
@@ -96,12 +107,12 @@ const BuyPolicy = () => {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="season" className="font-semibold text-slate-700 dark:text-slate-200">Season *</Label>
+                  <Label htmlFor="season" className="font-semibold text-emerald-200">Season *</Label>
                   <Select onValueChange={handleSeasonChange}>
-                    <SelectTrigger id="season" className="py-6 text-base border-slate-200 dark:border-slate-700 rounded-lg">
+                    <SelectTrigger id="season" className="py-6 bg-slate-800/50 border border-emerald-500/30 text-slate-100 placeholder-slate-500 rounded-lg focus:border-emerald-400 focus:ring-2 focus:ring-emerald-500/50">
                       <SelectValue placeholder="Select season" />
                     </SelectTrigger>
-                    <SelectContent className="bg-card">
+                    <SelectContent className="bg-slate-900 border border-emerald-500/30">
                       <SelectItem value="Kharif">☔ Kharif (Monsoon)</SelectItem>
                       <SelectItem value="Rabi">❄️ Rabi (Winter)</SelectItem>
                     </SelectContent>
@@ -109,13 +120,13 @@ const BuyPolicy = () => {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="land-area" className="font-semibold text-slate-700 dark:text-slate-200">Land Area (Acres)</Label>
+                  <Label htmlFor="land-area" className="font-semibold text-emerald-200">Land Area (Acres)</Label>
                   <Input
                     id="land-area"
                     value={landArea}
                     disabled
-                    className="bg-slate-100 dark:bg-slate-800 py-6 text-base border-slate-200 dark:border-slate-700 font-medium rounded-lg"/>
-                  <p className="text-xs text-slate-600 dark:text-slate-300 flex items-center gap-2">
+                    className="bg-slate-800/30 py-6 border border-emerald-500/20 text-slate-300 font-medium rounded-lg"/>
+                  <p className="text-xs text-emerald-300/80 flex items-center gap-2">
                     <Info className="w-4 h-4" />
                     Auto-filled from your profile
                   </p>
@@ -123,35 +134,35 @@ const BuyPolicy = () => {
               </CardContent>
             </Card>
 
-            <Card className="bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-950 dark:to-emerald-900 border-green-200 dark:border-emerald-800 shadow-lg">
-              <CardHeader className="pb-4">
-                <CardTitle className="text-xl font-bold text-green-900 dark:text-emerald-100">Coverage Includes</CardTitle>
+            <Card className="backdrop-blur-2xl bg-slate-900/80 border border-emerald-500/30 shadow-2xl shadow-emerald-500/20">
+              <CardHeader className="pb-4 border-b border-emerald-500/20">
+                <CardTitle className="text-xl font-bold text-emerald-100">Coverage Includes</CardTitle>
               </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-2 gap-4\">
-                  <div className="flex items-center gap-3 p-3 bg-white/70 dark:bg-slate-900/50 rounded-lg\">
-                    <div className="w-2.5 h-2.5 rounded-full bg-green-500\"></div>
-                    <span className="font-medium text-slate-700 dark:text-slate-200\">Flood Damage</span>
+              <CardContent className="pt-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="flex items-center gap-3 p-3 bg-emerald-500/10 border border-emerald-500/30 rounded-lg hover:bg-emerald-500/20 transition-colors duration-300">
+                    <div className="w-2.5 h-2.5 rounded-full bg-emerald-400"></div>
+                    <span className="font-medium text-emerald-200">Flood Damage</span>
                   </div>
-                  <div className="flex items-center gap-3 p-3 bg-white/70 dark:bg-slate-900/50 rounded-lg\">
-                    <div className="w-2.5 h-2.5 rounded-full bg-green-500\"></div>
-                    <span className="font-medium text-slate-700 dark:text-slate-200\">Drought</span>
+                  <div className="flex items-center gap-3 p-3 bg-emerald-500/10 border border-emerald-500/30 rounded-lg hover:bg-emerald-500/20 transition-colors duration-300">
+                    <div className="w-2.5 h-2.5 rounded-full bg-emerald-400"></div>
+                    <span className="font-medium text-emerald-200">Drought</span>
                   </div>
-                  <div className="flex items-center gap-3 p-3 bg-white/70 dark:bg-slate-900/50 rounded-lg\">
-                    <div className="w-2.5 h-2.5 rounded-full bg-green-500\"></div>
-                    <span className="font-medium text-slate-700 dark:text-slate-200\">Pest Attack</span>
+                  <div className="flex items-center gap-3 p-3 bg-emerald-500/10 border border-emerald-500/30 rounded-lg hover:bg-emerald-500/20 transition-colors duration-300">
+                    <div className="w-2.5 h-2.5 rounded-full bg-emerald-400"></div>
+                    <span className="font-medium text-emerald-200">Pest Attack</span>
                   </div>
-                  <div className="flex items-center gap-3 p-3 bg-white/70 dark:bg-slate-900/50 rounded-lg\">
-                    <div className="w-2.5 h-2.5 rounded-full bg-green-500\"></div>
-                    <span className="font-medium text-slate-700 dark:text-slate-200\">Cyclone</span>
+                  <div className="flex items-center gap-3 p-3 bg-emerald-500/10 border border-emerald-500/30 rounded-lg hover:bg-emerald-500/20 transition-colors duration-300">
+                    <div className="w-2.5 h-2.5 rounded-full bg-emerald-400"></div>
+                    <span className="font-medium text-emerald-200">Cyclone</span>
                   </div>
-                  <div className="flex items-center gap-3 p-3 bg-white/70 dark:bg-slate-900/50 rounded-lg\">
-                    <div className="w-2.5 h-2.5 rounded-full bg-green-500\"></div>
-                    <span className="font-medium text-slate-700 dark:text-slate-200\">Fire</span>
+                  <div className="flex items-center gap-3 p-3 bg-emerald-500/10 border border-emerald-500/30 rounded-lg hover:bg-emerald-500/20 transition-colors duration-300">
+                    <div className="w-2.5 h-2.5 rounded-full bg-emerald-400"></div>
+                    <span className="font-medium text-emerald-200">Fire</span>
                   </div>
-                  <div className="flex items-center gap-3 p-3 bg-white/70 dark:bg-slate-900/50 rounded-lg\">
-                    <div className="w-2.5 h-2.5 rounded-full bg-green-500\"></div>
-                    <span className="font-medium text-slate-700 dark:text-slate-200\">Hailstorm</span>
+                  <div className="flex items-center gap-3 p-3 bg-emerald-500/10 border border-emerald-500/30 rounded-lg hover:bg-emerald-500/20 transition-colors duration-300">
+                    <div className="w-2.5 h-2.5 rounded-full bg-emerald-400"></div>
+                    <span className="font-medium text-emerald-200">Hailstorm</span>
                   </div>
                 </div>
               </CardContent>
@@ -159,44 +170,44 @@ const BuyPolicy = () => {
           </div>
 
           <div className="space-y-6">
-            <Card className="bg-gradient-to-br from-green-50 to-emerald-100 dark:from-green-900 dark:to-emerald-800 border-2 border-green-300 dark:border-emerald-700 shadow-xl sticky top-8 hover:shadow-2xl transition-shadow duration-300">
-              <CardHeader className="pb-4">
-                <CardTitle className="text-xl font-bold text-green-900 dark:text-emerald-50">Premium Summary</CardTitle>
+            <Card className="backdrop-blur-2xl bg-gradient-to-br from-emerald-950/80 to-green-950/80 border-2 border-emerald-400/40 shadow-2xl shadow-emerald-500/30 sticky top-8 hover:border-emerald-400/60 hover:shadow-emerald-500/40 transition-all duration-300">
+              <CardHeader className="pb-4 border-b border-emerald-500/30">
+                <CardTitle className="text-xl font-bold text-emerald-100">Premium Summary</CardTitle>
               </CardHeader>
-              <CardContent className="space-y-5">
-                <div className="space-y-3 bg-white/50 dark:bg-slate-900/50 p-4 rounded-lg">
+              <CardContent className="space-y-5 pt-4">
+                <div className="space-y-3 bg-emerald-500/10 border border-emerald-500/30 p-4 rounded-lg">
                   <div className="flex justify-between items-center">
-                    <span className="text-slate-600 dark:text-slate-300 font-medium">Crop:</span>
-                    <Badge className="bg-green-200 text-green-900 dark:bg-green-700 dark:text-green-50">{cropType || "Not selected"}</Badge>
+                    <span className="text-emerald-300 font-medium">Crop:</span>
+                    <Badge className="bg-emerald-600 text-emerald-50 hover:bg-emerald-700">{cropType || "Not selected"}</Badge>
                   </div>
                   <div className="flex justify-between items-center">
-                    <span className="text-slate-600 dark:text-slate-300 font-medium">Season:</span>
-                    <Badge className="bg-blue-200 text-blue-900 dark:bg-blue-700 dark:text-blue-50">{season || "Not selected"}</Badge>
+                    <span className="text-emerald-300 font-medium">Season:</span>
+                    <Badge className="bg-cyan-600 text-cyan-50 hover:bg-cyan-700">{season || "Not selected"}</Badge>
                   </div>
                   <div className="flex justify-between items-center">
-                    <span className="text-slate-600 dark:text-slate-300 font-medium">Land Area:</span>
-                    <span className="font-bold text-slate-900 dark:text-slate-100">{landArea} acres</span>
+                    <span className="text-emerald-300 font-medium">Land Area:</span>
+                    <span className="font-bold text-emerald-100">{landArea} acres</span>
                   </div>
                 </div>
 
-                <div className="border-t-2 border-green-300 dark:border-emerald-700 pt-4">
+                <div className="border-t border-emerald-500/30 pt-4">
                   <div className="mb-2">
-                    <p className="text-sm text-slate-600 dark:text-slate-300 font-medium mb-1">Total Premium:</p>
-                    <p className="text-4xl font-bold text-green-600 dark:text-emerald-300">₹{premium.toLocaleString()}</p>
+                    <p className="text-sm text-emerald-300/80 font-medium mb-1">Total Premium:</p>
+                    <p className="text-4xl font-bold text-emerald-300">₹{premium.toLocaleString()}</p>
                   </div>
-                  <p className="text-xs text-slate-600 dark:text-slate-300">Per season</p>
+                  <p className="text-xs text-emerald-400/60">Per season</p>
                 </div>
 
                 <Button 
                   onClick={handleProceedToPayment} 
-                  className="w-full bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white font-semibold py-6 rounded-lg transition-all duration-300 shadow-lg hover:shadow-xl text-base"
+                  className="w-full bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-700 hover:to-green-700 text-white font-semibold py-6 rounded-lg transition-all duration-300 shadow-lg hover:shadow-emerald-500/50 text-base"
                   disabled={!cropType || !season}
                 >
                   <CreditCard className="w-5 h-5 mr-2" />
                   Proceed to Payment
                 </Button>
 
-                <p className="text-xs text-center text-slate-600 dark:text-slate-400 font-medium">
+                <p className="text-xs text-center text-emerald-400/70 font-medium">
                   🔒 Secured payment gateway
                 </p>
               </CardContent>

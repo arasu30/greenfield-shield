@@ -87,99 +87,110 @@ const OfficerReview = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-slate-100 dark:from-slate-950 dark:via-blue-950 dark:to-slate-900">
+    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-blue-900 to-slate-950 relative overflow-hidden">
+      {/* Animated background particles */}
+      <div className="absolute inset-0 overflow-hidden">
+        <div className="absolute top-1/4 right-1/3 w-1.5 h-1.5 bg-blue-400 rounded-full animate-pulse opacity-60"></div>
+        <div className="absolute top-2/3 left-1/4 w-1 h-1 bg-cyan-400 rounded-full animate-pulse opacity-50" style={{animationDelay: '0.5s'}}></div>
+        <div className="absolute bottom-1/3 right-1/4 w-1 h-1 bg-blue-300 rounded-full animate-pulse opacity-60" style={{animationDelay: '1s'}}></div>
+      </div>
+
+      {/* Gradient blobs */}
+      <div className="absolute top-0 right-0 w-96 h-96 bg-blue-500 rounded-full mix-blend-multiply filter blur-3xl opacity-5 animate-pulse"></div>
+      <div className="absolute bottom-0 left-0 w-96 h-96 bg-cyan-500 rounded-full mix-blend-multiply filter blur-3xl opacity-5 animate-pulse" style={{animationDelay: '2s'}}></div>
+
       <Navbar userName="Officer Ramesh" userRole="officer" />
       
-      <div className="container mx-auto px-4 py-12 max-w-7xl">
-        <Button variant="ghost" onClick={() => navigate("/")} className="mb-8 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-slate-100 transition-colors">
+      <div className="container mx-auto px-4 py-12 max-w-7xl relative z-10">
+        <Button variant="ghost" onClick={() => navigate("/")} className="mb-8 text-slate-300 hover:text-blue-400 transition-all duration-300">
           <ArrowLeft className="w-5 h-5 mr-2" />
           Logout
         </Button>
 
         <div className="mb-10">
-          <h2 className="text-5xl font-bold bg-gradient-to-r from-blue-600 to-cyan-600 dark:from-blue-400 dark:to-cyan-400 bg-clip-text text-transparent mb-3">Claims Review Dashboard</h2>
-          <p className="text-lg text-slate-600 dark:text-slate-300 font-medium">Review and approve farmer claims based on AI analysis</p>
+          <h2 className="text-5xl font-bold bg-gradient-to-r from-blue-400 via-cyan-400 to-blue-400 bg-clip-text text-transparent mb-3">Claims Review Dashboard</h2>
+          <p className="text-lg text-slate-300 font-medium">Review and approve farmer claims based on AI analysis</p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-4 gap-5 mb-8">
-          <Card className="hover:shadow-2xl hover:shadow-amber-200 dark:hover:shadow-amber-900 transition-all duration-300 group border border-amber-200 dark:border-amber-800 backdrop-blur-sm bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-950 dark:to-orange-900 transform hover:-translate-y-1">
+          <Card className="backdrop-blur-2xl bg-amber-500/10 border border-amber-500/30 shadow-2xl shadow-amber-500/20 hover:shadow-amber-500/40 transition-all duration-300 group transform hover:-translate-y-1">
             <CardContent className="pt-6 pb-6">
               <div className="text-center">
-                <div className="inline-block p-3 rounded-lg bg-amber-100 dark:bg-amber-900 mb-3 group-hover:scale-110 transition-transform duration-300">
-                  <AlertCircle className="w-6 h-6 text-amber-600 dark:text-amber-400" />
+                <div className="inline-block p-3 rounded-lg bg-amber-500/20 border border-amber-500/30 mb-3 group-hover:scale-110 transition-transform duration-300">
+                  <AlertCircle className="w-6 h-6 text-amber-400" />
                 </div>
-                <p className="text-4xl font-bold text-amber-600 dark:text-amber-400">{claims.filter(c => c.status === "Pending Review").length}</p>
-                <p className="text-sm text-slate-600 dark:text-slate-300 mt-2 font-medium">Pending Review</p>
+                <p className="text-4xl font-bold text-amber-400">{claims.filter(c => c.status === "Pending Review").length}</p>
+                <p className="text-sm text-amber-300/70 mt-2 font-medium">Pending Review</p>
               </div>
             </CardContent>
           </Card>
-          <Card className="hover:shadow-2xl hover:shadow-green-200 dark:hover:shadow-green-900 transition-all duration-300 group border border-green-200 dark:border-green-800 backdrop-blur-sm bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-950 dark:to-emerald-900 transform hover:-translate-y-1">
+          <Card className="backdrop-blur-2xl bg-emerald-500/10 border border-emerald-500/30 shadow-2xl shadow-emerald-500/20 hover:shadow-emerald-500/40 transition-all duration-300 group transform hover:-translate-y-1">
             <CardContent className="pt-6 pb-6">
               <div className="text-center">
-                <div className="inline-block p-3 rounded-lg bg-green-100 dark:bg-green-900 mb-3 group-hover:scale-110 transition-transform duration-300">
-                  <CheckCircle className="w-6 h-6 text-green-600 dark:text-green-400" />
+                <div className="inline-block p-3 rounded-lg bg-emerald-500/20 border border-emerald-500/30 mb-3 group-hover:scale-110 transition-transform duration-300">
+                  <CheckCircle className="w-6 h-6 text-emerald-400" />
                 </div>
-                <p className="text-4xl font-bold text-green-600 dark:text-green-400">{claims.filter(c => c.status === "Approved").length}</p>
-                <p className="text-sm text-slate-600 dark:text-slate-300 mt-2 font-medium">Approved Today</p>
+                <p className="text-4xl font-bold text-emerald-400">{claims.filter(c => c.status === "Approved").length}</p>
+                <p className="text-sm text-emerald-300/70 mt-2 font-medium">Approved Today</p>
               </div>
             </CardContent>
           </Card>
-          <Card className="hover:shadow-2xl hover:shadow-red-200 dark:hover:shadow-red-900 transition-all duration-300 group border border-red-200 dark:border-red-800 backdrop-blur-sm bg-gradient-to-br from-red-50 to-rose-50 dark:from-red-950 dark:to-rose-900 transform hover:-translate-y-1">
+          <Card className="backdrop-blur-2xl bg-red-500/10 border border-red-500/30 shadow-2xl shadow-red-500/20 hover:shadow-red-500/40 transition-all duration-300 group transform hover:-translate-y-1">
             <CardContent className="pt-6 pb-6">
               <div className="text-center">
-                <div className="inline-block p-3 rounded-lg bg-red-100 dark:bg-red-900 mb-3 group-hover:scale-110 transition-transform duration-300">
-                  <XCircle className="w-6 h-6 text-red-600 dark:text-red-400" />
+                <div className="inline-block p-3 rounded-lg bg-red-500/20 border border-red-500/30 mb-3 group-hover:scale-110 transition-transform duration-300">
+                  <XCircle className="w-6 h-6 text-red-400" />
                 </div>
-                <p className="text-4xl font-bold text-red-600 dark:text-red-400">{claims.filter(c => c.status === "Rejected").length}</p>
-                <p className="text-sm text-slate-600 dark:text-slate-300 mt-2 font-medium">Rejected</p>
+                <p className="text-4xl font-bold text-red-400">{claims.filter(c => c.status === "Rejected").length}</p>
+                <p className="text-sm text-red-300/70 mt-2 font-medium">Rejected</p>
               </div>
             </CardContent>
           </Card>
-          <Card className="hover:shadow-2xl hover:shadow-blue-200 dark:hover:shadow-blue-900 transition-all duration-300 group border border-blue-200 dark:border-blue-800 backdrop-blur-sm bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-950 dark:to-indigo-900 transform hover:-translate-y-1">
+          <Card className="backdrop-blur-2xl bg-blue-500/10 border border-blue-500/30 shadow-2xl shadow-blue-500/20 hover:shadow-blue-500/40 transition-all duration-300 group transform hover:-translate-y-1">
             <CardContent className="pt-6 pb-6">
               <div className="text-center">
-                <div className="inline-block p-3 rounded-lg bg-blue-100 dark:bg-blue-900 mb-3 group-hover:scale-110 transition-transform duration-300">
-                  <AlertCircle className="w-6 h-6 text-blue-600 dark:text-blue-400" />
+                <div className="inline-block p-3 rounded-lg bg-blue-500/20 border border-blue-500/30 mb-3 group-hover:scale-110 transition-transform duration-300">
+                  <AlertCircle className="w-6 h-6 text-blue-400" />
                 </div>
-                <p className="text-4xl font-bold text-blue-600 dark:text-blue-400">{claims.length}</p>
-                <p className="text-sm text-slate-600 dark:text-slate-300 mt-2 font-medium">Total Claims</p>
+                <p className="text-4xl font-bold text-blue-400">{claims.length}</p>
+                <p className="text-sm text-blue-300/70 mt-2 font-medium">Total Claims</p>
               </div>
             </CardContent>
           </Card>
         </div>
 
-        <Card className="border border-slate-200 dark:border-slate-700 backdrop-blur-sm bg-white/70 dark:bg-slate-900/70 shadow-lg hover:shadow-2xl transition-all duration-300">
-          <CardHeader className="pb-4 border-b border-slate-200 dark:border-slate-700">
-            <CardTitle className="text-2xl font-bold text-slate-900 dark:text-slate-100">📋 Claims Review Queue</CardTitle>
-            <CardDescription className="text-slate-600 dark:text-slate-300 text-base">Review AI-analyzed claims and make approval decisions</CardDescription>
+        <Card className="backdrop-blur-2xl bg-slate-900/80 border border-blue-500/30 shadow-2xl shadow-blue-500/20 hover:border-blue-400/50 hover:shadow-blue-400/30 transition-all duration-300">
+          <CardHeader className="pb-4 border-b border-blue-500/20">
+            <CardTitle className="text-2xl font-bold text-blue-100">📋 Claims Review Queue</CardTitle>
+            <CardDescription className="text-slate-300 text-base">Review AI-analyzed claims and make approval decisions</CardDescription>
           </CardHeader>
           <CardContent className="pt-6">
             <Table>
               <TableHeader>
-                <TableRow className="border-b border-slate-200 dark:border-slate-700 bg-gradient-to-r from-blue-50 to-cyan-50 dark:from-blue-950 dark:to-cyan-900">
-                  <TableHead className="text-slate-700 dark:text-slate-200 font-bold">Claim ID</TableHead>
-                  <TableHead className="text-slate-700 dark:text-slate-200 font-bold">Farmer</TableHead>
-                  <TableHead className="text-slate-700 dark:text-slate-200 font-bold">Crop Type</TableHead>
-                  <TableHead className="text-slate-700 dark:text-slate-200 font-bold">Disaster</TableHead>
-                  <TableHead className="text-slate-700 dark:text-slate-200 font-bold">AI Damage %</TableHead>
-                  <TableHead className="text-slate-700 dark:text-slate-200 font-bold">Confidence</TableHead>
-                  <TableHead className="text-slate-700 dark:text-slate-200 font-bold">Status</TableHead>
-                  <TableHead className="text-right text-slate-700 dark:text-slate-200 font-bold">Actions</TableHead>
+                <TableRow className="border-b border-blue-500/20 bg-blue-500/10">
+                  <TableHead className="text-blue-300 font-bold">Claim ID</TableHead>
+                  <TableHead className="text-blue-300 font-bold">Farmer</TableHead>
+                  <TableHead className="text-blue-300 font-bold">Crop Type</TableHead>
+                  <TableHead className="text-blue-300 font-bold">Disaster</TableHead>
+                  <TableHead className="text-blue-300 font-bold">AI Damage %</TableHead>
+                  <TableHead className="text-blue-300 font-bold">Confidence</TableHead>
+                  <TableHead className="text-blue-300 font-bold">Status</TableHead>
+                  <TableHead className="text-right text-blue-300 font-bold">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {claims.map((claim) => (
-                  <TableRow key={claim.id} className="hover:bg-blue-50 dark:hover:bg-blue-950 border-b border-slate-100 dark:border-slate-800 transition-colors duration-200">
-                    <TableCell className="font-bold text-blue-600 dark:text-blue-400">{claim.id}</TableCell>
+                  <TableRow key={claim.id} className="hover:bg-blue-500/10 border-b border-blue-500/10 transition-colors duration-200">
+                    <TableCell className="font-bold text-blue-400">{claim.id}</TableCell>
                     <TableCell>
                       <div>
-                        <p className="font-semibold text-slate-900 dark:text-slate-100">{claim.farmerName}</p>
-                        <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">{claim.farmerId}</p>
+                        <p className="font-semibold text-slate-100">{claim.farmerName}</p>
+                        <p className="text-xs text-slate-400 font-medium">{claim.farmerId}</p>
                       </div>
                     </TableCell>
-                    <TableCell className="font-medium text-slate-700 dark:text-slate-200">{claim.cropType}</TableCell>
+                    <TableCell className="font-medium text-slate-200">{claim.cropType}</TableCell>
                     <TableCell>
-                      <Badge variant="outline" className="bg-slate-100 dark:bg-slate-800 border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-200 font-medium">{claim.disasterType}</Badge>
+                      <Badge variant="outline" className="bg-blue-500/20 border-blue-500/30 text-blue-300 font-medium">{claim.disasterType}</Badge>
                     </TableCell>
                     <TableCell>
                       <span className={`text-3xl font-bold ${getDamageColor(claim.aiDamage)}`}>
@@ -188,16 +199,16 @@ const OfficerReview = () => {
                     </TableCell>
                     <TableCell>
                       <div className="flex items-center gap-2">
-                        <span className="text-sm font-bold text-slate-700 dark:text-slate-200">{claim.confidence}%</span>
+                        <span className="text-sm font-bold text-slate-200">{claim.confidence}%</span>
                         {claim.confidence >= 90 && (
-                          <div className="p-1 rounded-full bg-green-100 dark:bg-green-900">
-                            <CheckCircle className="w-4 h-4 text-green-600 dark:text-green-400" />
+                          <div className="p-1 rounded-full bg-emerald-500/20">
+                            <CheckCircle className="w-4 h-4 text-emerald-400" />
                           </div>
                         )}
                       </div>
                     </TableCell>
                     <TableCell>
-                      <Badge className={claim.status === "Approved" ? "bg-green-600 dark:bg-green-700 text-white font-bold px-3 py-1" : claim.status === "Rejected" ? "bg-red-600 dark:bg-red-700 text-white font-bold px-3 py-1" : "bg-amber-600 dark:bg-amber-700 text-white font-bold px-3 py-1"}>
+                      <Badge className={claim.status === "Approved" ? "bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-3 py-1" : claim.status === "Rejected" ? "bg-red-600 hover:bg-red-700 text-white font-bold px-3 py-1" : "bg-amber-600 hover:bg-amber-700 text-white font-bold px-3 py-1"}>
                         {claim.status}
                       </Badge>
                     </TableCell>
@@ -205,39 +216,39 @@ const OfficerReview = () => {
                       <div className="flex gap-2 justify-end">
                         <Dialog>
                           <DialogTrigger asChild>
-                            <Button variant="ghost" size="sm" className="hover:bg-blue-100 dark:hover:bg-blue-900 rounded-lg transition-colors duration-200">
-                              <Eye className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+                            <Button variant="ghost" size="sm" className="hover:bg-blue-500/20 rounded-lg transition-colors duration-200">
+                              <Eye className="w-4 h-4 text-blue-400" />
                             </Button>
                           </DialogTrigger>
-                          <DialogContent className="max-w-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 shadow-2xl">
+                          <DialogContent className="max-w-2xl bg-slate-900 border border-blue-500/30 shadow-2xl shadow-blue-500/20">
                             <DialogHeader>
-                              <DialogTitle className="text-xl font-bold text-slate-900 dark:text-slate-100">📄 Claim Details - {claim.id}</DialogTitle>
-                              <DialogDescription className="text-slate-600 dark:text-slate-300">Detailed view of the claim and AI analysis</DialogDescription>
+                              <DialogTitle className="text-xl font-bold text-blue-100">📄 Claim Details - {claim.id}</DialogTitle>
+                              <DialogDescription className="text-slate-300">Detailed view of the claim and AI analysis</DialogDescription>
                             </DialogHeader>
                             <div className="space-y-4">
                               <div className="grid grid-cols-2 gap-4">
-                                <div className="bg-slate-50 dark:bg-slate-800 p-4 rounded-lg">
-                                  <p className="text-xs text-slate-600 dark:text-slate-400 font-medium mb-1">Farmer</p>
-                                  <p className="font-bold text-slate-900 dark:text-slate-100">{claim.farmerName}</p>
+                                <div className="bg-blue-500/10 border border-blue-500/30 p-4 rounded-lg">
+                                  <p className="text-xs text-blue-300/70 font-medium mb-1">Farmer</p>
+                                  <p className="font-bold text-blue-100">{claim.farmerName}</p>
                                 </div>
-                                <div className="bg-slate-50 dark:bg-slate-800 p-4 rounded-lg">
-                                  <p className="text-xs text-slate-600 dark:text-slate-400 font-medium mb-1">Policy ID</p>
-                                  <p className="font-bold text-slate-900 dark:text-slate-100">{claim.policyId}</p>
+                                <div className="bg-blue-500/10 border border-blue-500/30 p-4 rounded-lg">
+                                  <p className="text-xs text-blue-300/70 font-medium mb-1">Policy ID</p>
+                                  <p className="font-bold text-blue-100">{claim.policyId}</p>
                                 </div>
-                                <div className="bg-slate-50 dark:bg-slate-800 p-4 rounded-lg">
-                                  <p className="text-xs text-slate-600 dark:text-slate-400 font-medium mb-1">Disaster Type</p>
-                                  <p className="font-bold text-slate-900 dark:text-slate-100">{claim.disasterType}</p>
+                                <div className="bg-blue-500/10 border border-blue-500/30 p-4 rounded-lg">
+                                  <p className="text-xs text-blue-300/70 font-medium mb-1">Disaster Type</p>
+                                  <p className="font-bold text-blue-100">{claim.disasterType}</p>
                                 </div>
-                                <div className="bg-slate-50 dark:bg-slate-800 p-4 rounded-lg">
-                                  <p className="text-xs text-slate-600 dark:text-slate-400 font-medium mb-1">Date</p>
-                                  <p className="font-bold text-slate-900 dark:text-slate-100">{claim.date}</p>
+                                <div className="bg-blue-500/10 border border-blue-500/30 p-4 rounded-lg">
+                                  <p className="text-xs text-blue-300/70 font-medium mb-1">Date</p>
+                                  <p className="font-bold text-blue-100">{claim.date}</p>
                                 </div>
-                                <div className="bg-slate-50 dark:bg-slate-800 p-4 rounded-lg">
-                                  <p className="text-xs text-slate-600 dark:text-slate-400 font-medium mb-1">Affected Area</p>
-                                  <p className="font-bold text-slate-900 dark:text-slate-100">{claim.affectedArea}</p>
+                                <div className="bg-blue-500/10 border border-blue-500/30 p-4 rounded-lg">
+                                  <p className="text-xs text-blue-300/70 font-medium mb-1">Affected Area</p>
+                                  <p className="font-bold text-blue-100">{claim.affectedArea}</p>
                                 </div>
-                                <div className="bg-gradient-to-br from-blue-50 to-cyan-50 dark:from-blue-950 dark:to-cyan-900 p-4 rounded-lg border border-blue-200 dark:border-blue-800">
-                                  <p className="text-xs text-blue-700 dark:text-blue-300 font-medium mb-1">AI Damage Assessment</p>
+                                <div className="bg-cyan-500/10 border border-cyan-500/30 p-4 rounded-lg">
+                                  <p className="text-xs text-cyan-300/70 font-medium mb-1">AI Damage Assessment</p>
                                   <p className={`text-3xl font-bold ${getDamageColor(claim.aiDamage)}`}>
                                     {claim.aiDamage}%
                                   </p>
@@ -252,7 +263,7 @@ const OfficerReview = () => {
                               variant="outline" 
                               size="sm"
                               onClick={() => handleApprove(claim.id)}
-                              className="text-green-600 dark:text-green-400 border-green-300 dark:border-green-700 bg-green-50 dark:bg-green-950 hover:bg-green-100 dark:hover:bg-green-900 rounded-lg font-semibold transition-all duration-200"
+                              className="text-emerald-400 border-emerald-500/50 bg-emerald-500/10 hover:bg-emerald-500/20 rounded-lg font-semibold transition-all duration-200"
                             >
                               <CheckCircle className="w-4 h-4 mr-1" />
                               Approve
@@ -261,7 +272,7 @@ const OfficerReview = () => {
                               variant="outline" 
                               size="sm"
                               onClick={() => handleReject(claim.id)}
-                              className="text-red-600 dark:text-red-400 border-red-300 dark:border-red-700 bg-red-50 dark:bg-red-950 hover:bg-red-100 dark:hover:bg-red-900 rounded-lg font-semibold transition-all duration-200"
+                              className="text-red-400 border-red-500/50 bg-red-500/10 hover:bg-red-500/20 rounded-lg font-semibold transition-all duration-200"
                             >
                               <XCircle className="w-4 h-4 mr-1" />
                               Reject

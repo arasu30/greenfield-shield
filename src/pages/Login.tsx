@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Leaf, Shield, Smartphone } from "lucide-react";
+import { Leaf, Shield, Smartphone, Lock, User } from "lucide-react";
 import { toast } from "sonner";
 
 const Login = () => {
@@ -13,6 +13,8 @@ const Login = () => {
   const [phone, setPhone] = useState("");
   const [otp, setOtp] = useState("");
   const [otpSent, setOtpSent] = useState(false);
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
 
   const handleSendOTP = () => {
     if (phone.length === 10) {
@@ -23,18 +25,30 @@ const Login = () => {
     }
   };
 
-  const handleLogin = (role: "farmer" | "officer" | "admin") => {
+  const handleFarmerLogin = () => {
     if (otp.length === 6) {
       toast.success("Login successful!");
-      if (role === "officer") {
-        navigate("/officer-review");
-      } else if (role === "admin") {
-        navigate("/admin");
-      } else {
-        navigate("/dashboard");
-      }
+      navigate("/dashboard");
     } else {
       toast.error("Please enter a valid 6-digit OTP");
+    }
+  };
+
+  const handleOfficerLogin = () => {
+    if (username.trim() && password.length >= 6) {
+      toast.success("Login successful!");
+      navigate("/officer-review");
+    } else {
+      toast.error("Please enter valid credentials");
+    }
+  };
+
+  const handleAdminLogin = () => {
+    if (username.trim() && password.length >= 6) {
+      toast.success("Login successful!");
+      navigate("/admin");
+    } else {
+      toast.error("Please enter valid credentials");
     }
   };
 
@@ -111,7 +125,7 @@ const Login = () => {
                         className="text-center text-2xl font-bold tracking-widest py-6 bg-slate-800/50 border border-green-500/30 text-slate-100 rounded-lg focus:outline-none focus:border-green-400 focus:ring-2 focus:ring-green-500/50 transition-all duration-300"
                       />
                     </div>
-                    <Button onClick={() => handleLogin("farmer")} className="w-full bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white font-semibold py-6 rounded-lg transition-all duration-300 shadow-lg hover:shadow-green-500/50">
+                    <Button onClick={handleFarmerLogin} className="w-full bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white font-semibold py-6 rounded-lg transition-all duration-300 shadow-lg hover:shadow-green-500/50">
                       Verify & Login
                     </Button>
                   </>
@@ -120,84 +134,74 @@ const Login = () => {
 
               <TabsContent value="officer" className="space-y-5 mt-6">
                 <div className="space-y-2">
-                  <Label htmlFor="phone-officer" className="font-semibold text-blue-200">Phone Number</Label>
+                  <Label htmlFor="username-officer" className="font-semibold text-blue-200">Username</Label>
                   <div className="relative">
-                    <Shield className="absolute left-3 top-3.5 h-5 w-5 text-blue-400" />
+                    <User className="absolute left-3 top-3.5 h-5 w-5 text-blue-400" />
                     <Input
-                      id="phone-officer"
-                      placeholder="Enter phone number"
-                      type="tel"
-                      maxLength={10}
-                      value={phone}
-                      onChange={(e) => setPhone(e.target.value)}
+                      id="username-officer"
+                      placeholder="Enter your username"
+                      type="text"
+                      value={username}
+                      onChange={(e) => setUsername(e.target.value)}
                       className="pl-10 py-6 bg-slate-800/50 border border-blue-500/30 text-slate-100 placeholder-slate-500 rounded-lg focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-500/50 transition-all duration-300"
                     />
                   </div>
                 </div>
-                {!otpSent ? (
-                  <Button onClick={handleSendOTP} className="w-full bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white font-semibold py-6 rounded-lg transition-all duration-300 shadow-lg hover:shadow-blue-500/50">
-                    Send OTP
-                  </Button>
-                ) : (
-                  <>
-                    <div className="space-y-2">
-                      <Label htmlFor="otp-officer" className="font-semibold text-blue-200">Enter OTP</Label>
-                      <Input
-                        id="otp-officer"
-                        placeholder="••••••"
-                        type="text"
-                        maxLength={6}
-                        value={otp}
-                        onChange={(e) => setOtp(e.target.value)}
-                        className="text-center text-2xl font-bold tracking-widest py-6 bg-slate-800/50 border border-blue-500/30 text-slate-100 rounded-lg focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-500/50 transition-all duration-300"
-                      />
-                    </div>
-                    <Button onClick={() => handleLogin("officer")} className="w-full bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white font-semibold py-6 rounded-lg transition-all duration-300 shadow-lg hover:shadow-blue-500/50">
-                      Verify & Login
-                    </Button>
-                  </>
-                )}
+
+                <div className="space-y-2">
+                  <Label htmlFor="password-officer" className="font-semibold text-blue-200">Password</Label>
+                  <div className="relative">
+                    <Lock className="absolute left-3 top-3.5 h-5 w-5 text-blue-400" />
+                    <Input
+                      id="password-officer"
+                      placeholder="Enter your password"
+                      type="password"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      className="pl-10 py-6 bg-slate-800/50 border border-blue-500/30 text-slate-100 placeholder-slate-500 rounded-lg focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-500/50 transition-all duration-300"
+                    />
+                  </div>
+                </div>
+
+                <Button onClick={handleOfficerLogin} className="w-full bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white font-semibold py-6 rounded-lg transition-all duration-300 shadow-lg hover:shadow-blue-500/50">
+                  Login
+                </Button>
               </TabsContent>
 
               <TabsContent value="admin" className="space-y-5 mt-6">
                 <div className="space-y-2">
-                  <Label htmlFor="phone-admin" className="font-semibold text-purple-200">Phone Number</Label>
+                  <Label htmlFor="username-admin" className="font-semibold text-purple-200">Username</Label>
                   <div className="relative">
-                    <Shield className="absolute left-3 top-3.5 h-5 w-5 text-purple-400" />
+                    <User className="absolute left-3 top-3.5 h-5 w-5 text-purple-400" />
                     <Input
-                      id="phone-admin"
-                      placeholder="Enter admin phone"
-                      type="tel"
-                      maxLength={10}
-                      value={phone}
-                      onChange={(e) => setPhone(e.target.value)}
+                      id="username-admin"
+                      placeholder="Enter your username"
+                      type="text"
+                      value={username}
+                      onChange={(e) => setUsername(e.target.value)}
                       className="pl-10 py-6 bg-slate-800/50 border border-purple-500/30 text-slate-100 placeholder-slate-500 rounded-lg focus:outline-none focus:border-purple-400 focus:ring-2 focus:ring-purple-500/50 transition-all duration-300"
                     />
                   </div>
                 </div>
-                {!otpSent ? (
-                  <Button onClick={handleSendOTP} className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-semibold py-6 rounded-lg transition-all duration-300 shadow-lg hover:shadow-purple-500/50">
-                    Send OTP
-                  </Button>
-                ) : (
-                  <>
-                    <div className="space-y-2">
-                      <Label htmlFor="otp-admin" className="font-semibold text-purple-200">Enter OTP</Label>
-                      <Input
-                        id="otp-admin"
-                        placeholder="••••••"
-                        type="text"
-                        maxLength={6}
-                        value={otp}
-                        onChange={(e) => setOtp(e.target.value)}
-                        className="text-center text-2xl font-bold tracking-widest py-6 bg-slate-800/50 border border-purple-500/30 text-slate-100 rounded-lg focus:outline-none focus:border-purple-400 focus:ring-2 focus:ring-purple-500/50 transition-all duration-300"
-                      />
-                    </div>
-                    <Button onClick={() => handleLogin("admin")} className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-semibold py-6 rounded-lg transition-all duration-300 shadow-lg hover:shadow-purple-500/50">
-                      Verify & Login
-                    </Button>
-                  </>
-                )}
+
+                <div className="space-y-2">
+                  <Label htmlFor="password-admin" className="font-semibold text-purple-200">Password</Label>
+                  <div className="relative">
+                    <Lock className="absolute left-3 top-3.5 h-5 w-5 text-purple-400" />
+                    <Input
+                      id="password-admin"
+                      placeholder="Enter your password"
+                      type="password"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      className="pl-10 py-6 bg-slate-800/50 border border-purple-500/30 text-slate-100 placeholder-slate-500 rounded-lg focus:outline-none focus:border-purple-400 focus:ring-2 focus:ring-purple-500/50 transition-all duration-300"
+                    />
+                  </div>
+                </div>
+
+                <Button onClick={handleAdminLogin} className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-semibold py-6 rounded-lg transition-all duration-300 shadow-lg hover:shadow-purple-500/50">
+                  Login
+                </Button>
               </TabsContent>
             </Tabs>
           </CardContent>

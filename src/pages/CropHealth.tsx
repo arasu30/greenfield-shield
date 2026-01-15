@@ -142,7 +142,7 @@ const CropHealth = () => {
                 </Card>
 
                 <div className="mt-6 flex gap-3 flex-wrap">
-                  <Button variant="outline" size="sm" className="border-cyan-500/30 text-cyan-300 hover:bg-cyan-500/20 py-2.5 px-4 rounded-lg font-medium transition-all duration-300">
+                  <Button className="bg-cyan-600 hover:bg-cyan-700 text-white border-0 py-2.5 px-4 rounded-lg font-medium transition-all duration-300 shadow-lg hover:shadow-cyan-500/50">
                     <Download className="w-4 h-4 mr-2" />
                     Download Full Report
                   </Button>
@@ -156,22 +156,6 @@ const CropHealth = () => {
             </Card>
           ))}
         </div>
-
-        <Card className="mt-8 backdrop-blur-md bg-cyan-500/10 border-t-4 border-t-cyan-400 border border-cyan-500/30 shadow-xl shadow-cyan-500/20">
-          <CardContent className="py-7">
-            <div className="flex items-start gap-5">
-              <div className="p-3 rounded-xl bg-cyan-500/20 flex-shrink-0 border border-cyan-500/30">
-                <Satellite className="w-8 h-8 text-cyan-400" />
-              </div>
-              <div className="flex-1">
-                <h3 className="font-bold text-lg mb-2 text-cyan-200">About NDVI (Normalized Difference Vegetation Index)</h3>
-                <p className="text-sm text-slate-300 leading-relaxed">
-                  NDVI measures vegetation health using satellite data. Values range from -1 to +1, where higher values indicate healthier vegetation. Our AI analyzes these changes to detect potential crop issues early, enabling you to take preventive action before significant damage occurs.
-                </p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
       </div>
     </div>
   );

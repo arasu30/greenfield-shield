@@ -24,32 +24,32 @@ const Login = () => {
       role: "Founder & CEO",
       bio: "Agricultural tech innovator with 15+ years in crop insurance",
       avatar: "👤",
-      linkedin: "https://linkedin.com/in/ilavarasu-thevar",
-      github: "https://github.com/ilavarasu"
+      linkedin: "https://www.linkedin.com/in/ilavarasu-thevar-8b239b307/",
+      github: "https://github.com/arasu30"
     },
     {
       name: "Sudharsan Nadar",
       role: "CTO & AI Lead",
       bio: "Machine learning expert specializing in satellite imagery analysis",
       avatar: "👤",
-      linkedin: "https://linkedin.com/in/priya-sharma-ai",
-      github: "https://github.com/priya-ai"
+      linkedin: "https://www.linkedin.com/in/sudharsan-nadar-645145313/",
+      github: "https://github.com/sudhar25"
     },
     {
       name: "Tanish Srinivasan",
       role: "Head of Operations",
       bio: "Operations strategist focused on farmer empowerment",
       avatar: "👤",
-      linkedin: "https://linkedin.com/in/amit-patel-ops",
-      github: "https://github.com/amit-patel"
+      linkedin: "https://www.linkedin.com/in/tanish-srinivasan/",
+      github: "https://github.com/TanishSrinivasan"
     },
     {
       name: "Steve Jason",
       role: "Product Manager",
       bio: "User experience designer with passion for agricultural solutions",
       avatar: "👤",
-      linkedin: "https://linkedin.com/in/sneha-singh",
-      github: "https://github.com/sneha-singh"
+      linkedin: "https://www.linkedin.com/in/steve-jason-aab14b25a/",
+      github: "https://github.com/56steve"
     },
   ];
 
@@ -106,7 +106,7 @@ const Login = () => {
               Meet Our Team
             </DialogTitle>
             <DialogDescription className="text-slate-300 mt-2">
-              The brilliant minds behind CropSure AI, dedicated to revolutionizing crop insurance
+              The brilliant minds behind CropSure, dedicated to revolutionizing crop insurance
             </DialogDescription>
           </DialogHeader>
           
@@ -147,7 +147,7 @@ const Login = () => {
 
           <div className="mt-6 p-4 bg-gradient-to-r from-cyan-500/10 to-emerald-500/10 border border-cyan-500/20 rounded-lg">
             <p className="text-slate-300 text-sm leading-relaxed">
-              <span className="text-cyan-300 font-semibold">CropSure AI</span> is on a mission to empower farmers with AI-driven crop insurance. Using cutting-edge satellite technology and machine learning, we protect agricultural livelihoods and ensure food security for generations to come.
+              <span className="text-cyan-300 font-semibold">CropSure</span> is on a mission to empower farmers with AI-driven crop insurance. Using cutting-edge satellite technology and machine learning, we protect agricultural livelihoods and ensure food security for generations to come.
             </p>
           </div>
         </DialogContent>
@@ -171,7 +171,7 @@ const Login = () => {
           <div className="inline-flex items-center justify-center w-24 h-24 rounded-2xl bg-gradient-to-br from-cyan-500 to-green-500 shadow-2xl shadow-cyan-500/50 mb-6 transform hover:scale-110 hover:shadow-cyan-400/60 transition-all duration-300">
             <Leaf className="w-14 h-14 text-white" />
           </div>
-          <h1 className="text-5xl font-bold bg-gradient-to-r from-cyan-400 to-green-400 bg-clip-text text-transparent mb-2">CropSure AI</h1>
+          <h1 className="text-5xl font-bold bg-gradient-to-r from-cyan-400 to-green-400 bg-clip-text text-transparent mb-2">CropSure</h1>
           <p className="text-lg text-cyan-200 font-semibold">Smart Crop Insurance</p>
           <p className="text-sm text-slate-400 mt-2">🛰️ Satellite-Powered • 🤖 AI-Driven • 🌾 Farmer-First</p>
         </div>

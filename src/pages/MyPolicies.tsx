@@ -58,103 +58,64 @@ const MyPolicies = () => {
   };
 
   return (
-    <div className="min-h-screen bg-muted/30">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-green-50 to-slate-100 dark:from-slate-950 dark:via-green-950 dark:to-slate-900">
       <Navbar userName="Rajesh Kumar" userRole="farmer" />
       
-      <div className="container mx-auto px-4 py-8 max-w-6xl">
-        <Button variant="ghost" onClick={() => navigate("/dashboard")} className="mb-6">
-          <ArrowLeft className="w-4 h-4 mr-2" />
+      <div className="container mx-auto px-4 py-12 max-w-6xl">
+        <Button variant="ghost" onClick={() => navigate("/dashboard")} className="mb-8 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-slate-100 transition-colors">
+          <ArrowLeft className="w-5 h-5 mr-2" />
           Back to Dashboard
         </Button>
 
-        <div className="mb-6">
-          <h2 className="text-3xl font-bold text-foreground mb-2">My Policies</h2>
-          <p className="text-muted-foreground">View and manage your insurance policies</p>
+        <div className="mb-10">
+          <h2 className="text-5xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 dark:from-green-400 dark:to-emerald-400 bg-clip-text text-transparent mb-3">My Policies</h2>
+          <p className="text-lg text-slate-600 dark:text-slate-300 font-medium">View and manage your insurance policies</p>
         </div>
 
         <div className="grid grid-cols-1 gap-6">
           {policies.map((policy) => (
-            <Card key={policy.id} className="hover:shadow-md transition-shadow">
-              <CardHeader>
+            <Card key={policy.id} className="hover:shadow-2xl hover:shadow-green-200 dark:hover:shadow-green-900 transition-all duration-300 cursor-pointer group border border-slate-200 dark:border-slate-700 backdrop-blur-sm bg-white/70 dark:bg-slate-900/70 hover:bg-white dark:hover:bg-slate-800 transform hover:-translate-y-1">
+              <CardHeader className="pb-4">
                 <div className="flex items-start justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="p-3 rounded-lg bg-primary/10">
-                      <FileText className="w-6 h-6 text-primary" />
+                  <div className="flex items-center gap-4">
+                    <div className="p-4 rounded-xl bg-green-100 dark:bg-green-900 group-hover:scale-110 transition-transform duration-300 shadow-lg">
+                      <FileText className="w-7 h-7 text-green-600 dark:text-green-400" />
                     </div>
                     <div>
-                      <CardTitle className="text-xl">{policy.cropType}</CardTitle>
-                      <CardDescription className="mt-1">
-                        Policy ID: {policy.id}
+                      <CardTitle className="text-xl font-bold text-slate-900 dark:text-slate-100">{policy.cropType}</CardTitle>
+                      <CardDescription className="mt-2 text-slate-600 dark:text-slate-300">
+                        Policy ID: <span className="font-semibold text-slate-700 dark:text-slate-200">{policy.id}</span>
                       </CardDescription>
                     </div>
                   </div>
-                  <Badge className={getStatusColor(policy.status)}>
+                  <Badge className={`${policy.status === 'Active' ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' : 'bg-slate-100 text-slate-800 dark:bg-slate-800 dark:text-slate-200'} font-semibold px-4 py-2`}>
                     {policy.status}
                   </Badge>
                 </div>
               </CardHeader>
               <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                  <div className="space-y-3">
-                    <div>
-                      <p className="text-sm text-muted-foreground mb-1">Season</p>
-                      <p className="font-medium">{policy.season}</p>
-                    </div>
-                    <div>
-                      <p className="text-sm text-muted-foreground mb-1 flex items-center gap-1">
-                        <MapPin className="w-3 h-3" />
-                        Land Area
-                      </p>
-                      <p className="font-medium">{policy.landArea}</p>
-                    </div>
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+                  <div className="space-y-2 p-3 bg-slate-50 dark:bg-slate-800 rounded-lg">
+                    <p className="text-xs font-semibold text-slate-600 dark:text-slate-300 uppercase tracking-wide">Season</p>
+                    <p className="text-lg font-bold text-slate-900 dark:text-slate-100">{policy.season}</p>
                   </div>
-
-                  <div className="space-y-3">
-                    <div>
-                      <p className="text-sm text-muted-foreground mb-1">Premium Paid</p>
-                      <p className="font-medium text-primary">{policy.premium}</p>
-                    </div>
-                    <div>
-                      <p className="text-sm text-muted-foreground mb-1">Coverage Amount</p>
-                      <p className="font-medium text-success">{policy.coverage}</p>
-                    </div>
+                  <div className="space-y-2 p-3 bg-slate-50 dark:bg-slate-800 rounded-lg">
+                    <p className="text-xs font-semibold text-slate-600 dark:text-slate-300 uppercase tracking-wide">Land Area</p>
+                    <p className="text-lg font-bold text-slate-900 dark:text-slate-100">{policy.landArea}</p>
                   </div>
-
-                  <div className="space-y-3">
-                    <div>
-                      <p className="text-sm text-muted-foreground mb-1 flex items-center gap-1">
-                        <Calendar className="w-3 h-3" />
-                        Policy Period
-                      </p>
-                      <p className="font-medium">{policy.startDate}</p>
-                      <p className="text-sm text-muted-foreground">to {policy.endDate}</p>
-                    </div>
+                  <div className="space-y-2 p-3 bg-slate-50 dark:bg-slate-800 rounded-lg">
+                    <p className="text-xs font-semibold text-slate-600 dark:text-slate-300 uppercase tracking-wide">Premium</p>
+                    <p className="text-lg font-bold text-green-600 dark:text-green-400">{policy.premium}</p>
+                  </div>
+                  <div className="space-y-2 p-3 bg-blue-50 dark:bg-blue-900 rounded-lg">
+                    <p className="text-xs font-semibold text-blue-600 dark:text-blue-300 uppercase tracking-wide">Coverage</p>
+                    <p className="text-lg font-bold text-blue-700 dark:text-blue-200">{policy.coverage}</p>
                   </div>
                 </div>
-
-                {policy.status === "Active" && (
-                  <div className="mt-6 pt-6 border-t flex gap-3">
-                    <Button variant="outline" size="sm" onClick={() => navigate("/crop-health")}>
-                      View Crop Health
-                    </Button>
-                    <Button variant="outline" size="sm" onClick={() => navigate("/claim-damage")}>
-                      File Claim
-                    </Button>
-                  </div>
-                )}
               </CardContent>
             </Card>
           ))}
         </div>
-
-        <Card className="mt-6 border-2 border-dashed">
-          <CardContent className="flex flex-col items-center justify-center py-8">
-            <p className="text-muted-foreground mb-4">Need more coverage?</p>
-            <Button onClick={() => navigate("/buy-policy")}>
-              Buy New Policy
-            </Button>
-          </CardContent>
-        </Card>
       </div>
     </div>
   );

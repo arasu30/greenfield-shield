@@ -31,32 +31,32 @@ const ClaimDamage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-muted/30">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-red-50 to-slate-100 dark:from-slate-950 dark:via-red-950 dark:to-slate-900">
       <Navbar userName="Rajesh Kumar" userRole="farmer" />
       
-      <div className="container mx-auto px-4 py-8 max-w-4xl">
-        <Button variant="ghost" onClick={() => navigate("/dashboard")} className="mb-6">
-          <ArrowLeft className="w-4 h-4 mr-2" />
+      <div className="container mx-auto px-4 py-12 max-w-4xl">
+        <Button variant="ghost" onClick={() => navigate("/dashboard")} className="mb-8 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-slate-100 transition-colors">
+          <ArrowLeft className="w-5 h-5 mr-2" />
           Back to Dashboard
         </Button>
 
-        <div className="mb-6">
-          <h2 className="text-3xl font-bold text-foreground mb-2">Claim Crop Damage</h2>
-          <p className="text-muted-foreground">Submit your damage claim for AI-powered assessment</p>
+        <div className="mb-10">
+          <h2 className="text-5xl font-bold bg-gradient-to-r from-red-600 to-orange-600 dark:from-red-400 dark:to-orange-400 bg-clip-text text-transparent mb-3">Claim Crop Damage</h2>
+          <p className="text-lg text-slate-600 dark:text-slate-300 font-medium">Submit your damage claim for AI-powered assessment</p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className="md:col-span-2 space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Damage Details</CardTitle>
-                <CardDescription>Provide information about the crop damage</CardDescription>
+            <Card className="bg-white/70 dark:bg-slate-900/70 border-slate-200 dark:border-slate-700 backdrop-blur-sm shadow-lg">
+              <CardHeader className="pb-4">
+                <CardTitle className="text-2xl font-bold text-slate-900 dark:text-slate-100">Damage Details</CardTitle>
+                <CardDescription className="text-slate-600 dark:text-slate-300">Provide information about the crop damage</CardDescription>
               </CardHeader>
-              <CardContent className="space-y-4">
+              <CardContent className="space-y-5">
                 <div className="space-y-2">
-                  <Label htmlFor="policy">Select Policy *</Label>
+                  <Label htmlFor="policy" className="font-semibold text-slate-700 dark:text-slate-200">Select Policy *</Label>
                   <Select>
-                    <SelectTrigger id="policy">
+                    <SelectTrigger id="policy" className="py-6 text-base border-slate-200 dark:border-slate-700 rounded-lg">
                       <SelectValue placeholder="Choose an active policy" />
                     </SelectTrigger>
                     <SelectContent className="bg-card">
@@ -67,34 +67,35 @@ const ClaimDamage = () => {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="disaster-type">Disaster Type *</Label>
+                  <Label htmlFor="disaster-type" className="font-semibold text-slate-700 dark:text-slate-200">Disaster Type *</Label>
                   <Select onValueChange={setDisasterType}>
-                    <SelectTrigger id="disaster-type">
+                    <SelectTrigger id="disaster-type" className="py-6 text-base border-slate-200 dark:border-slate-700 rounded-lg">
                       <SelectValue placeholder="Select disaster type" />
                     </SelectTrigger>
                     <SelectContent className="bg-card">
-                      <SelectItem value="Flood">Flood</SelectItem>
-                      <SelectItem value="Drought">Drought</SelectItem>
-                      <SelectItem value="Pest Attack">Pest Attack</SelectItem>
-                      <SelectItem value="Cyclone">Cyclone</SelectItem>
-                      <SelectItem value="Hailstorm">Hailstorm</SelectItem>
-                      <SelectItem value="Fire">Fire</SelectItem>
+                      <SelectItem value="Flood">💧 Flood</SelectItem>
+                      <SelectItem value="Drought">🏜️ Drought</SelectItem>
+                      <SelectItem value="Pest Attack">🐛 Pest Attack</SelectItem>
+                      <SelectItem value="Cyclone">🌪️ Cyclone</SelectItem>
+                      <SelectItem value="Hailstorm">❄️ Hailstorm</SelectItem>
+                      <SelectItem value="Fire">🔥 Fire</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="date">Date of Incident *</Label>
+                  <Label htmlFor="date" className="font-semibold text-slate-700 dark:text-slate-200">Date of Incident *</Label>
                   <Input
                     id="date"
                     type="date"
                     value={date}
                     onChange={(e) => setDate(e.target.value)}
+                    className="py-6 text-base border-slate-200 dark:border-slate-700 rounded-lg"
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="affected-area">Affected Area (Acres) *</Label>
+                  <Label htmlFor="affected-area" className="font-semibold text-slate-700 dark:text-slate-200">Affected Area (Acres) *</Label>
                   <Input
                     id="affected-area"
                     type="number"

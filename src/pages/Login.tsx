@@ -107,7 +107,7 @@ const Login = () => {
               Meet Our Team
             </DialogTitle>
             <DialogDescription className="text-slate-300 mt-2">
-              The brilliant minds behind CropSure, dedicated to revolutionizing crop insurance
+              The brilliant minds behind CropSure, dedicated to revolutionizing crop insurance.
             </DialogDescription>
           </DialogHeader>
           
@@ -168,7 +168,7 @@ const Login = () => {
           </div>
           <h1 className="text-5xl font-bold bg-gradient-to-r from-cyan-400 to-green-400 bg-clip-text text-transparent mb-2">CropSure</h1>
           <p className="text-lg text-cyan-200 font-semibold">Smart Crop Insurance</p>
-          <p className="text-sm text-slate-400 mt-2">🛰️ Satellite-Powered • 🤖 AI-Driven • 🌾 Farmer-First</p>
+          {/* <p className="text-sm text-slate-400 mt-2">🛰️ Satellite-Powered • 🤖 AI-Driven • 🌾 Farmer-First</p> */}
         </div>
 
         <Card className="backdrop-blur-2xl bg-slate-900/80 border border-cyan-500/30 shadow-2xl shadow-cyan-500/20 hover:border-cyan-400/50 hover:shadow-cyan-400/30 transition-all duration-300">

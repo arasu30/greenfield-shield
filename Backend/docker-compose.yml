@@ -1,0 +1,52 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgis/postgis:16-3.4
+    container_name: greenfield_shield_db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: greenfield_shield
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - greenfield_network
+
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: greenfield_shield_pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@greenfield.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+    ports:
+      - "5050:80"
+    depends_on:
+      - postgres
+    networks:
+      - greenfield_network
+
+  backend:
+    build: .
+    container_name: greenfield_shield_api
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+    ports:
+      - "8000:8000"
+    environment:
+      DATABASE_URL: postgresql://postgres:password@postgres:5432/greenfield_shield
+      SECRET_KEY: your_super_secret_key_change_this_in_production
+    depends_on:
+      - postgres
+    volumes:
+      - .:/app
+    networks:
+      - greenfield_network
+
+volumes:
+  postgres_data:
+
+networks:
+  greenfield_network:
+    driver: bridge

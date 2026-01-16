@@ -148,7 +148,7 @@ const Login = () => {
 
           <div className="mt-6 p-4 bg-gradient-to-r from-cyan-500/10 to-emerald-500/10 border border-cyan-500/20 rounded-lg">
             <p className="text-slate-300 text-sm leading-relaxed">
-              <span className="text-cyan-300 font-semibold">CropSure</span> is on a mission to empower farmers with AI-driven crop insurance. Using cutting-edge satellite technology and machine learning, we protect agricultural livelihoods and ensure food security for generations to come.
+              <span className="text-cyan-300 font-semibold">CropSure</span> is on a mission to empower farmers with AI-driven crop insurance. Using cutting-edge satellite technology and machine learning, we protect agricultural livelihoods and ensure insurance support for farmers.
             </p>
           </div>
         </DialogContent>

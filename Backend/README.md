@@ -10,35 +10,6 @@ FastAPI-based backend for crop insurance management system with PostgreSQL and P
 - **Database**: PostgreSQL with PostGIS extension
 - **API Documentation**: Auto-generated Swagger UI
 
-## Project Structure
-
-```
-Backend/
-├── app/
-│   ├── api/
-│   │   ├── routes/
-│   │   │   └── auth.py          # Authentication endpoints
-│   │   └── schemas/
-│   │       └── auth.py          # Request/response models
-│   ├── models/
-│   │   └── user.py              # User database model
-│   ├── crud/
-│   │   └── user.py              # Database operations
-│   ├── services/
-│   │   └── auth_service.py      # Business logic
-│   ├── utils/
-│   │   ├── security.py          # JWT & hashing
-│   │   └── errors.py            # Custom exceptions
-│   ├── database/
-│   │   ├── session.py           # Database connection
-│   │   └── base.py              # SQLAlchemy base
-│   ├── config.py                # Configuration
-│   └── main.py                  # FastAPI app
-├── requirements.txt             # Python dependencies
-├── .env                         # Environment variables
-└── docker-compose.yml          # Docker setup
-```
-
 ## Setup
 
 ### 1. Install Dependencies

@@ -3,18 +3,40 @@ from datetime import datetime, timedelta, timezone
 from typing import Optional
 from jose import JWTError, jwt
 from app.config import settings
+from argon2 import PasswordHasher
+from argon2.exceptions import VerifyMismatchError,InvalidHashError
+import bcrypt
 
 # Password hashing
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
+ph = PasswordHasher()
+
 def hash_password(password: str) -> str:
     """Hash a password"""
-    return pwd_context.hash(password)
+    return ph.hash(password)
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
     """Verify a password against its hash"""
-    return pwd_context.verify(plain_password, hashed_password)
+    if hashed_password.startswith("$2"):
+        try:
+            # Verify using bcrypt
+            is_valid = bcrypt.checkpw(
+                plain_password.encode('utf-8'), 
+                hashed_password.encode('utf-8')
+            )
+            if is_valid:
+                print("Legacy bcrypt login detected. Consider rehashing!")
+            return is_valid
+        except Exception:
+            return False
 
+    # 2. Otherwise, treat it as a modern Argon2 hash
+    try:
+        return ph.verify(hashed_password, plain_password)
+    except (InvalidHashError, VerifyMismatchError):
+        return False
+    
 def create_access_token(data: dict, expires_delta: Optional[timedelta] = None) -> str:
     """Create JWT access token"""
     to_encode = data.copy()

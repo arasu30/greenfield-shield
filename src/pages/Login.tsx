@@ -72,21 +72,63 @@ const Login = () => {
     }
   };
 
-  const handleOfficerLogin = () => {
-    if (username.trim() && password.length >= 6) {
-      toast.success("Login successful!");
-      navigate("/officer-review");
-    } else {
+  const handleOfficerLogin = async () => {
+    if (!username.trim() || password.length < 6) {
       toast.error("Please enter valid credentials");
+      return;
+    }
+
+    const email = username.includes("@") ? username : `${username}@cropsure.local`;
+
+    try {
+      const res = await fetch(`${import.meta.env.VITE_BACKEND_URL || 'http://localhost:8000'}/auth/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password, role: 'officer' }),
+      });
+
+      if (!res.ok) {
+        const errText = await res.text();
+        toast.error(`Login failed: ${errText}`);
+        return;
+      }
+
+      const data = await res.json();
+      toast.success('Login successful');
+      localStorage.setItem('access_token', data.tokens.access_token);
+      navigate('/officer-review');
+    } catch (err) {
+      toast.error('Network error during login');
     }
   };
 
-  const handleAdminLogin = () => {
-    if (username.trim() && password.length >= 6) {
-      toast.success("Login successful!");
-      navigate("/admin");
-    } else {
+  const handleAdminLogin = async () => {
+    if (!username.trim() || password.length < 6) {
       toast.error("Please enter valid credentials");
+      return;
+    }
+
+    const email = username.includes("@") ? username : `${username}@cropsure.local`;
+
+    try {
+      const res = await fetch(`${import.meta.env.VITE_BACKEND_URL || 'http://localhost:8000'}/auth/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password, role: 'admin' }),
+      });
+
+      if (!res.ok) {
+        const errText = await res.text();
+        toast.error(`Login failed: ${errText}`);
+        return;
+      }
+
+      const data = await res.json();
+      toast.success('Login successful');
+      localStorage.setItem('access_token', data.tokens.access_token);
+      navigate('/admin');
+    } catch (err) {
+      toast.error('Network error during login');
     }
   };
 
@@ -148,7 +190,7 @@ const Login = () => {
 
           <div className="mt-6 p-4 bg-gradient-to-r from-cyan-500/10 to-emerald-500/10 border border-cyan-500/20 rounded-lg">
             <p className="text-slate-300 text-sm leading-relaxed">
-              <span className="text-cyan-300 font-semibold">CropSure</span> is on a mission to empower farmers with AI-driven crop insurance. Using cutting-edge satellite technology and machine learning, we protect agricultural livelihoods and ensure insurance support for farmers.
+              <span className="text-cyan-300 font-semibold">CropSure</span> is on a mission to empower farmers with AI-driven crop insurance. Using cutting-edge satellite technology and machine learning, we protect agricultural livelihoods and ensure insurance support to farmers.
             </p>
           </div>
         </DialogContent>
@@ -228,12 +270,12 @@ const Login = () => {
 
               <TabsContent value="officer" className="space-y-5 mt-6">
                 <div className="space-y-2">
-                  <Label htmlFor="username-officer" className="font-semibold text-blue-200">Username</Label>
+                  <Label htmlFor="username-officer" className="font-semibold text-blue-200">Email</Label>
                   <div className="relative">
                     <User className="absolute left-3 top-3.5 h-5 w-5 text-blue-400" />
                     <Input
                       id="username-officer"
-                      placeholder="Enter your username"
+                      placeholder="Enter your Email"
                       type="text"
                       value={username}
                       onChange={(e) => setUsername(e.target.value)}
@@ -264,12 +306,12 @@ const Login = () => {
 
               <TabsContent value="admin" className="space-y-5 mt-6">
                 <div className="space-y-2">
-                  <Label htmlFor="username-admin" className="font-semibold text-purple-200">Username</Label>
+                  <Label htmlFor="username-admin" className="font-semibold text-purple-200">Email</Label>
                   <div className="relative">
                     <User className="absolute left-3 top-3.5 h-5 w-5 text-purple-400" />
                     <Input
                       id="username-admin"
-                      placeholder="Enter your username"
+                      placeholder="Enter your Email"
                       type="text"
                       value={username}
                       onChange={(e) => setUsername(e.target.value)}

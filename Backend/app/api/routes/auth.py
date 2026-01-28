@@ -59,7 +59,8 @@ def login(
     
     Returns user data and JWT tokens (access_token + refresh_token)
     """
-    result = AuthService.login(db, credentials.email, credentials.password)
+    # pass optional role so officers/admins can be created on first login
+    result = AuthService.login(db, credentials.email, credentials.password, credentials.role)
     
     return LoginResponse(
         user=result["user"],

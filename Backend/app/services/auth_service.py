@@ -18,11 +18,27 @@ from app.config import settings
 
 class AuthService:
     @staticmethod
-    def login(db: Session, email: str, password: str) -> dict:
-        """Authenticate user and return tokens"""
+    def login(db: Session, email: str, password: str, role: UserRole = UserRole.FARMER) -> dict:
+        """Authenticate user and return tokens. If an officer/admin logs in for the first time
+        and the user record does not exist, create the user in the database so credentials
+        are stored in PostgreSQL.
+        """
         # Get user by email
         user = UserCRUD.get_user_by_email(db, email)
-        
+
+        # If user doesn't exist and role is officer/admin, create the user automatically
+        if not user and role in (UserRole.OFFICER, UserRole.ADMIN):
+            # derive a display name from email if full_name is not provided
+            derived_name = email.split("@")[0].replace('.', ' ').title()
+            user = UserCRUD.create_user(
+                db=db,
+                email=email,
+                full_name=derived_name,
+                password=password,
+                role=role,
+            )
+
+        # Validate credentials
         if not user or not verify_password(password, user.password_hash):
             raise InvalidCredentialsException()
         

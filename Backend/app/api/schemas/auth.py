@@ -7,6 +7,7 @@ class LoginRequest(BaseModel):
     """Login request schema"""
     email: EmailStr
     password: str
+    role: UserRole = UserRole.FARMER
 
 class TokenResponse(BaseModel):
     """Token response schema"""

@@ -1,73 +1,59 @@
-# Welcome to your Lovable project
+## CropSure – Crop Damage Estimation & Insurance Support System
 
-## Project info
+CropSure is a smart crop insurance management platform designed to help farmers report crop damage, estimate losses, and receive timely insurance support. The system uses geospatial data, automated assessments, and secure workflows to connect farmers, field officers, and administrators in a transparent and efficient manner.
 
-**URL**: https://lovable.dev/projects/f4f8be55-5c1d-4797-861f-f5662fb097d1
+## Features
 
-## How can I edit this code?
+- **User Authentication**: JWT-based login for Farmers, Officers, and Admins
+- **Role-Based Access Control**: Different endpoints for different user roles
+- **Geospatial Support**: PostGIS integration for location-based queries
+- **Database**: PostgreSQL with PostGIS extension
+- **API Documentation**: Auto-generated Swagger UI
 
-There are several ways of editing your application.
+## ⚙️ Setup
 
-**Use Lovable**
+1️⃣ Install Dependencies
+pip install -r requirements.txt
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/f4f8be55-5c1d-4797-861f-f5662fb097d1) and start prompting.
+2️⃣ Configure Environment
+cp .env.example .env
+Edit .env:
+DATABASE_URL=postgresql://postgres:password@localhost:5432/cropsure
+SECRET_KEY=your_secret_key
 
-Changes made via Lovable will be committed automatically to this repo.
+▶️ Run Backend Server (First)
+Start the FastAPI backend:
+uvicorn app.main:app --reload
 
-**Use your preferred IDE**
+Backend will run at:
+http://localhost:8000
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+API Docs:
+http://localhost:8000/docs
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
-
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
+▶️ Run Frontend (After Backend)
+After the backend is running, start the frontend project:
+cd frontend
+npm install
 npm run dev
-```
 
-**Edit a file directly in GitHub**
+Frontend will run at:
+http://localhost:3000
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
 
-**Use GitHub Codespaces**
+**Make sure backend is running before starting frontend.**
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+👥 User Roles
+**Role --> Access**
+Farmer --> Submit damage reports, claim insurance
+Officer --> Verify damage, approve claims
+Admin --> Manage system and users
 
-## What technologies are used for this project?
+## 🔒 Security Notes
 
-This project is built with:
+Use strong SECRET_KEY
+Keep .env private
+Enable HTTPS in production
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
-
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/f4f8be55-5c1d-4797-861f-f5662fb097d1) and click on Share -> Publish.
-
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+## 📜 License
+MIT

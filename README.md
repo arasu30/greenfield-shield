@@ -13,47 +13,47 @@ CropSure is a smart crop insurance management platform designed to help farmers 
 ## ⚙️ Setup
 
 1️⃣ Install Dependencies
--pip install -r requirements.txt
+- pip install -r requirements.txt
 
 2️⃣ Configure Environment
--cp .env.example .env
--Edit .env:
--DATABASE_URL=postgresql://postgres:password@localhost:5432/cropsure
--SECRET_KEY=your_secret_key
+- cp .env.example .env
+- Edit .env:
+- DATABASE_URL=postgresql://postgres:password@localhost:5432/cropsure
+- SECRET_KEY=your_secret_key
 
 ▶️ Run Backend Server (First)
--Start the FastAPI backend:
--uvicorn app.main:app --reload
+- Start the FastAPI backend:
+- uvicorn app.main:app --reload
 
 Backend will run at:
--http://localhost:8000
+- http://localhost:8000
 
 API Docs:
--http://localhost:8000/docs
+- http://localhost:8000/docs
 
 ▶️ Run Frontend (After Backend)
--After the backend is running, start the frontend project:
-  -cd frontend
-  -npm install
-  -npm run dev
+- After the backend is running, start the frontend project:
+  - cd frontend
+  - npm install
+  - npm run dev
 
 Frontend will run at:
--http://localhost:3000
+- http://localhost:3000
 
 
 **Make sure backend is running before starting frontend.**
 
 👥 User Roles
 **Role --> Access**
--Farmer --> Submit damage reports, claim insurance
--Officer --> Verify damage, approve claims
--Admin --> Manage system and users
+- Farmer --> Submit damage reports, claim insurance
+- Officer --> Verify damage, approve claims
+- Admin --> Manage system and users
 
 ## 🔒 Security Notes
 
--Use strong SECRET_KEY
--Keep .env private
--Enable HTTPS in production
+- Use strong SECRET_KEY
+- Keep .env private
+- Enable HTTPS in production
 
 ## 📜 License
 MIT

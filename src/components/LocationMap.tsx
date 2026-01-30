@@ -1,7 +1,14 @@
+<<<<<<< HEAD
 import { MapContainer, TileLayer, Marker, Popup, Polygon, Polyline, useMap } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 import { useEffect } from 'react';
+=======
+import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
+import 'leaflet/dist/leaflet.css';
+import { useEffect } from 'react';
+import L from 'leaflet';
+>>>>>>> 3a03a8bd81c806e4f287fe703a336e46abc71e5a
 
 // Fix for default marker icon missing in Leaflet + bundlers
 import markerIcon2x from 'leaflet/dist/images/marker-icon-2x.png';
@@ -16,6 +23,7 @@ L.Icon.Default.mergeOptions({
 });
 
 interface LocationMapProps {
+<<<<<<< HEAD
     currentPosition: { lat: number; lng: number } | null;
     boundary?: Array<{ lat: number; lng: number }>;
     isRecording?: boolean;
@@ -42,6 +50,18 @@ export const LocationMap = ({ currentPosition, boundary = [], isRecording }: Loc
             <MapContainer
                 center={[center.lat, center.lng]}
                 zoom={18}
+=======
+    lat: number;
+    lng: number;
+}
+
+export const LocationMap = ({ lat, lng }: LocationMapProps) => {
+    return (
+        <div className="h-[200px] w-full rounded-lg overflow-hidden border border-cyan-500/30 shadow-lg relative z-0">
+            <MapContainer
+                center={[lat, lng]}
+                zoom={13}
+>>>>>>> 3a03a8bd81c806e4f287fe703a336e46abc71e5a
                 scrollWheelZoom={false}
                 style={{ height: '100%', width: '100%' }}
             >
@@ -49,6 +69,7 @@ export const LocationMap = ({ currentPosition, boundary = [], isRecording }: Loc
                     attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
                     url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                 />
+<<<<<<< HEAD
 
                 {/* Helper to keep map centered on user while recording */}
                 {isRecording && <RecenterMap position={currentPosition} />}
@@ -73,6 +94,13 @@ export const LocationMap = ({ currentPosition, boundary = [], isRecording }: Loc
                     <Polyline positions={polygonPositions} pathOptions={{ color: 'orange', dashArray: '5, 5' }} />
                 )}
 
+=======
+                <Marker position={[lat, lng]}>
+                    <Popup>
+                        Your detected location.
+                    </Popup>
+                </Marker>
+>>>>>>> 3a03a8bd81c806e4f287fe703a336e46abc71e5a
             </MapContainer>
         </div>
     );

@@ -1,11 +1,10 @@
 import { useNavigate } from "react-router-dom";
-import Navbar from "@/components/Navbar";
-import { AnimatedParticles } from "@/components/AnimatedParticles";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ArrowLeft, Satellite, TrendingDown, Calendar, Download } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
+import DashboardLayout from "@/components/DashboardLayout";
 
 const CropHealth = () => {
   const navigate = useNavigate();
@@ -42,21 +41,12 @@ const CropHealth = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-cyan-900 to-slate-950 relative overflow-hidden">
-      {/* Animated background particles */}
-      <AnimatedParticles />
-
-      {/* Gradient blobs */}
-      <div className="absolute top-0 left-0 w-96 h-96 bg-cyan-500 rounded-full mix-blend-multiply filter blur-3xl opacity-5 animate-pulse"></div>
-      <div className="absolute bottom-0 right-0 w-96 h-96 bg-blue-500 rounded-full mix-blend-multiply filter blur-3xl opacity-5 animate-pulse" style={{animationDelay: '2s'}}></div>
-
-      <Navbar userName="Rajesh Kumar" userRole="farmer" />
-      
-      <div className="container mx-auto px-4 py-12 max-w-6xl relative z-10">
-        <Button variant="ghost" onClick={() => navigate("/dashboard")} className="mb-8 text-slate-300 hover:text-cyan-400 transition-all duration-300">
+    <DashboardLayout>
+      <div className="container mx-auto max-w-6xl">
+        {/* <Button variant="ghost" onClick={() => navigate("/dashboard")} className="mb-8 text-slate-300 hover:text-cyan-400 transition-all duration-300">
           <ArrowLeft className="w-5 h-5 mr-2" />
           Back to Dashboard
-        </Button>
+        </Button> */}
 
         <div className="mb-10">
           <h2 className="text-5xl font-bold bg-gradient-to-r from-cyan-400 via-blue-400 to-cyan-400 bg-clip-text text-transparent mb-3">Satellite Crop Health Reports</h2>
@@ -154,7 +144,7 @@ const CropHealth = () => {
           ))}
         </div>
       </div>
-    </div>
+    </DashboardLayout>
   );
 };
 

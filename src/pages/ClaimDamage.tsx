@@ -1,7 +1,5 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import Navbar from "@/components/Navbar";
-import { AnimatedParticles } from "@/components/AnimatedParticles";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -10,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { ArrowLeft, Upload, AlertCircle } from "lucide-react";
 import { toast } from "sonner";
+import DashboardLayout from "@/components/DashboardLayout";
 
 const ClaimDamage = () => {
   const navigate = useNavigate();
@@ -32,21 +31,12 @@ const ClaimDamage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-red-900 to-slate-950 relative overflow-hidden">
-      {/* Animated background particles */}
-      <AnimatedParticles />
-
-      {/* Gradient blobs */}
-      <div className="absolute top-0 right-0 w-96 h-96 bg-red-500 rounded-full mix-blend-multiply filter blur-3xl opacity-5 animate-pulse"></div>
-      <div className="absolute bottom-0 left-0 w-96 h-96 bg-orange-500 rounded-full mix-blend-multiply filter blur-3xl opacity-5 animate-pulse" style={{animationDelay: '2s'}}></div>
-
-      <Navbar userName="Rajesh Kumar" userRole="farmer" />
-      
-      <div className="container mx-auto px-4 py-12 max-w-4xl relative z-10">
-        <Button variant="ghost" onClick={() => navigate("/dashboard")} className="mb-8 text-slate-300 hover:text-red-400 transition-all duration-300">
+    <DashboardLayout>
+      <div className="container mx-auto max-w-4xl">
+        {/* <Button variant="ghost" onClick={() => navigate("/dashboard")} className="mb-8 text-slate-300 hover:text-red-400 transition-all duration-300">
           <ArrowLeft className="w-5 h-5 mr-2" />
           Back to Dashboard
-        </Button>
+        </Button> */}
 
         <div className="mb-10">
           <h2 className="text-5xl font-bold bg-gradient-to-r from-red-400 via-orange-400 to-red-400 bg-clip-text text-transparent mb-3">Claim Crop Damage</h2>
@@ -207,7 +197,7 @@ const ClaimDamage = () => {
           </div>
         </div>
       </div>
-    </div>
+    </DashboardLayout>
   );
 };
 

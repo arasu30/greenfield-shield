@@ -33,7 +33,6 @@ API Docs:
 
 ▶️ Run Frontend (After Backend)
 - After the backend is running, start the frontend project:
-  - cd frontend
   - npm install
   - npm run dev
 

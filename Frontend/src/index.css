@@ -1,0 +1,122 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
+All colors MUST be HSL.
+*/
+
+@layer base {
+  :root {
+    /* Agritech theme - Fresh greens with earthy tones */
+    --background: 0 0% 100%;
+    --foreground: 142 30% 15%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 142 30% 15%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 142 30% 15%;
+
+    /* Primary: Agricultural green */
+    --primary: 142 76% 36%;
+    --primary-foreground: 0 0% 100%;
+    --primary-hover: 142 76% 30%;
+
+    /* Secondary: Earth tones */
+    --secondary: 25 70% 50%;
+    --secondary-foreground: 0 0% 100%;
+
+    /* Muted: Soft green backgrounds */
+    --muted: 120 20% 97%;
+    --muted-foreground: 142 20% 40%;
+
+    /* Accent: Sky blue for tech elements */
+    --accent: 200 95% 45%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 142 20% 88%;
+    --input: 142 20% 92%;
+    --ring: 142 76% 36%;
+
+    --radius: 0.75rem;
+
+    /* Success states */
+    --success: 142 76% 36%;
+    --success-foreground: 0 0% 100%;
+
+    /* Warning states */
+    --warning: 45 93% 47%;
+    --warning-foreground: 0 0% 100%;
+
+    /* Info states */
+    --info: 200 95% 45%;
+    --info-foreground: 0 0% 100%;
+
+    /* Chart colors */
+    --chart-1: 142 76% 36%;
+    --chart-2: 200 95% 45%;
+    --chart-3: 45 93% 47%;
+    --chart-4: 25 70% 50%;
+    --chart-5: 280 60% 50%;
+  }
+
+  .dark {
+    --background: 142 30% 8%;
+    --foreground: 0 0% 98%;
+
+    --card: 142 25% 12%;
+    --card-foreground: 0 0% 98%;
+
+    --popover: 142 25% 12%;
+    --popover-foreground: 0 0% 98%;
+
+    --primary: 142 76% 36%;
+    --primary-foreground: 0 0% 100%;
+    --primary-hover: 142 76% 42%;
+
+    --secondary: 25 60% 40%;
+    --secondary-foreground: 0 0% 100%;
+
+    --muted: 142 20% 15%;
+    --muted-foreground: 142 10% 65%;
+
+    --accent: 200 95% 35%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 62% 45%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 142 20% 20%;
+    --input: 142 20% 18%;
+    --ring: 142 76% 36%;
+
+    --success: 142 76% 36%;
+    --success-foreground: 0 0% 100%;
+
+    --warning: 45 93% 47%;
+    --warning-foreground: 0 0% 100%;
+
+    --info: 200 95% 45%;
+    --info-foreground: 0 0% 100%;
+
+    --chart-1: 142 76% 45%;
+    --chart-2: 200 95% 50%;
+    --chart-3: 45 93% 55%;
+    --chart-4: 25 70% 55%;
+    --chart-5: 280 60% 55%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+  }
+}

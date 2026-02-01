@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <!-- Background circle -->
+  <circle cx="50" cy="50" r="48" fill="#10b981" opacity="0.1" stroke="#10b981" stroke-width="2"/>
+  
+  <!-- Crop/Plant leaves -->
+  <g transform="translate(50, 50)">
+    <!-- Left leaf -->
+    <path d="M -15 0 Q -20 -10 -18 -20 Q -10 -15 -8 -8" fill="none" stroke="#10b981" stroke-width="2.5" stroke-linecap="round"/>
+    
+    <!-- Center leaf (taller) -->
+    <path d="M 0 -10 Q 0 -25 0 -30" fill="none" stroke="#059669" stroke-width="3" stroke-linecap="round"/>
+    <ellipse cx="0" cy="-32" rx="3" ry="5" fill="#059669"/>
+    
+    <!-- Right leaf -->
+    <path d="M 15 0 Q 20 -10 18 -20 Q 10 -15 8 -8" fill="none" stroke="#10b981" stroke-width="2.5" stroke-linecap="round"/>
+    
+    <!-- Bottom leaf -->
+    <path d="M 0 8 Q 0 20 0 25" fill="none" stroke="#10b981" stroke-width="2.5" stroke-linecap="round"/>
+    <ellipse cx="0" cy="27" rx="3" ry="5" fill="#10b981"/>
+    
+    <!-- Root/base -->
+    <circle cx="0" cy="2" r="3" fill="#92400e"/>
+    <line x1="0" y1="5" x2="-5" y2="15" stroke="#92400e" stroke-width="1.5" stroke-linecap="round"/>
+    <line x1="0" y1="5" x2="5" y2="15" stroke="#92400e" stroke-width="1.5" stroke-linecap="round"/>
+  </g>
+  
+  <!-- Shield outline -->
+  <path d="M 50 15 L 75 28 L 75 50 Q 75 70 50 82 Q 25 70 25 50 L 25 28 Z" fill="none" stroke="#10b981" stroke-width="1.5"/>
+</svg>

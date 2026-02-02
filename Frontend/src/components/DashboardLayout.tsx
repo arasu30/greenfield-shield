@@ -12,7 +12,8 @@ import {
     Sprout,
     LogOut,
     User,
-    ChevronDown
+    ChevronDown,
+    DollarSign
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -30,20 +31,36 @@ import {
 
 interface DashboardLayoutProps {
     children: React.ReactNode;
+    role?: 'farmer' | 'admin' | 'officer';
 }
 
-const DashboardLayout = ({ children }: DashboardLayoutProps) => {
+const DashboardLayout = ({ children, role = 'farmer' }: DashboardLayoutProps) => {
     const navigate = useNavigate();
     const location = useLocation();
     const [sidebarOpen, setSidebarOpen] = useState(true);
 
-    const navItems = [
+    const farmerNavItems = [
         { label: "Dashboard", icon: LayoutDashboard, path: "/dashboard" },
         { label: "Buy Policy", icon: ShieldCheck, path: "/buy-policy" },
         { label: "My Policies", icon: FileText, path: "/my-policies" },
         { label: "Claim Damage", icon: AlertTriangle, path: "/claim-damage" },
         { label: "Crop Health", icon: Satellite, path: "/crop-health" },
     ];
+
+    const adminNavItems = [
+        { label: "Overview", icon: LayoutDashboard, path: "/admin" },
+        { label: "User Management", icon: User, path: "/admin?tab=users" },
+        { label: "Insurance Rates", icon: DollarSign, path: "/admin?tab=rates" },
+        { label: "Compensations", icon: FileText, path: "/admin?tab=compensation" },
+        { label: "System Logs", icon: AlertTriangle, path: "/admin/logs" },
+    ];
+
+    const officerNavItems = [
+        { label: "Review Claims", icon: Search, path: "/officer-review" },
+        { label: "Field Reports", icon: FileText, path: "/officer/reports" },
+    ];
+
+    const navItems = role === 'admin' ? adminNavItems : role === 'officer' ? officerNavItems : farmerNavItems;
 
     const handleLogout = () => {
         localStorage.removeItem("token"); // Assuming clean up
@@ -77,7 +94,12 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
 
                 <nav className="flex-1 px-4 space-y-2 mt-4">
                     {navItems.map((item, idx) => {
-                        const isActive = location.pathname === item.path;
+                        // For admin items with query params, check exact match including search.
+                        // For others, check user pathname match.
+                        const isActive = role === 'admin'
+                            ? (location.pathname + location.search) === item.path || (item.path === '/admin' && location.pathname === '/admin' && location.search === '')
+                            : location.pathname === item.path;
+
                         return (
                             <button
                                 key={idx}
@@ -136,13 +158,17 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
                                 <div className="flex items-center gap-3 cursor-pointer group p-1 pr-3 rounded-full hover:bg-slate-800/50 transition-all duration-300 border border-transparent hover:border-slate-800">
                                     <Avatar className="w-9 h-9 border border-green-500/50 shadow-lg shadow-green-500/20 group-hover:shadow-green-500/40 transition-all duration-300">
                                         <AvatarImage src="/placeholder-user.jpg" />
-                                        <AvatarFallback className="bg-gradient-to-br from-green-600 to-emerald-700 text-white font-bold text-xs">RK</AvatarFallback>
+                                        <AvatarFallback className="bg-gradient-to-br from-green-600 to-emerald-700 text-white font-bold text-xs">{role === 'admin' ? 'AD' : 'RK'}</AvatarFallback>
                                     </Avatar>
                                     <div className="block text-left">
-                                        <p className="text-sm font-semibold text-slate-100 group-hover:text-white transition-colors leading-none mb-1">Rajesh Kumar</p>
+                                        <p className="text-sm font-semibold text-slate-100 group-hover:text-white transition-colors leading-none mb-1">
+                                            {role === 'admin' ? 'System Admin' : role === 'officer' ? 'Field Officer' : 'Rajesh Kumar'}
+                                        </p>
                                         <div className="flex items-center gap-1.5">
-                                            <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></div>
-                                            <p className="text-xs font-medium text-green-400 leading-none">Farmer</p>
+                                            <div className={cn("w-1.5 h-1.5 rounded-full animate-pulse", role === 'admin' ? "bg-purple-500" : "bg-green-500")}></div>
+                                            <p className={cn("text-xs font-medium leading-none", role === 'admin' ? "text-purple-400" : "text-green-400")}>
+                                                {role === 'admin' ? 'Administrator' : role === 'officer' ? 'Officer' : 'Farmer'}
+                                            </p>
                                         </div>
                                     </div>
                                     <ChevronDown className="w-4 h-4 text-slate-500 group-hover:text-slate-300 transition-transform duration-300 group-hover:rotate-180" />

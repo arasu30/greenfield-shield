@@ -1,19 +1,54 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.trustedhost import TrustedHostMiddleware
-from app.config import settings
-from app.database.session import engine
-from app.database.base import Base
-from app.api.routes import auth
+from .config import settings
+from .database.session import engine
+from .database.base import Base
+from .api.routes import auth
+
+from contextlib import asynccontextmanager
 
 # Create database tables
 Base.metadata.create_all(bind=engine)
 
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """Run startup tasks"""
+    # Create initial admin user if not exists
+    from app.database.session import SessionLocal
+    from app.crud.user import UserCRUD
+    from app.models.user import UserRole
+    
+    db = SessionLocal()
+    try:
+        admin_email = settings.ADMIN_EMAIL
+        admin_password = settings.ADMIN_PASSWORD
+        
+        user = UserCRUD.get_user_by_email(db, admin_email)
+        if not user:
+            print(f"Creating initial admin user: {admin_email}")
+            UserCRUD.create_user(
+                db=db,
+                email=admin_email,
+                full_name="System Administrator",
+                password=admin_password,
+                role=UserRole.ADMIN
+            )
+        else:
+            print(f"Admin user {admin_email} already exists")
+    except Exception as e:
+        print(f"Error seeding admin user: {e}")
+    finally:
+        db.close()
+    
+    yield
+
 # Initialize FastAPI app
 app = FastAPI(
-    title="Greenfield Shield API",
+    title="Cropsure",
     description="Crop Insurance Management System with Geospatial Support",
     version="1.0.0",
+    lifespan=lifespan
 )
 
 # Add CORS middleware
@@ -38,7 +73,7 @@ app.include_router(auth.router)
 def root():
     """Root endpoint"""
     return {
-        "message": "Welcome to Greenfield Shield API",
+        "message": "Welcome to Cropsure",
         "version": "1.0.0",
         "status": "running",
     }

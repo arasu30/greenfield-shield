@@ -55,12 +55,12 @@ const Login = () => {
   ];
 
   const handleOfficerLogin = async () => {
-    if (!username.trim() || password.length < 6) {
+    if (!username.trim() || !password) {
       toast.error("Please enter valid credentials");
       return;
     }
 
-    const email = username.includes("@") ? username : `${username}@cropsure.local`;
+    const email = username.includes("@") ? username : `${username}@gmail.com`;
 
     try {
       const res = await fetch(`${import.meta.env.VITE_BACKEND_URL || 'http://localhost:8000'}/auth/login`, {
@@ -85,12 +85,12 @@ const Login = () => {
   };
 
   const handleAdminLogin = async () => {
-    if (!username.trim() || password.length < 6) {
+    if (!username.trim() || !password) {
       toast.error("Please enter valid credentials");
       return;
     }
 
-    const email = username.includes("@") ? username : `${username}@cropsure.local`;
+    const email = username.includes("@") ? username : `${username}@gmail.com`;
 
     try {
       const res = await fetch(`${import.meta.env.VITE_BACKEND_URL || 'http://localhost:8000'}/auth/login`, {

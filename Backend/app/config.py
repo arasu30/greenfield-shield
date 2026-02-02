@@ -15,14 +15,18 @@ class Settings(BaseSettings):
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
     REFRESH_TOKEN_EXPIRE_DAYS: int = 7
     
+    # Admin Credentials
+    ADMIN_EMAIL: str
+    ADMIN_PASSWORD: str
+
     # Server
     DEBUG: bool = True
     HOST: str = "0.0.0.0"
     PORT: int = 8000
-    
+
     # CORS
     FRONTEND_URL: str = "http://localhost:5173"
-    
+
     # Email
     SMTP_SERVER: str = "smtp.gmail.com"
     SMTP_PORT: int = 587

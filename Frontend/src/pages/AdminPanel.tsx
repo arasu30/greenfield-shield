@@ -43,10 +43,10 @@ const AdminPanel = () => {
       <Navbar userName="Admin" userRole="admin" />
       
       <div className="container mx-auto px-4 py-12 max-w-7xl relative z-10">
-        <Button variant="ghost" onClick={() => navigate("/")} className="mb-8 text-slate-300 hover:text-purple-400 transition-all duration-300">
+        {/* <Button variant="ghost" onClick={() => navigate("/")} className="mb-8 text-slate-300 hover:text-purple-400 transition-all duration-300">
           <ArrowLeft className="w-5 h-5 mr-2" />
           Logout
-        </Button>
+        </Button> */}
 
         <div className="mb-10">
           <h2 className="text-5xl font-bold bg-gradient-to-r from-purple-400 via-pink-400 to-purple-400 bg-clip-text text-transparent mb-3">Admin Control Panel</h2>

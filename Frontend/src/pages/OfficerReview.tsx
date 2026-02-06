@@ -16,6 +16,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import Footer from "@/components/Footer";
 
 const OfficerReview = () => {
   const navigate = useNavigate();
@@ -62,14 +63,14 @@ const OfficerReview = () => {
   ]);
 
   const handleApprove = (claimId: string) => {
-    setClaims(claims.map(claim => 
+    setClaims(claims.map(claim =>
       claim.id === claimId ? { ...claim, status: "Approved" } : claim
     ));
     toast.success("Claim approved successfully!");
   };
 
   const handleReject = (claimId: string) => {
-    setClaims(claims.map(claim => 
+    setClaims(claims.map(claim =>
       claim.id === claimId ? { ...claim, status: "Rejected" } : claim
     ));
     toast.error("Claim rejected");
@@ -88,18 +89,18 @@ const OfficerReview = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-blue-900 to-slate-950 relative overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-blue-900 to-slate-950 relative overflow-auto">
       {/* Animated background particles */}
       <AnimatedParticles />
 
       {/* Gradient blobs */}
       <div className="absolute top-0 right-0 w-96 h-96 bg-blue-500 rounded-full mix-blend-multiply filter blur-3xl opacity-5 animate-pulse"></div>
-      <div className="absolute bottom-0 left-0 w-96 h-96 bg-cyan-500 rounded-full mix-blend-multiply filter blur-3xl opacity-5 animate-pulse" style={{animationDelay: '2s'}}></div>
+      <div className="absolute bottom-0 left-0 w-96 h-96 bg-cyan-500 rounded-full mix-blend-multiply filter blur-3xl opacity-5 animate-pulse" style={{ animationDelay: '2s' }}></div>
 
       <Navbar userName="Officer Ramesh" userRole="officer" />
-      
-      <div className="container mx-auto px-4 py-12 max-w-7xl relative z-10">
-        <Button variant="ghost" onClick={() => navigate("/")} className="mb-8 text-slate-300 hover:text-blue-400 transition-all duration-300">
+
+      <div className="container mx-auto px-4 py-12 max-w-7xl relative z-10 flex-col flex min-h-[calc(100vh-80px)]">
+        <Button variant="ghost" onClick={() => navigate("/")} className="mb-8 text-slate-300 hover:text-blue-400 transition-all duration-300 w-fit">
           <ArrowLeft className="w-5 h-5 mr-2" />
           Logout
         </Button>
@@ -156,7 +157,7 @@ const OfficerReview = () => {
           </Card>
         </div>
 
-        <Card className="backdrop-blur-2xl bg-slate-900/80 border border-blue-500/30 shadow-2xl shadow-blue-500/20 hover:border-blue-400/50 hover:shadow-blue-400/30 transition-all duration-300">
+        <Card className="backdrop-blur-2xl bg-slate-900/80 border border-blue-500/30 shadow-2xl shadow-blue-500/20 hover:border-blue-400/50 hover:shadow-blue-400/30 transition-all duration-300 mb-10">
           <CardHeader className="pb-4 border-b border-blue-500/20">
             <CardTitle className="text-2xl font-bold text-blue-100">📋 Claims Review Queue</CardTitle>
             <CardDescription className="text-slate-300 text-base">Review AI-analyzed claims and make approval decisions</CardDescription>
@@ -256,8 +257,8 @@ const OfficerReview = () => {
                         </Dialog>
                         {claim.status === "Pending Review" && (
                           <>
-                            <Button 
-                              variant="outline" 
+                            <Button
+                              variant="outline"
                               size="sm"
                               onClick={() => handleApprove(claim.id)}
                               className="text-emerald-400 border-emerald-500/50 bg-emerald-500/10 hover:bg-emerald-500/20 rounded-lg font-semibold transition-all duration-200"
@@ -265,8 +266,8 @@ const OfficerReview = () => {
                               <CheckCircle className="w-4 h-4 mr-1" />
                               Approve
                             </Button>
-                            <Button 
-                              variant="outline" 
+                            <Button
+                              variant="outline"
                               size="sm"
                               onClick={() => handleReject(claim.id)}
                               className="text-red-400 border-red-500/50 bg-red-500/10 hover:bg-red-500/20 rounded-lg font-semibold transition-all duration-200"
@@ -285,6 +286,7 @@ const OfficerReview = () => {
           </CardContent>
         </Card>
       </div>
+      <Footer />
     </div>
   );
 };

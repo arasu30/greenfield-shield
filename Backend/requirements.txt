@@ -14,3 +14,4 @@ geoalchemy2==0.18.1
 shapely==2.0.2
 pytest==7.4.4
 httpx==0.25.2
+gunicorn==25.1.0

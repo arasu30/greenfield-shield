@@ -91,6 +91,10 @@ def register(
         address=user_data.address,
         department=user_data.department,
         officer_id=user_data.officer_id,
+        # Spatial mapping data
+        farm_name=user_data.farm_name,
+        crop_type=user_data.crop_type,
+        boundary=user_data.boundary,
     )
     
     return LoginResponse(

@@ -16,6 +16,9 @@ import {
     DollarSign,
     ChevronLeft,
     ChevronRight,
+    CheckCircle,
+    XCircle,
+    AlertCircle,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -53,7 +56,8 @@ const DashboardLayout = ({ children, role = 'farmer' }: DashboardLayoutProps) =>
         localStorage.setItem("sidebarCollapsed", JSON.stringify(newState));
     };
 
-    // Sync state on mount just in case (optional, but good for consistency)
+    const [user, setUser] = useState<any>(null);
+
     React.useEffect(() => {
         const handleResize = () => {
             if (window.innerWidth < 1024) {
@@ -61,6 +65,17 @@ const DashboardLayout = ({ children, role = 'farmer' }: DashboardLayoutProps) =>
             }
         };
         window.addEventListener('resize', handleResize);
+
+        // Load user from local storage
+        const storedUser = localStorage.getItem('user');
+        if (storedUser) {
+            try {
+                setUser(JSON.parse(storedUser));
+            } catch (e) {
+                console.error("Failed to parse user data", e);
+            }
+        }
+
         return () => window.removeEventListener('resize', handleResize);
     }, []);
 
@@ -73,22 +88,33 @@ const DashboardLayout = ({ children, role = 'farmer' }: DashboardLayoutProps) =>
     ];
 
     const adminNavItems = [
+        { label: "Main", type: 'header' },
         { label: "Overview", icon: LayoutDashboard, path: "/admin" },
         { label: "User Management", icon: User, path: "/admin?tab=users" },
         { label: "Insurance Rates", icon: DollarSign, path: "/admin?tab=rates" },
-        { label: "Compensations", icon: FileText, path: "/admin?tab=compensation" },
-        { label: "System Logs", icon: AlertTriangle, path: "/admin/logs" },
+
+        { label: "Finance", type: 'header' },
+        { label: "Compensations", icon: DollarSign, path: "/admin?tab=compensation" },
+        // { label: "System Logs", icon: AlertTriangle, path: "/admin/logs" },
     ];
 
     const officerNavItems = [
-        { label: "Review Claims", icon: Search, path: "/officer-review" },
+        { label: "Claims Management", type: 'header' },
+        { label: "Pending Review", icon: AlertCircle, path: "/officer-review?status=pending" },
+        { label: "Approved Today", icon: CheckCircle, path: "/officer-review?status=approved" },
+        { label: "Rejected Claims", icon: XCircle, path: "/officer-review?status=rejected" },
+        { label: "Total Claims", icon: AlertCircle, path: "/officer-review?status=all" },
+
+        { label: "Reports", type: 'header' },
         { label: "Field Reports", icon: FileText, path: "/officer/reports" },
     ];
 
     const navItems = role === 'admin' ? adminNavItems : role === 'officer' ? officerNavItems : farmerNavItems;
 
     const handleLogout = () => {
-        localStorage.removeItem("token"); // Assuming clean up
+        localStorage.removeItem("token");
+        localStorage.removeItem("access_token");
+        localStorage.removeItem("user");
         navigate("/");
     };
 
@@ -114,7 +140,7 @@ const DashboardLayout = ({ children, role = 'farmer' }: DashboardLayoutProps) =>
                     {/* Header / Toggle */}
                     <div
                         className={cn("p-6 flex items-center gap-3 cursor-pointer relative", isCollapsed ? "justify-center px-2" : "")}
-                        onClick={() => !isCollapsed && navigate('/dashboard')}
+                        onClick={() => !isCollapsed && navigate(role === 'admin' ? '/admin' : role === 'officer' ? '/officer-review' : '/dashboard')}
                     >
                         <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-green-500 to-cyan-500 flex items-center justify-center shadow-lg shadow-green-500/20 shrink-0">
                             <Sprout className="w-6 h-6 text-white" />
@@ -141,10 +167,17 @@ const DashboardLayout = ({ children, role = 'farmer' }: DashboardLayoutProps) =>
                     {/* Navigation */}
                     <nav className="flex-1 px-3 space-y-2 mt-4 overflow-y-auto scrollbar-thin scrollbar-thumb-slate-800">
                         <TooltipProvider delayDuration={0}>
-                            {navItems.map((item, idx) => {
-                                const isActive = role === 'admin'
-                                    ? (location.pathname + location.search) === item.path || (item.path === '/admin' && location.pathname === '/admin' && location.search === '')
-                                    : location.pathname === item.path;
+                            {navItems.map((item: any, idx) => {
+                                if (item.type === 'header') {
+                                    if (isCollapsed) return <div key={idx} className="h-px bg-slate-800 my-2 mx-4" />;
+                                    return (
+                                        <div key={idx} className="px-4 py-2 mt-4 mb-1 text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                                            {item.label}
+                                        </div>
+                                    );
+                                }
+
+                                const isActive = (location.pathname + location.search) === item.path || (item.path.indexOf('?') === -1 && location.pathname === item.path);
 
                                 const content = (
                                     <button
@@ -230,11 +263,13 @@ const DashboardLayout = ({ children, role = 'farmer' }: DashboardLayoutProps) =>
                                     <div className="flex items-center gap-3 cursor-pointer group p-1 pr-3 rounded-full hover:bg-slate-800/50 transition-all duration-300 border border-transparent hover:border-slate-800">
                                         <Avatar className="w-9 h-9 border border-green-500/50 shadow-lg shadow-green-500/20 group-hover:shadow-green-500/40 transition-all duration-300">
                                             <AvatarImage src="/placeholder-user.jpg" />
-                                            <AvatarFallback className="bg-gradient-to-br from-green-600 to-emerald-700 text-white font-bold text-xs">{role === 'admin' ? 'AD' : 'RK'}</AvatarFallback>
+                                            <AvatarFallback className="bg-gradient-to-br from-green-600 to-emerald-700 text-white font-bold text-xs">
+                                                {user?.full_name ? user.full_name.substring(0, 2).toUpperCase() : (role === 'admin' ? 'AD' : 'RK')}
+                                            </AvatarFallback>
                                         </Avatar>
                                         <div className="block text-left hidden md:block">
                                             <p className="text-sm font-semibold text-slate-100 group-hover:text-white transition-colors leading-none mb-1">
-                                                {role === 'admin' ? 'System Admin' : role === 'officer' ? 'Field Officer' : 'Rajesh Kumar'}
+                                                {user?.full_name || (role === 'admin' ? 'System Admin' : role === 'officer' ? 'Field Officer' : 'Rajesh Kumar')}
                                             </p>
                                             <div className="flex items-center gap-1.5">
                                                 <div className={cn("w-1.5 h-1.5 rounded-full animate-pulse", role === 'admin' ? "bg-purple-500" : "bg-green-500")}></div>

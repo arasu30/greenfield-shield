@@ -218,6 +218,83 @@ const AdminPanel = () => {
               </CardContent>
             </Card>
           </TabsContent>
+          <TabsContent value="claims">
+            <Card className="border border-slate-200 dark:border-slate-700 backdrop-blur-sm bg-white/70 dark:bg-slate-900/70 shadow-lg hover:shadow-2xl transition-all duration-300">
+              <CardHeader className="pb-4 border-b border-slate-200 dark:border-slate-700">
+                <div className="flex justify-between items-center">
+                  <div>
+                    <CardTitle className="text-2xl font-bold text-slate-900 dark:text-slate-100">
+                      {searchParams.get("status") === 'pending' ? '⏳ Pending Reviews' :
+                        searchParams.get("status") === 'approved' ? '✅ Approved Claims' :
+                          searchParams.get("status") === 'rejected' ? '❌ Rejected Claims' :
+                            '📋 All Claims'}
+                    </CardTitle>
+                    <CardDescription className="text-slate-600 dark:text-slate-300 text-base">
+                      {searchParams.get("status") === 'pending' ? 'Claims awaiting officer or admin verification' :
+                        searchParams.get("status") === 'approved' ? 'Claims approved for payment today' :
+                          searchParams.get("status") === 'rejected' ? 'Claims rejected due to invalid criteria' :
+                            'Overview of all insurance claims'}
+                    </CardDescription>
+                  </div>
+                  <Button variant="outline" className="border-slate-700 hover:bg-slate-800 text-slate-300">
+                    Export Data
+                  </Button>
+                </div>
+              </CardHeader>
+              <CardContent className="pt-6">
+                <Table>
+                  <TableHeader>
+                    <TableRow className="border-b border-slate-200 dark:border-slate-700 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950 dark:to-indigo-900">
+                      <TableHead className="text-slate-700 dark:text-slate-200 font-bold">Claim ID</TableHead>
+                      <TableHead className="text-slate-700 dark:text-slate-200 font-bold">Farmer</TableHead>
+                      <TableHead className="text-slate-700 dark:text-slate-200 font-bold">Crop</TableHead>
+                      <TableHead className="text-slate-700 dark:text-slate-200 font-bold">Damage Type</TableHead>
+                      <TableHead className="text-slate-700 dark:text-slate-200 font-bold">Estimated Loss</TableHead>
+                      <TableHead className="text-slate-700 dark:text-slate-200 font-bold">Date</TableHead>
+                      <TableHead className="text-slate-700 dark:text-slate-200 font-bold">Status</TableHead>
+                      <TableHead className="text-right text-slate-700 dark:text-slate-200 font-bold">Actions</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {[
+                      { id: "CLM-2024-001", farmer: "Rajesh Kumar", crop: "Rice", type: "Flood", loss: "₹25,000", date: "2024-02-15", status: "Pending" },
+                      { id: "CLM-2024-002", farmer: "Suresh P.", crop: "Wheat", type: "Drought", loss: "₹45,000", date: "2024-02-14", status: "Approved" },
+                      { id: "CLM-2024-003", farmer: "Amit Patel", crop: "Cotton", type: "Pest", loss: "₹15,000", date: "2024-02-10", status: "Rejected" },
+                      { id: "CLM-2024-004", farmer: "Priya Sharma", crop: "Sugarcane", type: "Disease", loss: "₹80,000", date: "2024-02-12", status: "Pending" },
+                    ].filter(claim => {
+                      const statusParam = searchParams.get("status");
+                      if (!statusParam || statusParam === 'all') return true;
+                      if (statusParam === 'pending') return claim.status === 'Pending';
+                      if (statusParam === 'approved') return claim.status === 'Approved';
+                      if (statusParam === 'rejected') return claim.status === 'Rejected';
+                      return true;
+                    }).map((claim) => (
+                      <TableRow key={claim.id} className="hover:bg-blue-50 dark:hover:bg-blue-950 border-b border-slate-100 dark:border-slate-800 transition-colors duration-200">
+                        <TableCell className="font-bold text-blue-400">{claim.id}</TableCell>
+                        <TableCell className="font-semibold text-slate-100">{claim.farmer}</TableCell>
+                        <TableCell className="text-slate-300">{claim.crop}</TableCell>
+                        <TableCell className="text-slate-300">{claim.type}</TableCell>
+                        <TableCell className="font-bold text-slate-100">{claim.loss}</TableCell>
+                        <TableCell className="text-slate-400">{claim.date}</TableCell>
+                        <TableCell>
+                          <Badge className={
+                            claim.status === "Approved" ? "bg-green-600 text-white" :
+                              claim.status === "Rejected" ? "bg-red-600 text-white" :
+                                "bg-amber-600 text-white"
+                          }>
+                            {claim.status}
+                          </Badge>
+                        </TableCell>
+                        <TableCell className="text-right">
+                          <Button variant="outline" size="sm" className="border-blue-700 text-blue-400 hover:bg-blue-900">Review</Button>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </CardContent>
+            </Card>
+          </TabsContent>
         </Tabs>
       </div>
     </DashboardLayout>

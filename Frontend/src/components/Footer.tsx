@@ -1,4 +1,4 @@
-import { Facebook, Twitter, Instagram, Mail, Heart } from "lucide-react";
+import { Facebook, Github, Instagram, Mail, Heart } from "lucide-react";
 
 const Footer = () => {
     return (
@@ -18,7 +18,7 @@ const Footer = () => {
                 {/* Social Media Icons */}
                 <div className="flex justify-center gap-6 mb-8">
                     <a href="#" className="p-3 bg-slate-900/50 rounded-full border border-slate-800 text-slate-400 hover:text-blue-400 hover:border-blue-500/50 hover:bg-blue-500/10 hover:shadow-lg hover:shadow-blue-500/20 hover:-translate-y-1 transition-all duration-300">
-                        <Twitter className="w-5 h-5" />
+                        <Github className="w-5 h-5" />
                     </a>
                     <a href="#" className="p-3 bg-slate-900/50 rounded-full border border-slate-800 text-slate-400 hover:text-blue-600 hover:border-blue-600/50 hover:bg-blue-600/10 hover:shadow-lg hover:shadow-blue-600/20 hover:-translate-y-1 transition-all duration-300">
                         <Facebook className="w-5 h-5" />

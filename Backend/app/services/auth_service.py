@@ -81,8 +81,14 @@ class AuthService:
         address: str = None,
         department: str = None,
         officer_id: str = None,
+        # Farm mapping data
+        farm_name: str = None,
+        crop_type: str = None,
+        boundary: list[dict[str, float]] = None,
     ) -> dict:
         """Register a new user"""
+        from app.crud.farm import FarmCRUD
+
         # Check if user already exists
         if UserCRUD.get_user_by_email(db, email):
             raise UserAlreadyExists()
@@ -103,6 +109,16 @@ class AuthService:
             department=department,
             officer_id=officer_id,
         )
+
+        # If user is a farmer and provided a boundary, create the farm record
+        if role == UserRole.FARMER and boundary:
+            FarmCRUD.create_farm(
+                db=db,
+                farmer_id=user.id,
+                boundary_points=boundary,
+                farm_name=farm_name or f"{full_name}'s Farm",
+                crop_type=crop_type
+            )
         
         # Create tokens
         access_token = create_access_token(

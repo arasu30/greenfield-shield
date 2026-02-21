@@ -1,14 +1,32 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Smartphone, User, MapPin, Check, X, Play, Square, RefreshCw } from "lucide-react";
+import {
+    User, Mail, Lock, Phone, Smartphone,
+    Play, Square, RefreshCw, Check,
+    Sprout, Tractor
+} from "lucide-react";
 import { toast } from "sonner";
 import { LocationMap } from "./LocationMap";
 
 export const FarmerRegister = () => {
-    const [name, setName] = useState("");
-    const [phone, setPhone] = useState("");
+    const navigate = useNavigate();
+    const [isLoading, setIsLoading] = useState(false);
+
+    const [formData, setFormData] = useState({
+        full_name: "",
+        email: "",
+        password: "",
+        phone: "",
+        farm_name: "",
+        crop_type: "Maize"
+    });
+
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+        setFormData({ ...formData, [e.target.name]: e.target.value });
+    };
 
     // Boundary mapping state
     const [currentPosition, setCurrentPosition] = useState<{ lat: number; lng: number } | null>(null);
@@ -16,8 +34,6 @@ export const FarmerRegister = () => {
     const [isRecording, setIsRecording] = useState(false);
     const [watchId, setWatchId] = useState<number | null>(null);
     const [mappingConfirmed, setMappingConfirmed] = useState(false);
-
-    // Ref to access current state inside callbacks if needed, though setState handle it ok
 
     const startMapping = () => {
         if (!navigator.geolocation) {
@@ -37,11 +53,7 @@ export const FarmerRegister = () => {
                     lat: position.coords.latitude,
                     lng: position.coords.longitude,
                 };
-
                 setCurrentPosition(newPoint);
-
-                // Add point to boundary path (breadcrumbs)
-                // You might want to filter small jitters here in a real app (e.g. only add if moved > 5m)
                 setBoundaryPoints((prev) => [...prev, newPoint]);
             },
             (error) => {
@@ -65,9 +77,16 @@ export const FarmerRegister = () => {
         }
         setIsRecording(false);
 
-        if (boundaryPoints.length < 3) {
-            toast.warning("Boundary seems too simple. Did you walk around?");
+        // Filter unique points
+        const unique = boundaryPoints.filter((v, i, a) =>
+            a.findIndex(t => t.lat.toFixed(5) === v.lat.toFixed(5) && t.lng.toFixed(5) === v.lng.toFixed(5)) === i
+        );
+
+        if (unique.length < 3) {
+            toast.warning("You need to walk a perimeter. Please record at least 3 distinct corners of your farm.");
+            setBoundaryPoints([]); // Reset if invalid
         } else {
+            setBoundaryPoints(unique);
             toast.success("Farm boundary recorded!");
         }
     };
@@ -83,21 +102,49 @@ export const FarmerRegister = () => {
         setCurrentPosition(null);
     };
 
-    const handleRegister = () => {
-        if (!name || phone.length !== 10 || !mappingConfirmed || boundaryPoints.length === 0) {
-            toast.error("Please fill details and map your farm");
+    const handleRegister = async () => {
+        if (!formData.full_name || !formData.email || !formData.password || !mappingConfirmed) {
+            toast.error("Please fill all details and confirm your farm mapping");
             return;
         }
-        // Final check to close the loop
-        if (boundaryPoints.length > 2) {
-            // Ideally ensuring last point meets first point, but Polygon component handles visual closure
-        }
 
-        toast.success("Registration successful! Farm mapped.");
-        console.log("Registered with boundary:", boundaryPoints);
+        setIsLoading(true);
+
+        try {
+            const res = await fetch(`${import.meta.env.VITE_BACKEND_URL || 'http://localhost:8000'}/auth/register`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    email: formData.email,
+                    full_name: formData.full_name,
+                    password: formData.password,
+                    role: 'farmer',
+                    phone: formData.phone,
+                    farm_name: formData.farm_name,
+                    crop_type: formData.crop_type,
+                    boundary: boundaryPoints
+                }),
+            });
+
+            if (!res.ok) {
+                const errData = await res.json();
+                throw new Error(errData.detail || "Registration failed");
+            }
+
+            const data = await res.json();
+            toast.success("Registration successful! Welcome to CropSure.");
+
+            localStorage.setItem('access_token', data.tokens.access_token);
+            navigate('/dashboard');
+
+        } catch (err: any) {
+            console.error(err);
+            toast.error(err.message);
+        } finally {
+            setIsLoading(false);
+        }
     };
 
-    // Cleanup on unmount
     useEffect(() => {
         return () => {
             if (watchId !== null) {
@@ -107,117 +154,163 @@ export const FarmerRegister = () => {
     }, [watchId]);
 
     return (
-        <div className="space-y-5 mt-6">
-            <div className="space-y-2">
-                <Label htmlFor="name-farmer" className="font-semibold text-cyan-200">
-                    Full Name
-                </Label>
-                <div className="relative">
-                    <User className="absolute left-3 top-3.5 h-5 w-5 text-cyan-400" />
-                    <Input
-                        id="name-farmer"
-                        placeholder="Enter your full name"
-                        type="text"
-                        value={name}
-                        onChange={(e) => setName(e.target.value)}
-                        className="pl-10 py-6 bg-slate-800/50 border border-cyan-500/30 text-slate-100 placeholder-slate-500 rounded-lg focus:outline-none focus:border-cyan-400 focus:ring-2 focus:ring-cyan-500/50 transition-all duration-300"
-                    />
+        <div className="space-y-4 mt-4">
+            {/* Personal Details Section */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                    <Label className="text-cyan-200">Full Name</Label>
+                    <div className="relative">
+                        <User className="absolute left-3 top-3.5 h-4 w-4 text-cyan-400" />
+                        <Input
+                            name="full_name"
+                            placeholder="John Doe"
+                            value={formData.full_name}
+                            onChange={handleChange}
+                            className="pl-10 h-11 bg-slate-900/50 border-cyan-500/20 text-slate-100"
+                        />
+                    </div>
+                </div>
+
+                <div className="space-y-2">
+                    <Label className="text-cyan-200">Email Address</Label>
+                    <div className="relative">
+                        <Mail className="absolute left-3 top-3.5 h-4 w-4 text-cyan-400" />
+                        <Input
+                            name="email"
+                            type="email"
+                            placeholder="john@example.com"
+                            value={formData.email}
+                            onChange={handleChange}
+                            className="pl-10 h-11 bg-slate-900/50 border-cyan-500/20 text-slate-100"
+                        />
+                    </div>
                 </div>
             </div>
 
-            <div className="space-y-2">
-                <Label htmlFor="phone-farmer-reg" className="font-semibold text-cyan-200">
-                    Phone Number
-                </Label>
-                <div className="relative">
-                    <Smartphone className="absolute left-3 top-3.5 h-5 w-5 text-cyan-400" />
-                    <Input
-                        id="phone-farmer-reg"
-                        placeholder="Enter 10-digit phone number"
-                        type="tel"
-                        maxLength={10}
-                        value={phone}
-                        onChange={(e) => setPhone(e.target.value)}
-                        className="pl-10 py-6 bg-slate-800/50 border border-cyan-500/30 text-slate-100 placeholder-slate-500 rounded-lg focus:outline-none focus:border-cyan-400 focus:ring-2 focus:ring-cyan-500/50 transition-all duration-300"
-                    />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                    <Label className="text-cyan-200">Phone Number</Label>
+                    <div className="relative">
+                        <Phone className="absolute left-3 top-3.5 h-4 w-4 text-cyan-400" />
+                        <Input
+                            name="phone"
+                            placeholder="10-digit mobile"
+                            maxLength={10}
+                            value={formData.phone}
+                            onChange={handleChange}
+                            className="pl-10 h-11 bg-slate-900/50 border-cyan-500/20 text-slate-100"
+                        />
+                    </div>
+                </div>
+
+                <div className="space-y-2">
+                    <Label className="text-cyan-200">Password</Label>
+                    <div className="relative">
+                        <Lock className="absolute left-3 top-3.5 h-4 w-4 text-cyan-400" />
+                        <Input
+                            name="password"
+                            type="password"
+                            placeholder="••••••••"
+                            value={formData.password}
+                            onChange={handleChange}
+                            className="pl-10 h-11 bg-slate-900/50 border-cyan-500/20 text-slate-100"
+                        />
+                    </div>
                 </div>
             </div>
 
-            <div className="space-y-2">
-                <Label className="font-semibold text-cyan-200">Map Your Farm</Label>
-                <p className="text-xs text-slate-400 mb-2">Walk around your farm boundary to map it.</p>
+            {/* Farm Details Section */}
+            <div className="bg-cyan-500/5 border border-cyan-500/10 p-4 rounded-xl space-y-4">
+                <div className="flex items-center gap-2 text-cyan-400 font-semibold mb-2">
+                    <Tractor className="h-5 w-5" />
+                    Farm Information
+                </div>
 
-                {/* Initial State: Not Started & No Points */}
-                {!isRecording && boundaryPoints.length === 0 && (
-                    <Button
-                        onClick={startMapping}
-                        className="w-full bg-slate-800/50 border border-dashed border-cyan-500/50 hover:bg-cyan-500/10 text-cyan-200 h-24 flex flex-col gap-2 transition-all duration-300"
-                    >
-                        <Play className="w-6 h-6" />
-                        Start Mapping Boundary
-                    </Button>
-                )}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                        <Label className="text-slate-300 text-sm">Farm Name</Label>
+                        <Input
+                            name="farm_name"
+                            placeholder="e.g. Green Valley Plot A"
+                            value={formData.farm_name}
+                            onChange={handleChange}
+                            className="bg-slate-900/50 border-cyan-500/10 h-10 text-slate-200"
+                        />
+                    </div>
+                    <div className="space-y-2">
+                        <Label className="text-slate-300 text-sm">Major Crop</Label>
+                        <select
+                            name="crop_type"
+                            value={formData.crop_type}
+                            onChange={(e: any) => handleChange(e)}
+                            className="w-full h-10 bg-slate-900/50 border border-cyan-500/10 rounded-md px-3 text-slate-200 focus:outline-none focus:ring-1 focus:ring-cyan-500/30"
+                        >
+                            <option value="Maize">Maize</option>
+                            <option value="Wheat">Wheat</option>
+                            <option value="Rice">Rice</option>
+                            <option value="Soybean">Soybean</option>
+                            <option value="Sugarcane">Sugarcane</option>
+                        </select>
+                    </div>
+                </div>
 
-                {/* Recording State */}
-                {isRecording && (
-                    <div className="space-y-3 animate-in fade-in zoom-in duration-300">
-                        <div className="bg-orange-500/10 border border-orange-500/30 p-3 rounded-lg flex items-center justify-between">
-                            <div className="flex items-center gap-2 text-orange-200 animate-pulse">
-                                <div className="w-3 h-3 bg-orange-500 rounded-full"></div>
-                                Recording Path... ({boundaryPoints.length} points)
+                <div className="space-y-3 pt-2">
+                    <Label className="text-cyan-200">Perimeter Mapping</Label>
+
+                    {!isRecording && boundaryPoints.length === 0 && (
+                        <Button
+                            onClick={startMapping}
+                            variant="outline"
+                            className="w-full border-dashed border-cyan-500/30 bg-transparent text-cyan-400 hover:bg-cyan-500/10 h-16 gap-2"
+                        >
+                            <Play className="w-5 h-5 fill-current" /> Start Mapping Walk
+                        </Button>
+                    )}
+
+                    {isRecording && (
+                        <div className="space-y-3">
+                            <div className="flex items-center justify-between bg-orange-500/10 border border-orange-500/30 p-2 rounded-lg">
+                                <span className="text-orange-400 text-sm animate-pulse flex items-center gap-2">
+                                    <div className="w-2 h-2 bg-orange-500 rounded-full"></div>
+                                    Recording Walk...
+                                </span>
+                                <Button onClick={stopMapping} size="sm" variant="destructive">
+                                    Finish Walk
+                                </Button>
                             </div>
-                            <Button onClick={stopMapping} size="sm" variant="destructive" className="gap-2">
-                                <Square className="w-4 h-4 fill-current" /> Stop
-                            </Button>
+                            <LocationMap currentPosition={currentPosition} boundary={boundaryPoints} isRecording={true} />
                         </div>
-                        <LocationMap currentPosition={currentPosition} boundary={boundaryPoints} isRecording={true} />
-                    </div>
-                )}
+                    )}
 
-                {/* Finished State: Review */}
-                {!isRecording && boundaryPoints.length > 0 && (
-                    <div className="space-y-3 animate-in fade-in zoom-in duration-300">
-                        <LocationMap currentPosition={null} boundary={boundaryPoints} isRecording={false} />
-
-                        {!mappingConfirmed ? (
-                            <div className="grid grid-cols-2 gap-3">
-                                <Button
-                                    onClick={() => setMappingConfirmed(true)}
-                                    className="bg-green-600 hover:bg-green-700 text-white gap-2"
-                                >
-                                    <Check className="w-4 h-4" /> Confirm Boundary
-                                </Button>
-                                <Button
-                                    onClick={resetMapping}
-                                    variant="outline"
-                                    className="border-red-500/50 text-red-200 hover:bg-red-500/20 hover:text-red-100 gap-2 bg-transparent"
-                                >
-                                    <RefreshCw className="w-4 h-4" /> Remap
-                                </Button>
-                            </div>
-                        ) : (
-                            <div className="bg-green-500/10 border border-green-500/30 p-3 rounded-lg flex items-center gap-2 text-green-200 justify-center">
-                                <Check className="w-5 h-5" /> Boundary Confirmed
-                                <Button
-                                    onClick={() => setMappingConfirmed(false)}
-                                    variant="ghost"
-                                    size="sm"
-                                    className="h-auto p-1 text-xs text-green-200/50 hover:text-green-200"
-                                >
-                                    (Edit)
-                                </Button>
-                            </div>
-                        )}
-                    </div>
-                )}
+                    {!isRecording && boundaryPoints.length > 0 && (
+                        <div className="space-y-3">
+                            <LocationMap currentPosition={null} boundary={boundaryPoints} isRecording={false} />
+                            {!mappingConfirmed ? (
+                                <div className="grid grid-cols-2 gap-3">
+                                    <Button onClick={() => setMappingConfirmed(true)} className="bg-green-600 hover:bg-green-700">
+                                        <Check className="w-4 h-4 mr-2" /> Confirm
+                                    </Button>
+                                    <Button onClick={resetMapping} variant="outline" className="text-slate-400">
+                                        <RefreshCw className="w-4 h-4 mr-2" /> Remap
+                                    </Button>
+                                </div>
+                            ) : (
+                                <div className="bg-green-500/10 border border-green-500/30 p-2 rounded-lg text-green-400 text-center text-sm flex items-center justify-center gap-2">
+                                    <Check className="w-4 h-4" /> Boundary Confirmed
+                                    <button onClick={() => setMappingConfirmed(false)} className="text-xs underline ml-2 opacity-50 hover:opacity-100">Edit</button>
+                                </div>
+                            )}
+                        </div>
+                    )}
+                </div>
             </div>
 
             <Button
                 onClick={handleRegister}
-                disabled={!mappingConfirmed}
-                className="w-full bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-700 hover:to-blue-700 text-white font-semibold py-6 rounded-lg transition-all duration-300 shadow-lg hover:shadow-cyan-500/50 disabled:opacity-50 disabled:cursor-not-allowed"
+                disabled={isLoading || !mappingConfirmed}
+                className="w-full bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-700 hover:to-blue-700 h-12 font-bold text-lg shadow-xl shadow-cyan-900/20"
             >
-                Register Farmer
+                {isLoading ? "Creating Account..." : "Register & Save Farm"}
             </Button>
         </div>
     );

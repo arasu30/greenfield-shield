@@ -9,6 +9,7 @@ import { toast } from "sonner";
 import { AnimatedParticles } from "@/components/AnimatedParticles";
 import { FarmerLogin } from "@/components/FarmerLogin";
 import { FarmerRegister } from "@/components/FarmerRegister";
+import { OfficerRegister } from "@/components/OfficerRegister";
 import { cn } from "@/lib/utils";
 import Footer from "@/components/Footer";
 
@@ -16,6 +17,7 @@ const Login = () => {
   const navigate = useNavigate();
   const [role, setRole] = useState<"farmer" | "officer" | "admin">("farmer");
   const [isFarmerRegistering, setIsFarmerRegistering] = useState(false);
+  const [isOfficerRegistering, setIsOfficerRegistering] = useState(false);
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [aboutOpen, setAboutOpen] = useState(false);
@@ -79,6 +81,7 @@ const Login = () => {
       const data = await res.json();
       toast.success('Login successful');
       localStorage.setItem('access_token', data.tokens.access_token);
+      localStorage.setItem('user', JSON.stringify(data.user));
       navigate('/officer-review');
     } catch (err) {
       toast.error('Network error during login');
@@ -109,6 +112,7 @@ const Login = () => {
       const data = await res.json();
       toast.success('Login successful');
       localStorage.setItem('access_token', data.tokens.access_token);
+      localStorage.setItem('user', JSON.stringify(data.user));
       navigate('/admin');
     } catch (err) {
       toast.error('Network error during login');
@@ -301,43 +305,75 @@ const Login = () => {
               {role === 'officer' && (
                 <div className="space-y-6">
                   <div className="text-center">
-                    <h2 className="text-3xl font-bold text-white mb-2">Officer Portal</h2>
-                    <p className="text-slate-400">Secure access for field verification officers.</p>
+                    <h2 className="text-3xl font-bold text-white mb-2">
+                      {isOfficerRegistering ? "Officer Registration" : "Officer Portal"}
+                    </h2>
+                    <p className="text-slate-400">
+                      {isOfficerRegistering ? "Join our field verification team." : "Secure access for field verification officers."}
+                    </p>
                   </div>
 
-                  <div className="backdrop-blur-xl bg-slate-900/60 border border-blue-500/20 rounded-xl p-6 shadow-2xl shadow-blue-900/10 space-y-5">
-                    <div className="space-y-2">
-                      <Label className="text-slate-300">Email Address</Label>
-                      <div className="relative">
-                        <User className="absolute left-3 top-3.5 h-5 w-5 text-blue-400" />
-                        <Input
-                          placeholder="officer@cropsure.local"
-                          className="pl-10 bg-slate-950/50 border-slate-800 text-slate-100 placeholder-slate-500 focus:border-blue-500/50 h-11"
-                          value={username}
-                          onChange={(e) => setUsername(e.target.value)}
-                        />
-                      </div>
-                    </div>
-                    <div className="space-y-2">
-                      <Label className="text-slate-300">Password</Label>
-                      <div className="relative">
-                        <Lock className="absolute left-3 top-3.5 h-5 w-5 text-blue-400" />
-                        <Input
-                          type="password"
-                          placeholder="••••••••"
-                          className="pl-10 bg-slate-950/50 border-slate-800 text-slate-100 placeholder-slate-500 focus:border-blue-500/50 h-11"
-                          value={password}
-                          onChange={(e) => setPassword(e.target.value)}
-                        />
-                      </div>
-                    </div>
-                    <Button
-                      onClick={handleOfficerLogin}
-                      className="w-full bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white h-11 font-medium shadow-lg hover:shadow-blue-500/50"
+                  {/* Toggle for Officer */}
+                  <div className="flex bg-slate-900/50 p-1 rounded-lg border border-slate-800">
+                    <button
+                      onClick={() => setIsOfficerRegistering(false)}
+                      className={cn(
+                        "flex-1 py-2 text-sm font-medium rounded-md transition-all",
+                        !isOfficerRegistering ? "bg-slate-800 text-white shadow-sm" : "text-slate-500 hover:text-slate-200"
+                      )}
                     >
-                      Access Portal
-                    </Button>
+                      Login
+                    </button>
+                    <button
+                      onClick={() => setIsOfficerRegistering(true)}
+                      className={cn(
+                        "flex-1 py-2 text-sm font-medium rounded-md transition-all",
+                        isOfficerRegistering ? "bg-slate-800 text-white shadow-sm" : "text-slate-500 hover:text-slate-200"
+                      )}
+                    >
+                      Register
+                    </button>
                   </div>
+
+                  {isOfficerRegistering ? (
+                    <div className="backdrop-blur-xl bg-slate-900/60 border border-blue-500/20 rounded-xl p-6 shadow-2xl shadow-blue-900/10">
+                      <OfficerRegister />
+                    </div>
+                  ) : (
+                    <div className="backdrop-blur-xl bg-slate-900/60 border border-blue-500/20 rounded-xl p-6 shadow-2xl shadow-blue-900/10 space-y-5">
+                      <div className="space-y-2">
+                        <Label className="text-slate-300">Email Address</Label>
+                        <div className="relative">
+                          <User className="absolute left-3 top-3.5 h-5 w-5 text-blue-400" />
+                          <Input
+                            placeholder="officer@cropsure.local"
+                            className="pl-10 bg-slate-950/50 border-slate-800 text-slate-100 placeholder-slate-500 focus:border-blue-500/50 h-11"
+                            value={username}
+                            onChange={(e) => setUsername(e.target.value)}
+                          />
+                        </div>
+                      </div>
+                      <div className="space-y-2">
+                        <Label className="text-slate-300">Password</Label>
+                        <div className="relative">
+                          <Lock className="absolute left-3 top-3.5 h-5 w-5 text-blue-400" />
+                          <Input
+                            type="password"
+                            placeholder="••••••••"
+                            className="pl-10 bg-slate-950/50 border-slate-800 text-slate-100 placeholder-slate-500 focus:border-blue-500/50 h-11"
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                          />
+                        </div>
+                      </div>
+                      <Button
+                        onClick={handleOfficerLogin}
+                        className="w-full bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white h-11 font-medium shadow-lg hover:shadow-blue-500/50"
+                      >
+                        Access Portal
+                      </Button>
+                    </div>
+                  )}
                 </div>
               )}
 

@@ -51,6 +51,12 @@ class RegisterRequest(BaseModel):
     address: Optional[str] = None
     department: Optional[str] = None  # For officers
     officer_id: Optional[str] = None  # For officers
+    
+    # For farmers (mapping)
+    farm_name: Optional[str] = None
+    crop_type: Optional[str] = None
+    # Boundary is a list of points: [{"lat": 1.2, "lng": 3.4}, ...]
+    boundary: Optional[list[dict[str, float]]] = None
 
 class RefreshTokenRequest(BaseModel):
     """Refresh token request"""

@@ -54,16 +54,16 @@ app = FastAPI(
 # Add CORS middleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[settings.FRONTEND_URL, "http://localhost:8000", "http://localhost:5173","http://localhost:8080","http://127.0.0.1:8080"],
+    allow_origin_regex="http://localhost:.*",  # Allow any port on localhost
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# Add trusted host middleware
+# Relax trusted host middleware for development
 app.add_middleware(
     TrustedHostMiddleware,
-    allowed_hosts=[settings.HOST, "localhost", "127.0.0.1"],
+    allowed_hosts=["*"],
 )
 
 # Include routes

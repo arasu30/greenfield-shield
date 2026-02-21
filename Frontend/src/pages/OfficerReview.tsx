@@ -1,12 +1,11 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import Navbar from "@/components/Navbar";
-import { AnimatedParticles } from "@/components/AnimatedParticles";
+import { useState, useEffect } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
+import DashboardLayout from "@/components/DashboardLayout";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { ArrowLeft, CheckCircle, XCircle, Eye, AlertCircle } from "lucide-react";
+import { CheckCircle, XCircle, Eye, AlertCircle } from "lucide-react";
 import { toast } from "sonner";
 import {
   Dialog,
@@ -16,10 +15,13 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import Footer from "@/components/Footer";
+
 
 const OfficerReview = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const statusParam = searchParams.get("status");
+
   const [claims, setClaims] = useState([
     {
       id: "CLM-2024-089",
@@ -88,79 +90,95 @@ const OfficerReview = () => {
     return "text-success";
   };
 
+  const filteredClaims = claims.filter(claim => {
+    if (!statusParam || statusParam === 'all') return true;
+    if (statusParam === 'pending') return claim.status === 'Pending Review';
+    if (statusParam === 'approved') return claim.status === 'Approved';
+    if (statusParam === 'rejected') return claim.status === 'Rejected';
+    return true;
+  });
+
+  const getPageTitle = () => {
+    if (statusParam === 'pending') return 'Pending Reviews';
+    if (statusParam === 'approved') return 'Approved Claims';
+    if (statusParam === 'rejected') return 'Rejected Claims';
+    return 'Claims Review Dashboard';
+  };
+
+  const getPageDescription = () => {
+    if (statusParam === 'pending') return 'Claims awaiting your review and approval';
+    if (statusParam === 'approved') return 'History of verified and approved claims';
+    if (statusParam === 'rejected') return 'Claims that did not meet the criteria';
+    return 'Review and approve farmer claims based on AI analysis';
+  };
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-blue-900 to-slate-950 relative overflow-auto">
-      {/* Animated background particles */}
-      <AnimatedParticles />
+    <DashboardLayout role="officer">
+      <div className="container mx-auto px-4 py-8 max-w-7xl">
 
-      {/* Gradient blobs */}
-      <div className="absolute top-0 right-0 w-96 h-96 bg-blue-500 rounded-full mix-blend-multiply filter blur-3xl opacity-5 animate-pulse"></div>
-      <div className="absolute bottom-0 left-0 w-96 h-96 bg-cyan-500 rounded-full mix-blend-multiply filter blur-3xl opacity-5 animate-pulse" style={{ animationDelay: '2s' }}></div>
-
-      <Navbar userName="Officer Ramesh" userRole="officer" />
-
-      <div className="container mx-auto px-4 py-12 max-w-7xl relative z-10 flex-col flex min-h-[calc(100vh-80px)]">
-        <Button variant="ghost" onClick={() => navigate("/")} className="mb-8 text-slate-300 hover:text-blue-400 transition-all duration-300 w-fit">
-          <ArrowLeft className="w-5 h-5 mr-2" />
-          Logout
-        </Button>
-
-        <div className="mb-10">
-          <h2 className="text-5xl font-bold bg-gradient-to-r from-blue-400 via-cyan-400 to-blue-400 bg-clip-text text-transparent mb-3">Claims Review Dashboard</h2>
-          <p className="text-lg text-slate-300 font-medium">Review and approve farmer claims based on AI analysis</p>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-5 mb-8">
-          <Card className="backdrop-blur-2xl bg-amber-500/10 border border-amber-500/30 shadow-2xl shadow-amber-500/20 hover:shadow-amber-500/40 transition-all duration-300 group transform hover:-translate-y-1">
-            <CardContent className="pt-6 pb-6">
-              <div className="text-center">
-                <div className="inline-block p-3 rounded-lg bg-amber-500/20 border border-amber-500/30 mb-3 group-hover:scale-110 transition-transform duration-300">
-                  <AlertCircle className="w-6 h-6 text-amber-400" />
+        {(!statusParam || statusParam === 'all') && (
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-5 mb-8">
+            <Card className="backdrop-blur-2xl bg-amber-500/10 border border-amber-500/30 shadow-2xl shadow-amber-500/20 hover:shadow-amber-500/40 transition-all duration-300 group transform hover:-translate-y-1">
+              <CardContent className="pt-6 pb-6">
+                <div className="text-center">
+                  <div className="inline-block p-3 rounded-lg bg-amber-500/20 border border-amber-500/30 mb-3 group-hover:scale-110 transition-transform duration-300">
+                    <AlertCircle className="w-6 h-6 text-amber-400" />
+                  </div>
+                  <p className="text-4xl font-bold text-amber-400">{claims.filter(c => c.status === "Pending Review").length}</p>
+                  <p className="text-sm text-amber-300/70 mt-2 font-medium">Pending Review</p>
                 </div>
-                <p className="text-4xl font-bold text-amber-400">{claims.filter(c => c.status === "Pending Review").length}</p>
-                <p className="text-sm text-amber-300/70 mt-2 font-medium">Pending Review</p>
-              </div>
-            </CardContent>
-          </Card>
-          <Card className="backdrop-blur-2xl bg-emerald-500/10 border border-emerald-500/30 shadow-2xl shadow-emerald-500/20 hover:shadow-emerald-500/40 transition-all duration-300 group transform hover:-translate-y-1">
-            <CardContent className="pt-6 pb-6">
-              <div className="text-center">
-                <div className="inline-block p-3 rounded-lg bg-emerald-500/20 border border-emerald-500/30 mb-3 group-hover:scale-110 transition-transform duration-300">
-                  <CheckCircle className="w-6 h-6 text-emerald-400" />
+              </CardContent>
+            </Card>
+            <Card className="backdrop-blur-2xl bg-emerald-500/10 border border-emerald-500/30 shadow-2xl shadow-emerald-500/20 hover:shadow-emerald-500/40 transition-all duration-300 group transform hover:-translate-y-1">
+              <CardContent className="pt-6 pb-6">
+                <div className="text-center">
+                  <div className="inline-block p-3 rounded-lg bg-emerald-500/20 border border-emerald-500/30 mb-3 group-hover:scale-110 transition-transform duration-300">
+                    <CheckCircle className="w-6 h-6 text-emerald-400" />
+                  </div>
+                  <p className="text-4xl font-bold text-emerald-400">{claims.filter(c => c.status === "Approved").length}</p>
+                  <p className="text-sm text-emerald-300/70 mt-2 font-medium">Approved</p>
                 </div>
-                <p className="text-4xl font-bold text-emerald-400">{claims.filter(c => c.status === "Approved").length}</p>
-                <p className="text-sm text-emerald-300/70 mt-2 font-medium">Approved Today</p>
-              </div>
-            </CardContent>
-          </Card>
-          <Card className="backdrop-blur-2xl bg-red-500/10 border border-red-500/30 shadow-2xl shadow-red-500/20 hover:shadow-red-500/40 transition-all duration-300 group transform hover:-translate-y-1">
-            <CardContent className="pt-6 pb-6">
-              <div className="text-center">
-                <div className="inline-block p-3 rounded-lg bg-red-500/20 border border-red-500/30 mb-3 group-hover:scale-110 transition-transform duration-300">
-                  <XCircle className="w-6 h-6 text-red-400" />
+              </CardContent>
+            </Card>
+            <Card className="backdrop-blur-2xl bg-red-500/10 border border-red-500/30 shadow-2xl shadow-red-500/20 hover:shadow-red-500/40 transition-all duration-300 group transform hover:-translate-y-1">
+              <CardContent className="pt-6 pb-6">
+                <div className="text-center">
+                  <div className="inline-block p-3 rounded-lg bg-red-500/20 border border-red-500/30 mb-3 group-hover:scale-110 transition-transform duration-300">
+                    <XCircle className="w-6 h-6 text-red-400" />
+                  </div>
+                  <p className="text-4xl font-bold text-red-400">{claims.filter(c => c.status === "Rejected").length}</p>
+                  <p className="text-sm text-red-300/70 mt-2 font-medium">Rejected</p>
                 </div>
-                <p className="text-4xl font-bold text-red-400">{claims.filter(c => c.status === "Rejected").length}</p>
-                <p className="text-sm text-red-300/70 mt-2 font-medium">Rejected</p>
-              </div>
-            </CardContent>
-          </Card>
-          <Card className="backdrop-blur-2xl bg-blue-500/10 border border-blue-500/30 shadow-2xl shadow-blue-500/20 hover:shadow-blue-500/40 transition-all duration-300 group transform hover:-translate-y-1">
-            <CardContent className="pt-6 pb-6">
-              <div className="text-center">
-                <div className="inline-block p-3 rounded-lg bg-blue-500/20 border border-blue-500/30 mb-3 group-hover:scale-110 transition-transform duration-300">
-                  <AlertCircle className="w-6 h-6 text-blue-400" />
+              </CardContent>
+            </Card>
+            <Card className="backdrop-blur-2xl bg-blue-500/10 border border-blue-500/30 shadow-2xl shadow-blue-500/20 hover:shadow-blue-400/40 transition-all duration-300 group transform hover:-translate-y-1">
+              <CardContent className="pt-6 pb-6">
+                <div className="text-center">
+                  <div className="inline-block p-3 rounded-lg bg-blue-500/20 border border-blue-500/30 mb-3 group-hover:scale-110 transition-transform duration-300">
+                    <AlertCircle className="w-6 h-6 text-blue-400" />
+                  </div>
+                  <p className="text-4xl font-bold text-blue-400">{claims.length}</p>
+                  <p className="text-sm text-blue-300/70 mt-2 font-medium">Total Claims</p>
                 </div>
-                <p className="text-4xl font-bold text-blue-400">{claims.length}</p>
-                <p className="text-sm text-blue-300/70 mt-2 font-medium">Total Claims</p>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
+              </CardContent>
+            </Card>
+          </div>
+        )}
 
         <Card className="backdrop-blur-2xl bg-slate-900/80 border border-blue-500/30 shadow-2xl shadow-blue-500/20 hover:border-blue-400/50 hover:shadow-blue-400/30 transition-all duration-300 mb-10">
           <CardHeader className="pb-4 border-b border-blue-500/20">
-            <CardTitle className="text-2xl font-bold text-blue-100">📋 Claims Review Queue</CardTitle>
-            <CardDescription className="text-slate-300 text-base">Review AI-analyzed claims and make approval decisions</CardDescription>
+            <CardTitle className="text-2xl font-bold text-blue-100">
+              {statusParam === 'pending' ? '⏳ Pending Review Operations' :
+                statusParam === 'approved' ? '✅ Approved Claims List' :
+                  statusParam === 'rejected' ? '❌ Rejected Claims List' :
+                    '📋 All Comp claims'}
+            </CardTitle>
+            <CardDescription className="text-slate-300 text-base">
+              {statusParam === 'pending' ? 'Focus on these high-priority pending claims' :
+                statusParam === 'approved' ? 'Processed and verified claims' :
+                  statusParam === 'rejected' ? 'Claims denied due to policy violations' :
+                    'Comprehensive list of all insurance claims'}
+            </CardDescription>
           </CardHeader>
           <CardContent className="pt-6">
             <Table>
@@ -177,7 +195,7 @@ const OfficerReview = () => {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {claims.map((claim) => (
+                {filteredClaims.map((claim) => (
                   <TableRow key={claim.id} className="hover:bg-blue-500/10 border-b border-blue-500/10 transition-colors duration-200">
                     <TableCell className="font-bold text-blue-400">{claim.id}</TableCell>
                     <TableCell>
@@ -286,8 +304,8 @@ const OfficerReview = () => {
           </CardContent>
         </Card>
       </div>
-      <Footer />
-    </div>
+
+    </DashboardLayout>
   );
 };
 

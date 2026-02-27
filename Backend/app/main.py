@@ -5,6 +5,9 @@ from .config import settings
 from .database.session import engine
 from .database.base import Base
 from .api.routes import auth
+from .api.routes import model
+from .api.routes import damage
+from .api.routes import crop_assessment
 
 from contextlib import asynccontextmanager
 
@@ -68,6 +71,9 @@ app.add_middleware(
 
 # Include routes
 app.include_router(auth.router)
+app.include_router(model.router)
+app.include_router(damage.router)
+app.include_router(crop_assessment.router)
 
 @app.get("/", tags=["Health"])
 def root():

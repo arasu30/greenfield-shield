@@ -76,3 +76,8 @@ class FarmCRUD:
     @staticmethod
     def get_farms_by_farmer(db: Session, farmer_id: int) -> list[Farm]:
         return db.query(Farm).filter(Farm.farmer_id == farmer_id).all()
+
+    @staticmethod
+    def get_farm_by_id(db: Session, farm_id: int) -> Farm:
+        """Get a farm by its ID, including boundary geometry."""
+        return db.query(Farm).filter(Farm.id == farm_id).first()

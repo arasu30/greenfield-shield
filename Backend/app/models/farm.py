@@ -6,6 +6,7 @@ from app.database.base import Base
 class Farm(Base):
     __tablename__ = "farms"
     
+    
     id = Column(Integer, primary_key=True, index=True)
     farmer_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     farm_name = Column(String, nullable=True)

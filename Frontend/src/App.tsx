@@ -11,7 +11,10 @@ import ClaimDamage from "./pages/ClaimDamage";
 import CropHealth from "./pages/CropHealth";
 import OfficerReview from "./pages/OfficerReview";
 import AdminPanel from "./pages/AdminPanel";
+import Profile from "./pages/Profile";
 import NotFound from "./pages/NotFound";
+
+import DashboardRoutes from "./layouts/DashboardRoutes";
 
 const queryClient = new QueryClient();
 
@@ -23,11 +26,17 @@ const App = () => (
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Login />} />
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/buy-policy" element={<BuyPolicy />} />
-          <Route path="/my-policies" element={<MyPolicies />} />
-          <Route path="/claim-damage" element={<ClaimDamage />} />
-          <Route path="/crop-health" element={<CropHealth />} />
+
+          {/* Nested Dashboard Routes */}
+          <Route path="/dashboard" element={<DashboardRoutes />}>
+            <Route index element={<Dashboard />} />
+            <Route path="profile" element={<Profile />} />
+            <Route path="buy-policy" element={<BuyPolicy />} />
+            <Route path="my-policies" element={<MyPolicies />} />
+            <Route path="claim-damage" element={<ClaimDamage />} />
+            <Route path="crop-health" element={<CropHealth />} />
+          </Route>
+
           <Route path="/officer-review" element={<OfficerReview />} />
           <Route path="/admin" element={<AdminPanel />} />
           <Route path="*" element={<NotFound />} />

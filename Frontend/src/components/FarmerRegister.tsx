@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label";
 import {
     User, Mail, Lock, Phone, Smartphone,
     Play, Square, RefreshCw, Check,
-    Sprout, Tractor
+    Sprout, Tractor, MousePointer2, Undo2, Map as MapIcon
 } from "lucide-react";
 import { toast } from "sonner";
 import { LocationMap } from "./LocationMap";
@@ -32,8 +32,19 @@ export const FarmerRegister = () => {
     const [currentPosition, setCurrentPosition] = useState<{ lat: number; lng: number } | null>(null);
     const [boundaryPoints, setBoundaryPoints] = useState<Array<{ lat: number; lng: number }>>([]);
     const [isRecording, setIsRecording] = useState(false);
+    const [mappingMode, setMappingMode] = useState<'walk' | 'manual' | null>(null);
     const [watchId, setWatchId] = useState<number | null>(null);
     const [mappingConfirmed, setMappingConfirmed] = useState(false);
+
+    const handleMapClick = (lat: number, lng: number) => {
+        if (mappingMode === 'manual' && !mappingConfirmed) {
+            setBoundaryPoints((prev) => [...prev, { lat, lng }]);
+        }
+    };
+
+    const undoLastPoint = () => {
+        setBoundaryPoints((prev) => prev.slice(0, -1));
+    };
 
     const startMapping = () => {
         if (!navigator.geolocation) {
@@ -44,6 +55,7 @@ export const FarmerRegister = () => {
         setBoundaryPoints([]); // Clear previous points
         setMappingConfirmed(false);
         setIsRecording(true);
+        setMappingMode('walk');
 
         toast.info("Starting to map. Walk around your farm boundary!");
 
@@ -99,12 +111,18 @@ export const FarmerRegister = () => {
         setIsRecording(false);
         setBoundaryPoints([]);
         setMappingConfirmed(false);
+        setMappingMode(null);
         setCurrentPosition(null);
     };
 
     const handleRegister = async () => {
         if (!formData.full_name || !formData.email || !formData.password || !mappingConfirmed) {
             toast.error("Please fill all details and confirm your farm mapping");
+            return;
+        }
+
+        if (formData.phone && formData.phone.length !== 10) {
+            toast.error("Phone number must be exactly 10 digits");
             return;
         }
 
@@ -135,6 +153,7 @@ export const FarmerRegister = () => {
             toast.success("Registration successful! Welcome to CropSure.");
 
             localStorage.setItem('access_token', data.tokens.access_token);
+            localStorage.setItem('user', JSON.stringify(data.user));
             navigate('/dashboard');
 
         } catch (err: any) {
@@ -257,17 +276,71 @@ export const FarmerRegister = () => {
                 <div className="space-y-3 pt-2">
                     <Label className="text-cyan-200">Perimeter Mapping</Label>
 
-                    {!isRecording && boundaryPoints.length === 0 && (
-                        <Button
-                            onClick={startMapping}
-                            variant="outline"
-                            className="w-full border-dashed border-cyan-500/30 bg-transparent text-cyan-400 hover:bg-cyan-500/10 h-16 gap-2"
-                        >
-                            <Play className="w-5 h-5 fill-current" /> Start Mapping Walk
-                        </Button>
+                    {!mappingMode && (
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                            <Button
+                                onClick={startMapping}
+                                variant="outline"
+                                className="border-dashed border-cyan-500/30 bg-transparent text-cyan-400 hover:bg-cyan-500/10 h-20 gap-2 flex-col"
+                            >
+                                <Play className="w-5 h-5 fill-current" />
+                                <div className="text-center">
+                                    <p className="font-bold">Walk Boundary</p>
+                                    <p className="text-[10px] opacity-60">Use Live GPS Tracking</p>
+                                </div>
+                            </Button>
+                            <Button
+                                onClick={() => {
+                                    setMappingMode('manual');
+                                    setBoundaryPoints([]);
+                                    setMappingConfirmed(false);
+                                    toast.info("Click on the map to mark farm corners");
+                                }}
+                                variant="outline"
+                                className="border-dashed border-cyan-500/30 bg-transparent text-cyan-400 hover:bg-cyan-500/10 h-20 gap-2 flex-col"
+                            >
+                                <MousePointer2 className="w-5 h-5" />
+                                <div className="text-center">
+                                    <p className="font-bold">Point on Map</p>
+                                    <p className="text-[10px] opacity-60">Manual Selection</p>
+                                </div>
+                            </Button>
+                        </div>
                     )}
 
-                    {isRecording && (
+                    {mappingMode === 'manual' && !mappingConfirmed && (
+                        <div className="space-y-3">
+                            <div className="flex items-center justify-between bg-cyan-500/10 border border-cyan-500/30 p-2 rounded-lg">
+                                <span className="text-cyan-400 text-sm flex items-center gap-2">
+                                    <MousePointer2 className="w-4 h-4" />
+                                    Manual Selection Mode
+                                </span>
+                                <div className="flex gap-2">
+                                    <Button onClick={undoLastPoint} size="sm" variant="ghost" className="text-orange-400" disabled={boundaryPoints.length === 0}>
+                                        <Undo2 className="w-4 h-4 mr-1" /> Undo
+                                    </Button>
+                                    <Button onClick={() => {
+                                        if (boundaryPoints.length < 3) {
+                                            toast.warning("Select at least 3 points for the boundary");
+                                            return;
+                                        }
+                                        setMappingConfirmed(true);
+                                    }} size="sm" className="bg-emerald-600 hover:bg-emerald-700">
+                                        Done
+                                    </Button>
+                                </div>
+                            </div>
+                            <LocationMap
+                                currentPosition={null}
+                                boundary={boundaryPoints}
+                                isRecording={false}
+                                onMapClick={handleMapClick}
+                            />
+                            <p className="text-[10px] text-slate-500 italic text-center">Click on the map to add boundary corners. Minimum 3 points required.</p>
+                        </div>
+                    )}
+
+                    {isRecording && mappingMode === 'walk' && (
                         <div className="space-y-3">
                             <div className="flex items-center justify-between bg-orange-500/10 border border-orange-500/30 p-2 rounded-lg">
                                 <span className="text-orange-400 text-sm animate-pulse flex items-center gap-2">
@@ -282,24 +355,28 @@ export const FarmerRegister = () => {
                         </div>
                     )}
 
-                    {!isRecording && boundaryPoints.length > 0 && (
+                    {mappingMode && mappingConfirmed && (
                         <div className="space-y-3">
                             <LocationMap currentPosition={null} boundary={boundaryPoints} isRecording={false} />
-                            {!mappingConfirmed ? (
-                                <div className="grid grid-cols-2 gap-3">
-                                    <Button onClick={() => setMappingConfirmed(true)} className="bg-green-600 hover:bg-green-700">
-                                        <Check className="w-4 h-4 mr-2" /> Confirm
-                                    </Button>
-                                    <Button onClick={resetMapping} variant="outline" className="text-slate-400">
-                                        <RefreshCw className="w-4 h-4 mr-2" /> Remap
-                                    </Button>
+                            <div className="bg-green-500/10 border border-green-500/30 p-3 rounded-lg flex flex-col items-center gap-2">
+                                <div className="flex items-center gap-2 text-green-400 text-sm font-bold">
+                                    <Check className="w-5 h-5" /> Boundary Confirmed
                                 </div>
-                            ) : (
-                                <div className="bg-green-500/10 border border-green-500/30 p-2 rounded-lg text-green-400 text-center text-sm flex items-center justify-center gap-2">
-                                    <Check className="w-4 h-4" /> Boundary Confirmed
-                                    <button onClick={() => setMappingConfirmed(false)} className="text-xs underline ml-2 opacity-50 hover:opacity-100">Edit</button>
+                                <div className="flex gap-4">
+                                    <button
+                                        onClick={() => setMappingConfirmed(false)}
+                                        className="text-xs text-slate-400 underline hover:text-white transition-colors"
+                                    >
+                                        Edit Mapping
+                                    </button>
+                                    <button
+                                        onClick={resetMapping}
+                                        className="text-xs text-orange-400 underline hover:text-orange-300 transition-colors"
+                                    >
+                                        Switch Mode
+                                    </button>
                                 </div>
-                            )}
+                            </div>
                         </div>
                     )}
                 </div>

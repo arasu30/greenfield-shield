@@ -9,6 +9,7 @@ from app.api.schemas.auth import (
     TokenResponse,
     RefreshTokenRequest,
     ChangePasswordRequest,
+    OTPLoginRequest,
 )
 from app.services.auth_service import AuthService
 from app.models.user import UserRole
@@ -32,7 +33,9 @@ def get_current_user_dependency(credentials = Depends(oauth2_scheme)):
     return {
         "id": int(payload.get("sub")),
         "email": payload.get("email"),
+        "full_name": payload.get("full_name"),
         "role": payload.get("role"),
+        "phone": payload.get("phone"),
     }
 
 
@@ -61,6 +64,27 @@ def login(
     """
     # pass optional role so officers/admins can be created on first login
     result = AuthService.login(db, credentials.email, credentials.password, credentials.role)
+    
+    return LoginResponse(
+        user=result["user"],
+        tokens=TokenResponse(
+            access_token=result["access_token"],
+            refresh_token=result["refresh_token"],
+            expires_in=result["expires_in"],
+        ),
+    )
+
+@router.post("/otp-login", response_model=LoginResponse, status_code=status.HTTP_200_OK)
+def otp_login(
+    credentials: OTPLoginRequest,
+    db: Session = Depends(get_db)
+):
+    """
+    Login endpoint for farmers using phone and OTP
+    
+    Returns user data and JWT tokens
+    """
+    result = AuthService.login_by_phone(db, credentials.phone, credentials.otp)
     
     return LoginResponse(
         user=result["user"],

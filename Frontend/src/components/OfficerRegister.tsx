@@ -122,7 +122,7 @@ export const OfficerRegister = () => {
                 </div>
             </div>
 
-            <div className="grid grid-col">
+            {/* <div className="grid grid-col"> */}
                 {/* <div className="space-y-2">
                     <Label className="text-slate-300">Department</Label>
                     <div className="relative">
@@ -150,13 +150,13 @@ export const OfficerRegister = () => {
                         />
                     </div>
                 </div> */}
-            </div>
+            {/* </div> */}
 
 
             <div className="space-y-2 pb-2">
                 <Label className="text-slate-300">Password</Label>
                 <div className="relative">
-                    <Lock className="absolute left-3 top-3.5 h-5 w-5 text-blue-400" />
+                    <Lock className="absolute left-3 top-3.5 h- w-5 text-blue-400" />
                     <Input
                         name="password"
                         type="password"

@@ -2,15 +2,10 @@ import logging
 import os
 from sqlalchemy.orm import Session
 from sqlalchemy import func
+from geoalchemy2.shape import to_shape
 from app.models.farm import Farm
 
-# Configure logging to a file
-log_file = os.path.join(os.getcwd(), "registration_debug.log")
-logging.basicConfig(
-    filename=log_file,
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
+# Logger for FarmCRUD
 logger = logging.getLogger("FarmCRUD")
 
 class FarmCRUD:
@@ -38,6 +33,7 @@ class FarmCRUD:
                 logger.error(f"Insufficient unique points: {len(unique_points)}")
                 raise ValueError("A farm boundary must have at least 3 distinct unique locations.")
 
+            print(f"DEBUG: Preparing farm boundary with {len(unique_points)} points")
             # Ensure the polygon is closed
             coords = [(p["lng"], p["lat"]) for p in unique_points]
             coords.append(coords[0])
@@ -54,17 +50,21 @@ class FarmCRUD:
                 boundary=f"SRID=4326;{wkt}"
             )
 
+            print("DEBUG: Saving farm to database...")
             db.add(new_farm)
             db.commit()
             db.refresh(new_farm)
             
+            print("DEBUG: Calculating farm area...")
             # Calculate area in acres using PostGIS ST_Area
             # ST_Area(geograph) returns square meters
             area_sqm = db.query(func.ST_Area(new_farm.boundary)).scalar()
+            print(f"DEBUG: Raw area in sqm: {area_sqm}")
             new_farm.area_acres = area_sqm / 4046.86
             
             db.commit()
             db.refresh(new_farm)
+            print(f"DEBUG: Farm saved. ID: {new_farm.id}, Area: {new_farm.area_acres}")
             logger.info(f"Farm created with ID: {new_farm.id}, Area: {new_farm.area_acres} acres")
             return new_farm
 
@@ -81,3 +81,25 @@ class FarmCRUD:
     def get_farm_by_id(db: Session, farm_id: int) -> Farm:
         """Get a farm by its ID, including boundary geometry."""
         return db.query(Farm).filter(Farm.id == farm_id).first()
+
+    @staticmethod
+    def get_boundary_points(farm: Farm) -> list[dict[str, float]]:
+        """Extract lat/lng points from the farm's boundary geography."""
+        try:
+            if not farm.boundary:
+                print(f"DEBUG: No boundary for farm {farm.id}")
+                return []
+            
+            # Convert WKBElement to shapely geometry
+            shape = to_shape(farm.boundary)
+            print(f"DEBUG: Parsed shape type: {type(shape)}")
+            
+            # Get exterior coords (lng, lat)
+            coords = list(shape.exterior.coords)
+            print(f"DEBUG: Extracted {len(coords)} coordinates")
+            
+            # Return as list of {lat, lng} for the frontend
+            return [{"lat": lat, "lng": lng} for lng, lat in coords]
+        except Exception as e:
+            logger.error(f"Error parsing boundary points: {str(e)}")
+            return []

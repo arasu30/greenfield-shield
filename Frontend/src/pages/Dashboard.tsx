@@ -41,7 +41,23 @@ const Dashboard = () => {
   useEffect(() => {
     const fetchDashboardData = async () => {
       const token = localStorage.getItem('access_token');
-      const user = JSON.parse(localStorage.getItem('user') || '{}');
+      const storedUser = localStorage.getItem('user');
+
+      if (!storedUser) {
+        navigate('/');
+        return;
+      }
+
+      const user = JSON.parse(storedUser);
+
+      // Role-based redirection
+      if (user.role === 'officer') {
+        navigate('/officer-review');
+        return;
+      } else if (user.role === 'admin') {
+        navigate('/admin');
+        return;
+      }
 
       if (user.full_name) {
         setUserName(user.full_name.split(' ')[0]); // Use first name

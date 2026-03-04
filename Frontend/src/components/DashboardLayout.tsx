@@ -20,6 +20,7 @@ import {
     XCircle,
     AlertCircle,
     Smartphone,
+    Calendar,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -106,8 +107,14 @@ const DashboardLayout = ({ children, role = 'farmer' }: DashboardLayoutProps) =>
         { label: "Rejected Claims", icon: XCircle, path: "/officer-review?status=rejected" },
         { label: "Total Claims", icon: AlertCircle, path: "/officer-review?status=all" },
 
+        { label: "Policy Management", type: 'header' },
+        { label: "Active Policies", icon: ShieldCheck, path: "/officer/policies?status=active" },
+        { label: "Pending Policies", icon: Calendar, path: "/officer/policies?status=pending" },
+        { label: "Expired Policies", icon: ShieldCheck, path: "/officer/policies?status=expired" },
+        { label: "All Policies", icon: FileText, path: "/officer/policies" },
+
         { label: "Reports", type: 'header' },
-        { label: "Field Reports", icon: FileText, path: "/officer/reports" },
+        { label: "Farmers", icon: User, path: "/officer/farmers" },
     ];
 
     const navItems = role === 'admin' ? adminNavItems : role === 'officer' ? officerNavItems : farmerNavItems;

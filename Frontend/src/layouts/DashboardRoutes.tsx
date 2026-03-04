@@ -5,12 +5,23 @@ import DashboardLayout from "@/components/DashboardLayout";
 const DashboardRoutes = () => {
     const location = useLocation();
 
-    // Determine the role for the layout based on the path if needed, 
-    // or just default to farmer. For now, we'll keep it flexible.
-    // The role prop in DashboardLayout can be enhanced later if needed.
+    // Get user from local storage to determine role
+    const storedUser = localStorage.getItem('user');
+    let role: 'farmer' | 'admin' | 'officer' = 'farmer';
+
+    if (storedUser) {
+        try {
+            const user = JSON.parse(storedUser);
+            if (user.role === 'admin' || user.role === 'officer' || user.role === 'farmer') {
+                role = user.role;
+            }
+        } catch (e) {
+            console.error("Failed to parse user role in DashboardRoutes", e);
+        }
+    }
 
     return (
-        <DashboardLayout>
+        <DashboardLayout role={role}>
             <Outlet />
         </DashboardLayout>
     );

@@ -274,12 +274,14 @@ const DashboardLayout = ({ children, role = 'farmer' }: DashboardLayoutProps) =>
                                         <Avatar className="w-9 h-9 border border-green-500/50 shadow-lg shadow-green-500/20 group-hover:shadow-green-500/40 transition-all duration-300">
                                             <AvatarImage src="/placeholder-user.jpg" />
                                             <AvatarFallback className="bg-gradient-to-br from-green-600 to-emerald-700 text-white font-bold text-xs">
-                                                {user?.full_name ? user.full_name.substring(0, 2).toUpperCase() : (role === 'admin' ? 'AD' : 'RK')}
+                                                {user?.full_name 
+                                                    ? user.full_name.substring(0, 2).toUpperCase() 
+                                                    : (role === 'admin' ? 'AD' : role === 'officer' ? 'OF' : 'FM')}
                                             </AvatarFallback>
                                         </Avatar>
                                         <div className="block text-left hidden md:block">
                                             <p className="text-sm font-semibold text-slate-100 group-hover:text-white transition-colors leading-none mb-1">
-                                                {user?.full_name || (role === 'admin' ? 'Administrator' : role === 'officer' ? 'Field Officer' : 'User')}
+                                                {user?.full_name || (role === 'admin' ? 'Administrator' : role === 'officer' ? 'Field Officer' : 'Farmer')}
                                             </p>
                                             <div className="flex items-center gap-1.5">
                                                 <div className={cn("w-1.5 h-1.5 rounded-full animate-pulse", role === 'admin' ? "bg-purple-500" : "bg-green-500")}></div>

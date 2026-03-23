@@ -4,10 +4,10 @@ from typing import Optional
 class Settings(BaseSettings):
     # Database
     DATABASE_URL: str
-    DATABASE_PORT: int = 5432
-    DATABASE_USER: str
-    DATABASE_PASSWORD: str
-    DATABASE_NAME: str
+    DATABASE_PORT: Optional[int] = 5432
+    DATABASE_USER: Optional[str] = None
+    DATABASE_PASSWORD: Optional[str] = None
+    DATABASE_NAME: Optional[str] = None
     
     # Security
     SECRET_KEY: str

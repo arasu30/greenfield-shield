@@ -2,8 +2,8 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, Session
 from app.config import settings
 
-# Create database URL
-DATABASE_URL = f"postgresql://{settings.DATABASE_USER}:{settings.DATABASE_PASSWORD}@localhost:{settings.DATABASE_PORT}/{settings.DATABASE_NAME}"
+# Create database URL from settings
+DATABASE_URL = settings.DATABASE_URL
 
 # Create engine
 engine = create_engine(

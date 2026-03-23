@@ -9,7 +9,11 @@ from app.api.schemas.auth import (
     TokenResponse,
     RefreshTokenRequest,
     ChangePasswordRequest,
+    OTPLoginRequest,
+    ProfileUpdate,
+    UserResponse,
 )
+from app.crud.user import UserCRUD
 from app.services.auth_service import AuthService
 from app.models.user import UserRole
 from app.utils.errors import InvalidToken, AccessDenied
@@ -32,7 +36,9 @@ def get_current_user_dependency(credentials = Depends(oauth2_scheme)):
     return {
         "id": int(payload.get("sub")),
         "email": payload.get("email"),
+        "full_name": payload.get("full_name"),
         "role": payload.get("role"),
+        "phone": payload.get("phone"),
     }
 
 
@@ -61,6 +67,27 @@ def login(
     """
     # pass optional role so officers/admins can be created on first login
     result = AuthService.login(db, credentials.email, credentials.password, credentials.role)
+    
+    return LoginResponse(
+        user=result["user"],
+        tokens=TokenResponse(
+            access_token=result["access_token"],
+            refresh_token=result["refresh_token"],
+            expires_in=result["expires_in"],
+        ),
+    )
+
+@router.post("/otp-login", response_model=LoginResponse, status_code=status.HTTP_200_OK)
+def otp_login(
+    credentials: OTPLoginRequest,
+    db: Session = Depends(get_db)
+):
+    """
+    Login endpoint for farmers using phone and OTP
+    
+    Returns user data and JWT tokens
+    """
+    result = AuthService.login_by_phone(db, credentials.phone, credentials.otp)
     
     return LoginResponse(
         user=result["user"],
@@ -141,3 +168,24 @@ def change_password(
     
     return result
 
+@router.get("/me", response_model=UserResponse)
+def get_me(
+    current_user = Depends(get_current_user_dependency),
+    db: Session = Depends(get_db)
+):
+    """Get current user details from database"""
+    user = UserCRUD.get_user_by_id(db, current_user["id"])
+    return user
+
+@router.patch("/profile", response_model=UserResponse)
+def update_profile(
+    update_data: ProfileUpdate,
+    current_user = Depends(get_current_user_dependency),
+    db: Session = Depends(get_db)
+):
+    """Update current user profile"""
+    # Filter out None values
+    update_dict = {k: v for k, v in update_data.model_dump().items() if v is not None}
+    
+    user = UserCRUD.update_user(db, current_user["id"], **update_dict)
+    return user

@@ -5,15 +5,32 @@ from .config import settings
 from .database.session import engine
 from .database.base import Base
 from .api.routes import auth
+# from .api.routes import model
+# from .api.routes import damage
+# from .api.routes import crop_assessment
+from .api.routes import farmer
+from .api.routes import officer
+from .api.routes import scheme # Added scheme router
+from .models.claim import Claim # Ensure Claim model is loaded for metadata
 
 from contextlib import asynccontextmanager
 
-# Create database tables
-Base.metadata.create_all(bind=engine)
+# Removed top-level create_all to prevent startup hangs.
+# Tables should be managed via Alembic or inside lifespan.
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Run startup tasks"""
+    print("DEBUG: Application starting up...")
+    
+    # Optional: Create tables on startup if not using Alembic exclusively
+    try:
+        print("DEBUG: Verifying database tables...")
+        Base.metadata.create_all(bind=engine)
+        print("DEBUG: Database tables verified.")
+    except Exception as e:
+        print(f"WARNING: Error during create_all: {e}")
+
     # Create initial admin user if not exists
     from app.database.session import SessionLocal
     from app.crud.user import UserCRUD
@@ -68,6 +85,12 @@ app.add_middleware(
 
 # Include routes
 app.include_router(auth.router)
+# app.include_router(model.router)
+# app.include_router(damage.router)
+# app.include_router(crop_assessment.router)
+app.include_router(farmer.router)
+app.include_router(officer.router)
+app.include_router(scheme.router, prefix="/schemes", tags=["Schemes"]) # Scheme routes
 
 @app.get("/", tags=["Health"])
 def root():

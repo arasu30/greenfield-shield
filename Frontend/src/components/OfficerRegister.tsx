@@ -14,8 +14,6 @@ export const OfficerRegister = () => {
         email: "",
         password: "",
         phone: "",
-        // department: "",
-        // officer_id: "",
     });
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -24,10 +22,10 @@ export const OfficerRegister = () => {
 
     const handleRegister = async () => {
         // Basic Validation
-        // if (!formData.full_name || !formData.email || !formData.password || !formData.phone || !formData.department || !formData.officer_id) {
-        //     toast.error("Please fill in all fields");
-        //     return;
-        // }
+        if (!formData.full_name || !formData.email || !formData.password || !formData.phone) {
+            toast.error("Please fill in all fields");
+            return;
+        }
 
         if (formData.password.length <= 5) {
             toast.error("Password must be at least 5 characters");
@@ -46,8 +44,6 @@ export const OfficerRegister = () => {
                     password: formData.password,
                     role: 'officer',
                     phone: formData.phone,
-                    // department: formData.department,
-                    // officer_id: formData.officer_id,
                 }),
             });
 
@@ -122,41 +118,10 @@ export const OfficerRegister = () => {
                 </div>
             </div>
 
-            <div className="grid grid-col">
-                {/* <div className="space-y-2">
-                    <Label className="text-slate-300">Department</Label>
-                    <div className="relative">
-                        <Building2 className="absolute left-3 top-3.5 h-5 w-5 text-blue-400" />
-                        <Input
-                            placeholder="Dept. of Agriculture"
-                            className="pl-10 bg-slate-950/50 border-slate-800 text-slate-100 placeholder-slate-500 focus:border-blue-500/50 h-11"
-                            name="department"
-                            value={formData.department}
-                            onChange={handleChange}
-                        />
-                    </div>
-                </div> */}
-
-                {/* <div className="space-y-2">
-                    <Label className="text-slate-300">Officer ID</Label>
-                    <div className="relative">
-                        <BadgeCheck className="absolute left-3 top-3.5 h-5 w-5 text-blue-400" />
-                        <Input
-                            placeholder="OFF-2024-001"
-                            className="pl-10 bg-slate-950/50 border-slate-800 text-slate-100 placeholder-slate-500 focus:border-blue-500/50 h-11"
-                            name="officer_id"
-                            value={formData.officer_id}
-                            onChange={handleChange}
-                        />
-                    </div>
-                </div> */}
-            </div>
-
-
             <div className="space-y-2 pb-2">
                 <Label className="text-slate-300">Password</Label>
                 <div className="relative">
-                    <Lock className="absolute left-3 top-3.5 h-5 w-5 text-blue-400" />
+                    <Lock className="absolute left-3 top-3.5 h- w-5 text-blue-400" />
                     <Input
                         name="password"
                         type="password"

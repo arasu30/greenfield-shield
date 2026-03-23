@@ -1,4 +1,4 @@
-import { MapContainer, TileLayer, Marker, Popup, Polygon, Polyline, useMap } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, Popup, Polygon, Polyline, useMap, useMapEvents } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 import { useEffect } from 'react';
@@ -19,7 +19,32 @@ interface LocationMapProps {
     currentPosition: { lat: number; lng: number } | null;
     boundary?: Array<{ lat: number; lng: number }>;
     isRecording?: boolean;
+    onMapClick?: (lat: number, lng: number) => void;
 }
+
+// Component to handle map clicks
+const MapClickHandler = ({ onMapClick }: { onMapClick?: (lat: number, lng: number) => void }) => {
+    useMapEvents({
+        click: (e) => {
+            if (onMapClick) {
+                onMapClick(e.latlng.lat, e.latlng.lng);
+            }
+        },
+    });
+    return null;
+};
+
+// Component to fit map to boundary bounds
+const FitBoundary = ({ boundary }: { boundary: Array<{ lat: number; lng: number }> }) => {
+    const map = useMap();
+    useEffect(() => {
+        if (boundary.length >= 3) {
+            const bounds = L.latLngBounds(boundary.map(p => [p.lat, p.lng]));
+            map.fitBounds(bounds, { padding: [20, 20] });
+        }
+    }, [boundary, map]);
+    return null;
+};
 
 // Component to recenter map when position changes
 const RecenterMap = ({ position }: { position: { lat: number; lng: number } | null }) => {
@@ -32,8 +57,8 @@ const RecenterMap = ({ position }: { position: { lat: number; lng: number } | nu
     return null;
 };
 
-export const LocationMap = ({ currentPosition, boundary = [], isRecording }: LocationMapProps) => {
-    const center = currentPosition || (boundary.length > 0 ? boundary[0] : { lat: 51.505, lng: -0.09 }); // Default or first point
+export const LocationMap = ({ currentPosition, boundary = [], isRecording, onMapClick }: LocationMapProps) => {
+    const center = currentPosition || (boundary.length > 0 ? boundary[boundary.length - 1] : { lat: 19.0760, lng: 72.8777 }); // Default to Mumbai or last point
 
     const polygonPositions = boundary.map(p => [p.lat, p.lng] as [number, number]);
 
@@ -42,7 +67,7 @@ export const LocationMap = ({ currentPosition, boundary = [], isRecording }: Loc
             <MapContainer
                 center={[center.lat, center.lng]}
                 zoom={18}
-                scrollWheelZoom={false}
+                scrollWheelZoom={true}
                 style={{ height: '100%', width: '100%' }}
             >
                 <TileLayer
@@ -50,8 +75,14 @@ export const LocationMap = ({ currentPosition, boundary = [], isRecording }: Loc
                     url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                 />
 
+                {/* Handle clicks for manual mapping */}
+                <MapClickHandler onMapClick={onMapClick} />
+
                 {/* Helper to keep map centered on user while recording */}
                 {isRecording && <RecenterMap position={currentPosition} />}
+
+                {/* Helper to fit bounds to boundary when not recording */}
+                {!isRecording && boundary.length >= 3 && <FitBoundary boundary={boundary} />}
 
                 {/* Current Position Marker */}
                 {currentPosition && (

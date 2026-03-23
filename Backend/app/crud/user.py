@@ -6,6 +6,11 @@ from app.utils.security import hash_password
 
 class UserCRUD:
     @staticmethod
+    def get_user_by_phone(db: Session, phone: str) -> User:
+        """Get user by phone number"""
+        return db.query(User).filter(User.phone == phone).first()
+    
+    @staticmethod
     def get_user_by_email(db: Session, email: str) -> User:
         """Get user by email"""
         return db.query(User).filter(User.email == email).first()
@@ -84,6 +89,11 @@ class UserCRUD:
         """Get all officers"""
         return db.query(User).filter(User.role == UserRole.OFFICER).all()
     
+    @staticmethod
+    def get_farmers(db: Session) -> list[User]:
+        """Get all farmers"""
+        return db.query(User).filter(User.role == UserRole.FARMER).all()
+
     @staticmethod
     def get_active_users(db: Session) -> list[User]:
         """Get all active users"""

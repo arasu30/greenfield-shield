@@ -1,4 +1,4 @@
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, EmailStr, Field
 from typing import Optional
 from datetime import datetime
 from app.models.user import UserRole
@@ -8,6 +8,11 @@ class LoginRequest(BaseModel):
     email: EmailStr
     password: str
     role: UserRole = UserRole.FARMER
+
+class OTPLoginRequest(BaseModel):
+    """OTP Login request schema"""
+    phone: str = Field(..., min_length=10, max_length=10, pattern=r"^\d{10}$")
+    otp: str = Field(..., min_length=6, max_length=6)
 
 class TokenResponse(BaseModel):
     """Token response schema"""
@@ -47,7 +52,7 @@ class RegisterRequest(BaseModel):
     full_name: str
     password: str
     role: UserRole = UserRole.FARMER
-    phone: Optional[str] = None
+    phone: Optional[str] = Field(None, min_length=10, max_length=10, pattern=r"^\d{10}$")
     address: Optional[str] = None
     department: Optional[str] = None  # For officers
     officer_id: Optional[str] = None  # For officers
@@ -67,3 +72,11 @@ class ChangePasswordRequest(BaseModel):
     old_password: str
     new_password: str
     confirm_password: str
+
+class ProfileUpdate(BaseModel):
+    """Schema for updating user profile"""
+    full_name: Optional[str] = None
+    phone: Optional[str] = Field(None, min_length=10, max_length=10, pattern=r"^\d{10}$")
+    address: Optional[str] = None
+    department: Optional[str] = None
+    officer_id: Optional[str] = None

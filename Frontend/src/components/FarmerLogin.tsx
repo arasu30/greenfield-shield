@@ -21,12 +21,35 @@ export const FarmerLogin = () => {
         }
     };
 
-    const handleFarmerLogin = () => {
-        if (otp.length === 6) {
-            toast.success("Login successful!");
-            navigate("/dashboard");
-        } else {
+    const handleFarmerLogin = async () => {
+        if (otp.length !== 6) {
             toast.error("Please enter a valid 6-digit OTP");
+            return;
+        }
+
+        try {
+            const response = await fetch(`${import.meta.env.VITE_BACKEND_URL || 'http://localhost:8000'}/auth/otp-login`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ phone, otp })
+            });
+
+            if (!response.ok) {
+                const errData = await response.json();
+                throw new Error(errData.detail || "Login failed");
+            }
+
+            const data = await response.json();
+            toast.success("Login successful!");
+
+            // Store tokens and user info
+            localStorage.setItem('access_token', data.tokens.access_token);
+            localStorage.setItem('user', JSON.stringify(data.user));
+
+            navigate("/dashboard");
+        } catch (error: any) {
+            console.error("Login error:", error);
+            toast.error(error.message || "Error during login. Please ensure you are registered.");
         }
     };
 

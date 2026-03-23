@@ -10,8 +10,14 @@ import MyPolicies from "./pages/MyPolicies";
 import ClaimDamage from "./pages/ClaimDamage";
 import CropHealth from "./pages/CropHealth";
 import OfficerReview from "./pages/OfficerReview";
+import OfficerFarmers from "./pages/OfficerFarmers.tsx";
+import OfficerPolicies from "./pages/OfficerPolicies";
 import AdminPanel from "./pages/AdminPanel";
+import Profile from "./pages/Profile";
 import NotFound from "./pages/NotFound";
+import FarmerSchemes from "./pages/FarmerSchemes";
+
+import DashboardRoutes from "./layouts/DashboardRoutes";
 
 const queryClient = new QueryClient();
 
@@ -23,12 +29,21 @@ const App = () => (
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Login />} />
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/buy-policy" element={<BuyPolicy />} />
-          <Route path="/my-policies" element={<MyPolicies />} />
-          <Route path="/claim-damage" element={<ClaimDamage />} />
-          <Route path="/crop-health" element={<CropHealth />} />
+
+          {/* Nested Dashboard Routes */}
+          <Route path="/dashboard" element={<DashboardRoutes />}>
+            <Route index element={<Dashboard />} />
+            <Route path="profile" element={<Profile />} />
+            <Route path="buy-policy" element={<BuyPolicy />} />
+            <Route path="my-policies" element={<MyPolicies />} />
+            <Route path="claim-damage" element={<ClaimDamage />} />
+            <Route path="crop-health" element={<CropHealth />} />
+            <Route path="schemes" element={<FarmerSchemes />} />
+          </Route>
+
           <Route path="/officer-review" element={<OfficerReview />} />
+          <Route path="/officer/farmers" element={<OfficerFarmers />} />
+          <Route path="/officer/policies" element={<OfficerPolicies />} />
           <Route path="/admin" element={<AdminPanel />} />
           <Route path="*" element={<NotFound />} />
         </Routes>

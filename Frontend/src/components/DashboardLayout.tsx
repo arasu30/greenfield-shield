@@ -11,6 +11,7 @@ import {
     Menu,
     Sprout,
     LogOut,
+    BookOpen,
     User,
     ChevronDown,
     DollarSign,
@@ -19,6 +20,8 @@ import {
     CheckCircle,
     XCircle,
     AlertCircle,
+    Smartphone,
+    Calendar,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -81,10 +84,11 @@ const DashboardLayout = ({ children, role = 'farmer' }: DashboardLayoutProps) =>
 
     const farmerNavItems = [
         { label: "Dashboard", icon: LayoutDashboard, path: "/dashboard" },
-        { label: "Buy Policy", icon: ShieldCheck, path: "/buy-policy" },
-        { label: "My Policies", icon: FileText, path: "/my-policies" },
-        { label: "Claim Damage", icon: AlertTriangle, path: "/claim-damage" },
-        { label: "Crop Health", icon: Satellite, path: "/crop-health" },
+        { label: "Buy Policy", icon: ShieldCheck, path: "/dashboard/buy-policy" },
+        { label: "My Policies", icon: FileText, path: "/dashboard/my-policies" },
+        { label: "Govt Schemes", icon: BookOpen, path: "/dashboard/schemes" },
+        { label: "Claim Damage", icon: AlertTriangle, path: "/dashboard/claim-damage" },
+        { label: "Crop Health", icon: Satellite, path: "/dashboard/crop-health" },
     ];
 
     const adminNavItems = [
@@ -105,8 +109,14 @@ const DashboardLayout = ({ children, role = 'farmer' }: DashboardLayoutProps) =>
         { label: "Rejected Claims", icon: XCircle, path: "/officer-review?status=rejected" },
         { label: "Total Claims", icon: AlertCircle, path: "/officer-review?status=all" },
 
+        { label: "Policy Management", type: 'header' },
+        { label: "Active Policies", icon: ShieldCheck, path: "/officer/policies?status=active" },
+        { label: "Pending Policies", icon: Calendar, path: "/officer/policies?status=pending" },
+        { label: "Expired Policies", icon: ShieldCheck, path: "/officer/policies?status=expired" },
+        { label: "All Policies", icon: FileText, path: "/officer/policies" },
+
         { label: "Reports", type: 'header' },
-        { label: "Field Reports", icon: FileText, path: "/officer/reports" },
+        { label: "Farmers", icon: User, path: "/officer/farmers" },
     ];
 
     const navItems = role === 'admin' ? adminNavItems : role === 'officer' ? officerNavItems : farmerNavItems;
@@ -269,7 +279,7 @@ const DashboardLayout = ({ children, role = 'farmer' }: DashboardLayoutProps) =>
                                         </Avatar>
                                         <div className="block text-left hidden md:block">
                                             <p className="text-sm font-semibold text-slate-100 group-hover:text-white transition-colors leading-none mb-1">
-                                                {user?.full_name || (role === 'admin' ? 'System Admin' : role === 'officer' ? 'Field Officer' : 'Rajesh Kumar')}
+                                                {user?.full_name || (role === 'admin' ? 'Administrator' : role === 'officer' ? 'Field Officer' : 'User')}
                                             </p>
                                             <div className="flex items-center gap-1.5">
                                                 <div className={cn("w-1.5 h-1.5 rounded-full animate-pulse", role === 'admin' ? "bg-purple-500" : "bg-green-500")}></div>
@@ -281,16 +291,16 @@ const DashboardLayout = ({ children, role = 'farmer' }: DashboardLayoutProps) =>
                                         <ChevronDown className="w-4 h-4 text-slate-500 group-hover:text-slate-300 transition-transform duration-300 group-hover:rotate-180" />
                                     </div>
                                 </DropdownMenuTrigger>
-                                <DropdownMenuContent align="end" className="w-56 bg-slate-900 border-slate-800 text-slate-200">
-                                    <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                                <DropdownMenuContent align="end" className="w-56 bg-slate-900 border-slate-800 text-slate-200 p-1 shadow-2xl">
+                                    <DropdownMenuLabel className="text-xs text-slate-500 uppercase tracking-widest px-3 py-2">My Account</DropdownMenuLabel>
                                     <DropdownMenuSeparator className="bg-slate-800" />
-                                    <DropdownMenuItem className="focus:bg-slate-800 focus:text-white cursor-pointer">
-                                        <User className="mr-2 h-4 w-4" />
-                                        <span>Profile</span>
+                                    <DropdownMenuItem onClick={() => navigate('/dashboard/profile')} className="focus:bg-slate-800 focus:text-white cursor-pointer py-2.5 rounded-lg px-3 group/item">
+                                        <User className="mr-3 h-4 w-4 text-slate-500 group-hover/item:text-green-400" />
+                                        <span className="font-medium">Profile</span>
                                     </DropdownMenuItem>
-                                    <DropdownMenuItem onClick={handleLogout} className="focus:bg-red-900/20 focus:text-red-400 text-red-400 cursor-pointer">
-                                        <LogOut className="mr-2 h-4 w-4" />
-                                        <span>Log out</span>
+                                    <DropdownMenuItem onClick={handleLogout} className="focus:bg-red-900/20 focus:text-red-400 text-red-400 cursor-pointer py-2.5 rounded-lg px-3 group/item">
+                                        <LogOut className="mr-3 h-4 w-4 text-red-400 group-hover/item:translate-x-1 transition-transform" />
+                                        <span className="font-medium">Log out</span>
                                     </DropdownMenuItem>
                                 </DropdownMenuContent>
                             </DropdownMenu>
@@ -298,7 +308,7 @@ const DashboardLayout = ({ children, role = 'farmer' }: DashboardLayoutProps) =>
                     </header>
 
                     {/* Scrollable Page Content */}
-                    <div className="flex-1 p-6 lg:p-10">
+                    <div className="flex-1 p-6 lg:p-12">
                         {children}
                     </div>
                 </main>

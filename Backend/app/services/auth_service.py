@@ -50,7 +50,57 @@ class AuthService:
             data={
                 "sub": str(user.id),
                 "email": user.email,
+                "full_name": user.full_name,
                 "role": user.role.value,
+                "phone": user.phone,
+                "type": "access",
+            }
+        )
+        
+        refresh_token = create_refresh_token(
+            data={
+                "sub": str(user.id),
+                "email": user.email,
+                "type": "refresh",
+            }
+        )
+        
+        return {
+            "user": user,
+            "access_token": access_token,
+            "refresh_token": refresh_token,
+            "expires_in": settings.ACCESS_TOKEN_EXPIRE_MINUTES * 60,
+        }
+
+    @staticmethod
+    def login_by_phone(db: Session, phone: str, otp: str) -> dict:
+        """Authenticate user by phone number and OTP.
+        For development, any 6-digit OTP is accepted if user exists.
+        """
+        # Get user by phone
+        user = UserCRUD.get_user_by_phone(db, phone)
+
+        if not user:
+            raise InvalidCredentialsException("User with this phone number not found")
+
+        if not user.is_active:
+            raise AccessDenied("User account is inactive")
+        
+        # In real life, verify OTP here. For simulation:
+        if len(otp) != 6:
+            raise InvalidCredentialsException("Invalid OTP format")
+        
+        # Update last login
+        UserCRUD.update_last_login(db, user.id)
+        
+        # Create tokens
+        access_token = create_access_token(
+            data={
+                "sub": str(user.id),
+                "email": user.email,
+                "full_name": user.full_name,
+                "role": user.role.value,
+                "phone": user.phone,
                 "type": "access",
             }
         )
@@ -87,10 +137,12 @@ class AuthService:
         boundary: list[dict[str, float]] = None,
     ) -> dict:
         """Register a new user"""
+        print(f"DEBUG: AuthService.register called for {email}")
         from app.crud.farm import FarmCRUD
 
         # Check if user already exists
         if UserCRUD.get_user_by_email(db, email):
+            print(f"DEBUG: User {email} already exists")
             raise UserAlreadyExists()
         
         # Check if officer_id already exists (for officers)
@@ -98,6 +150,7 @@ class AuthService:
             raise UserAlreadyExists()
         
         # Create user
+        print("DEBUG: Creating user record in UserCRUD...")
         user = UserCRUD.create_user(
             db=db,
             email=email,
@@ -109,9 +162,11 @@ class AuthService:
             department=department,
             officer_id=officer_id,
         )
+        print(f"DEBUG: User record created. ID: {user.id}")
 
         # If user is a farmer and provided a boundary, create the farm record
         if role == UserRole.FARMER and boundary:
+            print("DEBUG: User is a farmer. Starting FarmCRUD.create_farm...")
             FarmCRUD.create_farm(
                 db=db,
                 farmer_id=user.id,
@@ -119,13 +174,17 @@ class AuthService:
                 farm_name=farm_name or f"{full_name}'s Farm",
                 crop_type=crop_type
             )
+            print("DEBUG: FarmCRUD.create_farm finished successfully")
         
         # Create tokens
+        print("DEBUG: Creating tokens for login...")
         access_token = create_access_token(
             data={
                 "sub": str(user.id),
                 "email": user.email,
+                "full_name": user.full_name,
                 "role": user.role.value,
+                "phone": user.phone,
                 "type": "access",
             }
         )

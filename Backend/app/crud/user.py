@@ -90,6 +90,11 @@ class UserCRUD:
         return db.query(User).filter(User.role == UserRole.OFFICER).all()
     
     @staticmethod
+    def get_farmers(db: Session) -> list[User]:
+        """Get all farmers"""
+        return db.query(User).filter(User.role == UserRole.FARMER).all()
+
+    @staticmethod
     def get_active_users(db: Session) -> list[User]:
         """Get all active users"""
         return db.query(User).filter(User.is_active == True).all()

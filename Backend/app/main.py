@@ -9,6 +9,9 @@ from .api.routes import auth
 # from .api.routes import damage
 # from .api.routes import crop_assessment
 from .api.routes import farmer
+from .api.routes import officer
+from .api.routes import scheme # Added scheme router
+from .models.claim import Claim # Ensure Claim model is loaded for metadata
 
 from contextlib import asynccontextmanager
 
@@ -86,6 +89,8 @@ app.include_router(auth.router)
 # app.include_router(damage.router)
 # app.include_router(crop_assessment.router)
 app.include_router(farmer.router)
+app.include_router(officer.router)
+app.include_router(scheme.router, prefix="/schemes", tags=["Schemes"]) # Scheme routes
 
 @app.get("/", tags=["Health"])
 def root():

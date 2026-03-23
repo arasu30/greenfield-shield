@@ -198,10 +198,12 @@ const OfficerFarmers = () => {
                                                                                             <span className="text-xs font-bold text-green-500">{farm.area_acres?.toFixed(2) || "0.00"} Acres</span>
                                                                                         </div>
                                                                                     </div>
-                                                                                    {farm.boundary && farm.boundary.length > 0 && (
-                                                                                        <FarmMapToggle farm={farm} />
-                                                                                    )}
                                                                                 </div>
+                                                                                {farm.boundary && farm.boundary.length > 0 && (
+                                                                                    <div className="px-4 pb-4">
+                                                                                        <FarmMapToggle farm={farm} />
+                                                                                    </div>
+                                                                                )}
                                                                             </Card>
                                                                         ))}
                                                                     </div>

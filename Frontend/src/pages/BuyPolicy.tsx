@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -12,6 +12,10 @@ import DashboardLayout from "@/components/DashboardLayout";
 
 const BuyPolicy = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const schemeId = searchParams.get('schemeId');
+  const schemeName = searchParams.get('schemeName');
+
   const [cropType, setCropType] = useState("");
   const [season, setSeason] = useState("");
   const [landArea, setLandArea] = useState("0.0");
@@ -93,7 +97,8 @@ const BuyPolicy = () => {
           crop_type: cropType,
           season: season,
           premium: premium,
-          coverage: premium * 50 // Simple coverage calculation for demo
+          coverage: premium * 50, // Simple coverage calculation for demo
+          scheme_id: schemeId ? parseInt(schemeId, 10) : null
         })
       });
 
@@ -120,7 +125,14 @@ const BuyPolicy = () => {
 
       <div className="mb-10">
         <h2 className="text-5xl font-bold bg-gradient-to-r from-emerald-400 via-green-400 to-cyan-400 bg-clip-text text-transparent mb-3">Buy Insurance Policy</h2>
-        <p className="text-lg text-slate-300 font-medium">Protect your crops with comprehensive AI-powered coverage</p>
+        <p className="text-lg text-slate-300 font-medium mb-4">Protect your crops with comprehensive AI-powered coverage</p>
+        
+        {schemeName && (
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 font-semibold shadow-inner shadow-emerald-500/10">
+            <Info className="w-4 h-4" />
+            Applying under: <span className="text-emerald-100">{schemeName}</span>
+          </div>
+        )}
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">

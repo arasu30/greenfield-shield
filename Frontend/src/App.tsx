@@ -15,6 +15,7 @@ import OfficerPolicies from "./pages/OfficerPolicies";
 import AdminPanel from "./pages/AdminPanel";
 import Profile from "./pages/Profile";
 import NotFound from "./pages/NotFound";
+import FarmerSchemes from "./pages/FarmerSchemes";
 
 import DashboardRoutes from "./layouts/DashboardRoutes";
 
@@ -37,6 +38,7 @@ const App = () => (
             <Route path="my-policies" element={<MyPolicies />} />
             <Route path="claim-damage" element={<ClaimDamage />} />
             <Route path="crop-health" element={<CropHealth />} />
+            <Route path="schemes" element={<FarmerSchemes />} />
           </Route>
 
           <Route path="/officer-review" element={<OfficerReview />} />

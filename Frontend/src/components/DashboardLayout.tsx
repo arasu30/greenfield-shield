@@ -11,6 +11,7 @@ import {
     Menu,
     Sprout,
     LogOut,
+    BookOpen,
     User,
     ChevronDown,
     DollarSign,
@@ -85,6 +86,7 @@ const DashboardLayout = ({ children, role = 'farmer' }: DashboardLayoutProps) =>
         { label: "Dashboard", icon: LayoutDashboard, path: "/dashboard" },
         { label: "Buy Policy", icon: ShieldCheck, path: "/dashboard/buy-policy" },
         { label: "My Policies", icon: FileText, path: "/dashboard/my-policies" },
+        { label: "Govt Schemes", icon: BookOpen, path: "/dashboard/schemes" },
         { label: "Claim Damage", icon: AlertTriangle, path: "/dashboard/claim-damage" },
         { label: "Crop Health", icon: Satellite, path: "/dashboard/crop-health" },
     ];

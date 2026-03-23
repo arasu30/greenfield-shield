@@ -10,7 +10,10 @@ from app.api.schemas.auth import (
     RefreshTokenRequest,
     ChangePasswordRequest,
     OTPLoginRequest,
+    ProfileUpdate,
+    UserResponse,
 )
+from app.crud.user import UserCRUD
 from app.services.auth_service import AuthService
 from app.models.user import UserRole
 from app.utils.errors import InvalidToken, AccessDenied
@@ -165,3 +168,24 @@ def change_password(
     
     return result
 
+@router.get("/me", response_model=UserResponse)
+def get_me(
+    current_user = Depends(get_current_user_dependency),
+    db: Session = Depends(get_db)
+):
+    """Get current user details from database"""
+    user = UserCRUD.get_user_by_id(db, current_user["id"])
+    return user
+
+@router.patch("/profile", response_model=UserResponse)
+def update_profile(
+    update_data: ProfileUpdate,
+    current_user = Depends(get_current_user_dependency),
+    db: Session = Depends(get_db)
+):
+    """Update current user profile"""
+    # Filter out None values
+    update_dict = {k: v for k, v in update_data.model_dump().items() if v is not None}
+    
+    user = UserCRUD.update_user(db, current_user["id"], **update_dict)
+    return user

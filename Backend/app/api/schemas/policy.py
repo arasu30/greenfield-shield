@@ -8,6 +8,7 @@ class PolicyBase(BaseModel):
     season: str
     premium: float
     coverage: float
+    scheme_id: Optional[int] = None
 
 class PolicyCreate(PolicyBase):
     pass

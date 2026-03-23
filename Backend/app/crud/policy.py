@@ -1,4 +1,5 @@
 from sqlalchemy.orm import Session
+from typing import List
 from app.models.policy import Policy, PolicyStatus
 from app.api.schemas.policy import PolicyCreate
 from datetime import datetime, timedelta
@@ -12,6 +13,7 @@ class PolicyCRUD:
         
         new_policy = Policy(
             farmer_id=farmer_id,
+            scheme_id=policy_data.scheme_id,
             crop_type=policy_data.crop_type,
             season=policy_data.season,
             premium=policy_data.premium,
@@ -35,3 +37,10 @@ class PolicyCRUD:
             Policy.farmer_id == farmer_id, 
             Policy.status == PolicyStatus.ACTIVE
         ).count()
+
+    @staticmethod
+    def get_all_policies(db: Session, status: str = None) -> List[Policy]:
+        query = db.query(Policy)
+        if status:
+            query = query.filter(Policy.status == status)
+        return query.order_by(Policy.created_at.desc()).all()

@@ -13,6 +13,7 @@ class Policy(Base):
     
     id = Column(Integer, primary_key=True, index=True)
     farmer_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    scheme_id = Column(Integer, ForeignKey("schemes.id"), nullable=True) # Link to scheme
     crop_type = Column(String, nullable=False)
     season = Column(String, nullable=False)
     premium = Column(Float, nullable=False)

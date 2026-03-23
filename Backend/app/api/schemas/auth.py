@@ -72,3 +72,11 @@ class ChangePasswordRequest(BaseModel):
     old_password: str
     new_password: str
     confirm_password: str
+
+class ProfileUpdate(BaseModel):
+    """Schema for updating user profile"""
+    full_name: Optional[str] = None
+    phone: Optional[str] = Field(None, min_length=10, max_length=10, pattern=r"^\d{10}$")
+    address: Optional[str] = None
+    department: Optional[str] = None
+    officer_id: Optional[str] = None

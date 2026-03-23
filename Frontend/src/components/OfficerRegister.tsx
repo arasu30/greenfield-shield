@@ -5,10 +5,12 @@ import { Label } from "@/components/ui/label";
 import { User, Mail, Lock, Phone, Building2, CreditCard, BadgeCheck } from "lucide-react";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
+import { Loader2 } from "lucide-react";
 
 export const OfficerRegister = () => {
     const navigate = useNavigate();
     const [isLoading, setIsLoading] = useState(false);
+    const [successState, setSuccessState] = useState({ show: false, message: "" });
     const [formData, setFormData] = useState({
         full_name: "",
         email: "",
@@ -59,9 +61,13 @@ export const OfficerRegister = () => {
             }
 
             const data = await res.json();
-            toast.success("Registration successful! Welcome Officer.");
             localStorage.setItem('access_token', data.tokens.access_token);
-            navigate('/officer-review'); // Navigate to officer dashboard
+            localStorage.setItem('user', JSON.stringify(data.user));
+            
+            toast.success("Login successful!");
+            setTimeout(() => {
+                navigate('/officer-review');
+            }, 1000);
 
         } catch (err: any) {
             console.error(err);
@@ -138,7 +144,9 @@ export const OfficerRegister = () => {
                 disabled={isLoading}
                 className="w-full bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white h-12 font-medium shadow-lg hover:shadow-blue-500/50 transition-all duration-300"
             >
-                {isLoading ? "Registering..." : "Register as Officer"}
+                {isLoading ? (
+                    <><Loader2 className="w-5 h-5 mr-2 animate-spin inline" /> Registering...</>
+                ) : "Register as Officer"}
             </Button>
         </div>
     );

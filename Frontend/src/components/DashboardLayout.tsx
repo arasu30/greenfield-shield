@@ -84,9 +84,9 @@ const DashboardLayout = ({ children, role = 'farmer' }: DashboardLayoutProps) =>
 
     const farmerNavItems = [
         { label: "Dashboard", icon: LayoutDashboard, path: "/dashboard" },
+        { label: "Govt Schemes", icon: BookOpen, path: "/dashboard/schemes" },
         { label: "Buy Policy", icon: ShieldCheck, path: "/dashboard/buy-policy" },
         { label: "My Policies", icon: FileText, path: "/dashboard/my-policies" },
-        { label: "Govt Schemes", icon: BookOpen, path: "/dashboard/schemes" },
         { label: "Claim Damage", icon: AlertTriangle, path: "/dashboard/claim-damage" },
         { label: "Crop Health", icon: Satellite, path: "/dashboard/crop-health" },
     ];

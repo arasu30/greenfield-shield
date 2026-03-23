@@ -12,6 +12,7 @@ import { FarmerRegister } from "@/components/FarmerRegister";
 import { OfficerRegister } from "@/components/OfficerRegister";
 import { cn } from "@/lib/utils";
 import Footer from "@/components/Footer";
+import { Loader2 } from "lucide-react";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -21,6 +22,10 @@ const Login = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [aboutOpen, setAboutOpen] = useState(false);
+  
+  // Loading & Success States
+  const [isOfficerLoading, setIsOfficerLoading] = useState(false);
+  const [isAdminLoading, setIsAdminLoading] = useState(false);
 
   const teamMembers = [
     {
@@ -64,6 +69,7 @@ const Login = () => {
     }
 
     const email = username.includes("@") ? username : `${username}@gmail.com`;
+    setIsOfficerLoading(true);
 
     try {
       const res = await fetch(`${import.meta.env.VITE_BACKEND_URL || 'http://localhost:8000'}/auth/login`, {
@@ -79,12 +85,18 @@ const Login = () => {
       }
 
       const data = await res.json();
-      toast.success('Login successful');
       localStorage.setItem('access_token', data.tokens.access_token);
       localStorage.setItem('user', JSON.stringify(data.user));
-      navigate('/officer-review');
+      
+      toast.success("Login successful!");
+      setTimeout(() => {
+          navigate('/officer-review');
+      }, 1000);
+      
     } catch (err) {
       toast.error('Network error during login');
+    } finally {
+      setIsOfficerLoading(false);
     }
   };
 
@@ -95,6 +107,7 @@ const Login = () => {
     }
 
     const email = username.includes("@") ? username : `${username}@gmail.com`;
+    setIsAdminLoading(true);
 
     try {
       const res = await fetch(`${import.meta.env.VITE_BACKEND_URL || 'http://localhost:8000'}/auth/login`, {
@@ -110,12 +123,18 @@ const Login = () => {
       }
 
       const data = await res.json();
-      toast.success('Login successful');
       localStorage.setItem('access_token', data.tokens.access_token);
       localStorage.setItem('user', JSON.stringify(data.user));
-      navigate('/admin');
+      
+      toast.success("Login successful!");
+      setTimeout(() => {
+          navigate('/admin');
+      }, 1000);
+      
     } catch (err) {
       toast.error('Network error during login');
+    } finally {
+      setIsAdminLoading(false);
     }
   };
 
@@ -368,9 +387,12 @@ const Login = () => {
                       </div>
                       <Button
                         onClick={handleOfficerLogin}
+                        disabled={isOfficerLoading}
                         className="w-full bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white h-11 font-medium shadow-lg hover:shadow-blue-500/50"
                       >
-                        Access Portal
+                        {isOfficerLoading ? (
+                          <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Authenticating...</>
+                        ) : "Access Portal"}
                       </Button>
                     </div>
                   )}
@@ -412,9 +434,12 @@ const Login = () => {
                     </div>
                     <Button
                       onClick={handleAdminLogin}
+                      disabled={isAdminLoading}
                       className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white h-11 font-medium shadow-lg hover:shadow-purple-500/50"
                     >
-                      Authenticate
+                      {isAdminLoading ? (
+                        <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Authenticating...</>
+                      ) : "Authenticate"}
                     </Button>
                   </div>
                 </div>

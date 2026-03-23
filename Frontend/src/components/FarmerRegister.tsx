@@ -6,7 +6,8 @@ import { Label } from "@/components/ui/label";
 import {
     User, Mail, Lock, Phone, Smartphone,
     Play, Square, RefreshCw, Check,
-    Sprout, Tractor, MousePointer2, Undo2, Map as MapIcon
+    Sprout, Tractor, MousePointer2, Undo2, Map as MapIcon,
+    Loader2
 } from "lucide-react";
 import { toast } from "sonner";
 import { LocationMap } from "./LocationMap";
@@ -14,6 +15,7 @@ import { LocationMap } from "./LocationMap";
 export const FarmerRegister = () => {
     const navigate = useNavigate();
     const [isLoading, setIsLoading] = useState(false);
+    const [successState, setSuccessState] = useState({ show: false, message: "" });
 
     const [formData, setFormData] = useState({
         full_name: "",
@@ -150,11 +152,13 @@ export const FarmerRegister = () => {
             }
 
             const data = await res.json();
-            toast.success("Registration successful! Welcome to CropSure.");
-
             localStorage.setItem('access_token', data.tokens.access_token);
             localStorage.setItem('user', JSON.stringify(data.user));
-            navigate('/dashboard');
+            
+            toast.success("Login successful!");
+            setTimeout(() => {
+                navigate('/dashboard');
+            }, 1000);
 
         } catch (err: any) {
             console.error(err);
@@ -387,7 +391,9 @@ export const FarmerRegister = () => {
                 disabled={isLoading || !mappingConfirmed}
                 className="w-full bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-700 hover:to-blue-700 h-12 font-bold text-lg shadow-xl shadow-cyan-900/20"
             >
-                {isLoading ? "Creating Account..." : "Register & Save Farm"}
+                {isLoading ? (
+                    <><Loader2 className="w-5 h-5 mr-2 animate-spin inline" /> Creating Account...</>
+                ) : "Register & Save Farm"}
             </Button>
         </div>
     );

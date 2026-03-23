@@ -5,12 +5,14 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Smartphone } from "lucide-react";
 import { toast } from "sonner";
+import { Loader2 } from "lucide-react";
 
 export const FarmerLogin = () => {
     const navigate = useNavigate();
     const [phone, setPhone] = useState("");
     const [otp, setOtp] = useState("");
     const [otpSent, setOtpSent] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
 
     const handleSendOTP = () => {
         if (phone.length === 10) {
@@ -27,6 +29,8 @@ export const FarmerLogin = () => {
             return;
         }
 
+        setIsLoading(true);
+
         try {
             const response = await fetch(`${import.meta.env.VITE_BACKEND_URL || 'http://localhost:8000'}/auth/otp-login`, {
                 method: "POST",
@@ -40,16 +44,19 @@ export const FarmerLogin = () => {
             }
 
             const data = await response.json();
-            toast.success("Login successful!");
-
-            // Store tokens and user info
             localStorage.setItem('access_token', data.tokens.access_token);
             localStorage.setItem('user', JSON.stringify(data.user));
 
-            navigate("/dashboard");
+            toast.success("Login successful!");
+            setTimeout(() => {
+                navigate("/dashboard");
+            }, 1000);
+            
         } catch (error: any) {
             console.error("Login error:", error);
             toast.error(error.message || "Error during login. Please ensure you are registered.");
+        } finally {
+            setIsLoading(false);
         }
     };
 
@@ -98,9 +105,12 @@ export const FarmerLogin = () => {
                     </div>
                     <Button
                         onClick={handleFarmerLogin}
+                        disabled={isLoading}
                         className="w-full bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white font-semibold py-6 rounded-lg transition-all duration-300 shadow-lg hover:shadow-green-500/50"
                     >
-                        Verify & Login
+                        {isLoading ? (
+                            <><Loader2 className="w-5 h-5 mr-2 animate-spin inline" /> Verifying...</>
+                        ) : "Verify & Login"}
                     </Button>
                 </>
             )}

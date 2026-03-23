@@ -21,9 +21,7 @@ from app.models import User, Farm, Policy, Claim, Scheme
 config = context.config
 
 # Set the database URL from settings
-# Use localhost instead of settings.HOST because settings.HOST is 0.0.0.0 (for server binding)
-# which is invalid for client connection on Windows.
-config.set_main_option("sqlalchemy.url", f"postgresql://{settings.DATABASE_USER}:{settings.DATABASE_PASSWORD}@localhost:{settings.DATABASE_PORT}/{settings.DATABASE_NAME}")
+config.set_main_option("sqlalchemy.url", settings.DATABASE_URL)
 
 # Interpret the config file for Python logging.
 # This line sets up loggers basically.

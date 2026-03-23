@@ -12,8 +12,10 @@ const DashboardRoutes = () => {
     if (storedUser) {
         try {
             const user = JSON.parse(storedUser);
-            if (user.role === 'admin' || user.role === 'officer' || user.role === 'farmer') {
-                role = user.role;
+            // Handle case sensitivity since backend returns uppercase roles (e.g. 'OFFICER')
+            const userRole = user.role?.toLowerCase();
+            if (userRole === 'admin' || userRole === 'officer' || userRole === 'farmer') {
+                role = userRole;
             }
         } catch (e) {
             console.error("Failed to parse user role in DashboardRoutes", e);

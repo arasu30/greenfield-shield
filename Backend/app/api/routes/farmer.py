@@ -1,9 +1,16 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from app.database.session import get_db
 from app.api.routes.auth import get_current_user_dependency
 from app.api.schemas.farmer import FarmerDashboardStats, DashboardStat
-from app.api.schemas.policy import PolicyCreate, PolicyResponse
+from app.api.schemas.policy import (
+    PolicyCreate,
+    PolicyResponse,
+    PaymentIntentRequest,
+    PaymentIntentResponse,
+    PaymentConfirmationRequest
+)
+from app.services.stripe_service import StripeService
 from app.crud.farm import FarmCRUD
 from app.crud.policy import PolicyCRUD
 from app.models.user import UserRole
@@ -90,16 +97,76 @@ def get_dashboard_stats(
         farms=farm_details
     )
 
+@router.post("/create-payment-intent", response_model=PaymentIntentResponse)
+def create_payment_intent(
+    payment_data: PaymentIntentRequest,
+    current_user = Depends(get_current_user_dependency)
+):
+    """Create a Stripe payment intent for policy purchase"""
+    if current_user["role"] != UserRole.FARMER:
+        raise AccessDenied("Only farmers can create payment intents")
+
+    # Convert premium to cents for Stripe (assuming premium is in dollars)
+    amount_in_cents = int(payment_data.premium * 100)
+
+    metadata = {
+        'farmer_id': str(current_user['id']),
+        'crop_type': payment_data.crop_type,
+        'season': payment_data.season,
+        'scheme_id': str(payment_data.scheme_id) if payment_data.scheme_id else None
+    }
+
+    try:
+        payment_intent = StripeService.create_payment_intent(
+            amount=amount_in_cents,
+            currency="usd",
+            metadata=metadata
+        )
+        return PaymentIntentResponse(**payment_intent)
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+@router.post("/confirm-payment", response_model=PolicyResponse)
+def confirm_payment(
+    confirmation_data: PaymentConfirmationRequest,
+    current_user = Depends(get_current_user_dependency),
+    db: Session = Depends(get_db)
+):
+    """Confirm payment and create policy after successful payment"""
+    if current_user["role"] != UserRole.FARMER:
+        raise AccessDenied("Only farmers can confirm payments")
+
+    try:
+        # Verify payment intent status
+        payment_status = StripeService.confirm_payment_intent(confirmation_data.payment_intent_id)
+
+        if payment_status['status'] != 'succeeded':
+            raise HTTPException(status_code=400, detail="Payment not completed")
+
+        # Create policy after successful payment
+        policy_data = PolicyCreate(
+            crop_type=confirmation_data.crop_type,
+            season=confirmation_data.season,
+            premium=confirmation_data.premium,
+            coverage=confirmation_data.coverage,
+            scheme_id=confirmation_data.scheme_id
+        )
+
+        return PolicyCRUD.create_policy(db, current_user["id"], policy_data)
+
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
 @router.post("/buy-policy", response_model=PolicyResponse)
 def buy_policy(
     policy_data: PolicyCreate,
     current_user = Depends(get_current_user_dependency),
     db: Session = Depends(get_db)
 ):
-    """Register a new policy for the farmer"""
+    """Register a new policy for the farmer (legacy endpoint - use payment flow instead)"""
     if current_user["role"] != UserRole.FARMER:
         raise AccessDenied("Only farmers can purchase policies")
-    
+
     return PolicyCRUD.create_policy(db, current_user["id"], policy_data)
 
 @router.get("/my-policies", response_model=List[PolicyResponse])

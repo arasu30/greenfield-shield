@@ -6,9 +6,10 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, CreditCard, Info } from "lucide-react";
+import { ArrowLeft, CreditCard, Info, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import DashboardLayout from "@/components/DashboardLayout";
+import StripeCheckout from "@/components/StripeCheckout";
 
 const BuyPolicy = () => {
   const navigate = useNavigate();
@@ -21,6 +22,11 @@ const BuyPolicy = () => {
   const [landArea, setLandArea] = useState("0.0");
   const [isLoading, setIsLoading] = useState(false);
   const [premium, setPremium] = useState(0);
+  const [showPayment, setShowPayment] = useState(false);
+  const [paymentIntent, setPaymentIntent] = useState<{
+    clientSecret: string;
+    amount: number;
+  } | null>(null);
 
   useEffect(() => {
     const fetchFarmData = async () => {
@@ -87,7 +93,7 @@ const BuyPolicy = () => {
         return;
       }
 
-      const response = await fetch(`${import.meta.env.VITE_BACKEND_URL || 'http://localhost:8000'}/farmer/buy-policy`, {
+      const response = await fetch(`${import.meta.env.VITE_BACKEND_URL || 'http://localhost:8000'}/farmer/create-payment-intent`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -103,17 +109,64 @@ const BuyPolicy = () => {
       });
 
       if (!response.ok) {
-        throw new Error("Failed to purchase policy");
+        throw new Error("Failed to create payment intent");
       }
 
-      toast.success("Policy purchased successfully!");
-      navigate("/my-policies");
+      const data = await response.json();
+      setPaymentIntent({
+        clientSecret: data.client_secret,
+        amount: data.amount
+      });
+      setShowPayment(true);
+      toast.success("Payment intent created successfully!");
     } catch (error) {
-      console.error("Purchase error:", error);
-      toast.error("Error purchasing policy. Please try again.");
+      console.error("Payment intent error:", error);
+      toast.error("Error creating payment intent. Please try again.");
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handlePaymentSuccess = async (paymentIntentId: string) => {
+    try {
+      const accessToken = localStorage.getItem('access_token');
+      if (!accessToken) {
+        toast.error("Authentication required");
+        navigate("/login");
+        return;
+      }
+
+      const response = await fetch(`${import.meta.env.VITE_BACKEND_URL || 'http://localhost:8000'}/farmer/confirm-payment`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${accessToken}`
+        },
+        body: JSON.stringify({
+          payment_intent_id: paymentIntentId,
+          crop_type: cropType,
+          season: season,
+          premium: premium,
+          coverage: premium * 50, // Simple coverage calculation for demo
+          scheme_id: schemeId ? parseInt(schemeId, 10) : null
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to confirm payment");
+      }
+
+      toast.success("Policy purchased successfully!");
+      navigate("/dashboard/my-policies");
+    } catch (error) {
+      console.error("Payment confirmation error:", error);
+      toast.error("Error confirming payment. Please contact support.");
+    }
+  };
+
+  const handleCancelPayment = () => {
+    setShowPayment(false);
+    setPaymentIntent(null);
   };
 
   return (
@@ -124,10 +177,14 @@ const BuyPolicy = () => {
         </Button> */}
 
       <div className="mb-10">
-        <h2 className="text-5xl font-bold bg-gradient-to-r from-emerald-400 via-green-400 to-cyan-400 bg-clip-text text-transparent mb-3">Buy Insurance Policy</h2>
-        <p className="text-lg text-slate-300 font-medium mb-4">Protect your crops with comprehensive AI-powered coverage</p>
-        
-        {schemeName && (
+        <h2 className="text-5xl font-bold bg-gradient-to-r from-emerald-400 via-green-400 to-cyan-400 bg-clip-text text-transparent mb-3">
+          {showPayment ? "Complete Payment" : "Buy Insurance Policy"}
+        </h2>
+        <p className="text-lg text-slate-300 font-medium mb-4">
+          {showPayment ? "Secure your crop insurance with Stripe payment" : "Protect your crops with comprehensive AI-powered coverage"}
+        </p>
+
+        {schemeName && !showPayment && (
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 font-semibold shadow-inner shadow-emerald-500/10">
             <Info className="w-4 h-4" />
             Applying under: <span className="text-emerald-100">{schemeName}</span>
@@ -135,147 +192,179 @@ const BuyPolicy = () => {
         )}
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        <div className="lg:col-span-2 space-y-6">
-          <Card className="backdrop-blur-2xl bg-slate-900/80 border border-emerald-500/30 shadow-2xl shadow-emerald-500/20 hover:border-emerald-400/50 hover:shadow-emerald-400/30 transition-all duration-300">
-            <CardHeader className="pb-4 border-b border-emerald-500/20">
-              <CardTitle className="text-2xl font-bold text-emerald-100">Policy Details</CardTitle>
-              <CardDescription className="text-slate-300">Fill in your crop information to get instant premium</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-5 pt-4">
-              <div className="space-y-2">
-                <Label htmlFor="crop-type" className="font-semibold text-emerald-200">Crop Type *</Label>
-                <Select onValueChange={handleCropChange}>
-                  <SelectTrigger id="crop-type" className="py-6 bg-slate-800/50 border border-emerald-500/30 text-slate-100 placeholder-slate-500 rounded-lg focus:border-emerald-400 focus:ring-2 focus:ring-emerald-500/50">
-                    <SelectValue placeholder="Select crop type" />
-                  </SelectTrigger>
-                  <SelectContent className="bg-slate-900 border border-emerald-500/30">
-                    <SelectItem value="Rice">🍚 Rice</SelectItem>
-                    <SelectItem value="Wheat">🌾 Wheat</SelectItem>
-                    <SelectItem value="Cotton">🟤 Cotton</SelectItem>
-                    <SelectItem value="Sugarcane">🍯 Sugarcane</SelectItem>
-                    <SelectItem value="Maize">🌽 Maize</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="season" className="font-semibold text-emerald-200">Season *</Label>
-                <Select onValueChange={handleSeasonChange}>
-                  <SelectTrigger id="season" className="py-6 bg-slate-800/50 border border-emerald-500/30 text-slate-100 placeholder-slate-500 rounded-lg focus:border-emerald-400 focus:ring-2 focus:ring-emerald-500/50">
-                    <SelectValue placeholder="Select season" />
-                  </SelectTrigger>
-                  <SelectContent className="bg-slate-900 border border-emerald-500/30">
-                    <SelectItem value="Kharif">☔ Kharif (Monsoon)</SelectItem>
-                    <SelectItem value="Rabi">❄️ Rabi (Winter)</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="land-area" className="font-semibold text-emerald-200">Land Area (Acres)</Label>
-                <Input
-                  id="land-area"
-                  value={landArea}
-                  disabled
-                  className="bg-slate-800/30 py-6 border border-emerald-500/20 text-slate-300 font-medium rounded-lg" />
-                <p className="text-xs text-emerald-300/80 flex items-center gap-2">
-                  <Info className="w-4 h-4" />
-                  Auto-filled from your profile
-                </p>
-              </div>
-            </CardContent>
-          </Card>
-
+      {showPayment && paymentIntent ? (
+        <div className="max-w-2xl mx-auto">
           <Card className="backdrop-blur-2xl bg-slate-900/80 border border-emerald-500/30 shadow-2xl shadow-emerald-500/20">
             <CardHeader className="pb-4 border-b border-emerald-500/20">
-              <CardTitle className="text-xl font-bold text-emerald-100">Coverage Includes</CardTitle>
+              <CardTitle className="text-2xl font-bold text-emerald-100">Payment Details</CardTitle>
+              <CardDescription className="text-slate-300">
+                Complete your payment to activate your crop insurance policy
+              </CardDescription>
             </CardHeader>
-            <CardContent className="pt-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div className="flex items-center gap-3 p-3 bg-emerald-500/10 border border-emerald-500/30 rounded-lg hover:bg-emerald-500/20 transition-colors duration-300">
-                  <div className="w-2.5 h-2.5 rounded-full bg-emerald-400"></div>
-                  <span className="font-medium text-emerald-200">Flood Damage</span>
+            <CardContent className="pt-6">
+              <div className="mb-6 p-4 bg-emerald-500/10 border border-emerald-500/30 rounded-lg">
+                <div className="flex justify-between items-center mb-2">
+                  <span className="text-emerald-300 font-medium">Policy:</span>
+                  <span className="text-emerald-100">{cropType} - {season}</span>
                 </div>
-                <div className="flex items-center gap-3 p-3 bg-emerald-500/10 border border-emerald-500/30 rounded-lg hover:bg-emerald-500/20 transition-colors duration-300">
-                  <div className="w-2.5 h-2.5 rounded-full bg-emerald-400"></div>
-                  <span className="font-medium text-emerald-200">Drought</span>
-                </div>
-                <div className="flex items-center gap-3 p-3 bg-emerald-500/10 border border-emerald-500/30 rounded-lg hover:bg-emerald-500/20 transition-colors duration-300">
-                  <div className="w-2.5 h-2.5 rounded-full bg-emerald-400"></div>
-                  <span className="font-medium text-emerald-200">Pest Attack</span>
-                </div>
-                <div className="flex items-center gap-3 p-3 bg-emerald-500/10 border border-emerald-500/30 rounded-lg hover:bg-emerald-500/20 transition-colors duration-300">
-                  <div className="w-2.5 h-2.5 rounded-full bg-emerald-400"></div>
-                  <span className="font-medium text-emerald-200">Cyclone</span>
-                </div>
-                <div className="flex items-center gap-3 p-3 bg-emerald-500/10 border border-emerald-500/30 rounded-lg hover:bg-emerald-500/20 transition-colors duration-300">
-                  <div className="w-2.5 h-2.5 rounded-full bg-emerald-400"></div>
-                  <span className="font-medium text-emerald-200">Fire</span>
-                </div>
-                <div className="flex items-center gap-3 p-3 bg-emerald-500/10 border border-emerald-500/30 rounded-lg hover:bg-emerald-500/20 transition-colors duration-300">
-                  <div className="w-2.5 h-2.5 rounded-full bg-emerald-400"></div>
-                  <span className="font-medium text-emerald-200">Hailstorm</span>
+                <div className="flex justify-between items-center">
+                  <span className="text-emerald-300 font-medium">Amount:</span>
+                  <span className="text-2xl font-bold text-emerald-300">${(paymentIntent.amount / 100).toFixed(2)}</span>
                 </div>
               </div>
+
+              <StripeCheckout
+                clientSecret={paymentIntent.clientSecret}
+                amount={paymentIntent.amount}
+                onSuccess={handlePaymentSuccess}
+                onCancel={handleCancelPayment}
+              />
             </CardContent>
           </Card>
         </div>
+      ) : (
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <div className="lg:col-span-2 space-y-6">
+            <Card className="backdrop-blur-2xl bg-slate-900/80 border border-emerald-500/30 shadow-2xl shadow-emerald-500/20 hover:border-emerald-400/50 hover:shadow-emerald-400/30 transition-all duration-300">
+              <CardHeader className="pb-4 border-b border-emerald-500/20">
+                <CardTitle className="text-2xl font-bold text-emerald-100">Policy Details</CardTitle>
+                <CardDescription className="text-slate-300">Fill in your crop information to get instant premium</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-5 pt-4">
+                <div className="space-y-2">
+                  <Label htmlFor="crop-type" className="font-semibold text-emerald-200">Crop Type *</Label>
+                  <Select onValueChange={handleCropChange}>
+                    <SelectTrigger id="crop-type" className="py-6 bg-slate-800/50 border border-emerald-500/30 text-slate-100 placeholder-slate-500 rounded-lg focus:border-emerald-400 focus:ring-2 focus:ring-emerald-500/50">
+                      <SelectValue placeholder="Select crop type" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-slate-900 border border-emerald-500/30">
+                      <SelectItem value="Rice">🍚 Rice</SelectItem>
+                      <SelectItem value="Wheat">🌾 Wheat</SelectItem>
+                      <SelectItem value="Cotton">🟤 Cotton</SelectItem>
+                      <SelectItem value="Sugarcane">🍯 Sugarcane</SelectItem>
+                      <SelectItem value="Maize">🌽 Maize</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
 
-        <div className="space-y-6">
-          <Card className="backdrop-blur-2xl bg-gradient-to-br from-emerald-950/80 to-green-950/80 border-2 border-emerald-400/40 shadow-2xl shadow-emerald-500/30 sticky top-8 hover:border-emerald-400/60 hover:shadow-emerald-500/40 transition-all duration-300">
-            <CardHeader className="pb-4 border-b border-emerald-500/30">
-              <CardTitle className="text-xl font-bold text-emerald-100">Premium Summary</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-5 pt-4">
-              <div className="space-y-3 bg-emerald-500/10 border border-emerald-500/30 p-4 rounded-lg">
-                <div className="flex justify-between items-center">
-                  <span className="text-emerald-300 font-medium">Crop:</span>
-                  <Badge className="bg-emerald-600 text-emerald-50 hover:bg-emerald-700">{cropType || "Not selected"}</Badge>
+                <div className="space-y-2">
+                  <Label htmlFor="season" className="font-semibold text-emerald-200">Season *</Label>
+                  <Select onValueChange={handleSeasonChange}>
+                    <SelectTrigger id="season" className="py-6 bg-slate-800/50 border border-emerald-500/30 text-slate-100 placeholder-slate-500 rounded-lg focus:border-emerald-400 focus:ring-2 focus:ring-emerald-500/50">
+                      <SelectValue placeholder="Select season" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-slate-900 border border-emerald-500/30">
+                      <SelectItem value="Kharif">☔ Kharif (Monsoon)</SelectItem>
+                      <SelectItem value="Rabi">❄️ Rabi (Winter)</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-emerald-300 font-medium">Season:</span>
-                  <Badge className="bg-cyan-600 text-cyan-50 hover:bg-cyan-700">{season || "Not selected"}</Badge>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-emerald-300 font-medium">Land Area:</span>
-                  <span className="font-bold text-emerald-100">{landArea} acres</span>
-                </div>
-              </div>
 
-              <div className="border-t border-emerald-500/30 pt-4">
-                <div className="mb-2">
-                  <p className="text-sm text-emerald-300/80 font-medium mb-1">Total Premium:</p>
-                  <p className="text-4xl font-bold text-emerald-300">₹{premium.toLocaleString()}</p>
+                <div className="space-y-2">
+                  <Label htmlFor="land-area" className="font-semibold text-emerald-200">Land Area (Acres)</Label>
+                  <Input
+                    id="land-area"
+                    value={landArea}
+                    disabled
+                    className="bg-slate-800/30 py-6 border border-emerald-500/20 text-slate-300 font-medium rounded-lg" />
+                  <p className="text-xs text-emerald-300/80 flex items-center gap-2">
+                    <Info className="w-4 h-4" />
+                    Auto-filled from your profile
+                  </p>
                 </div>
-                <p className="text-xs text-emerald-400/60">Per season</p>
-              </div>
+              </CardContent>
+            </Card>
 
-              <Button
-                onClick={handleProceedToPayment}
-                className="w-full bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-700 hover:to-green-700 text-white font-semibold py-6 rounded-lg transition-all duration-300 shadow-lg hover:shadow-emerald-500/50 text-base"
-                disabled={!cropType || !season || isLoading}
-              >
-                {isLoading ? (
-                  <div className="flex items-center gap-2">
-                    <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-                    Processing...
+            <Card className="backdrop-blur-2xl bg-slate-900/80 border border-emerald-500/30 shadow-2xl shadow-emerald-500/20">
+              <CardHeader className="pb-4 border-b border-emerald-500/20">
+                <CardTitle className="text-xl font-bold text-emerald-100">Coverage Includes</CardTitle>
+              </CardHeader>
+              <CardContent className="pt-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="flex items-center gap-3 p-3 bg-emerald-500/10 border border-emerald-500/30 rounded-lg hover:bg-emerald-500/20 transition-colors duration-300">
+                    <div className="w-2.5 h-2.5 rounded-full bg-emerald-400"></div>
+                    <span className="font-medium text-emerald-200">Flood Damage</span>
                   </div>
-                ) : (
-                  <>
-                    <CreditCard className="w-5 h-5 mr-2" />
-                    Proceed to Payment
-                  </>
-                )}
-              </Button>
+                  <div className="flex items-center gap-3 p-3 bg-emerald-500/10 border border-emerald-500/30 rounded-lg hover:bg-emerald-500/20 transition-colors duration-300">
+                    <div className="w-2.5 h-2.5 rounded-full bg-emerald-400"></div>
+                    <span className="font-medium text-emerald-200">Drought</span>
+                  </div>
+                  <div className="flex items-center gap-3 p-3 bg-emerald-500/10 border border-emerald-500/30 rounded-lg hover:bg-emerald-500/20 transition-colors duration-300">
+                    <div className="w-2.5 h-2.5 rounded-full bg-emerald-400"></div>
+                    <span className="font-medium text-emerald-200">Pest Attack</span>
+                  </div>
+                  <div className="flex items-center gap-3 p-3 bg-emerald-500/10 border border-emerald-500/30 rounded-lg hover:bg-emerald-500/20 transition-colors duration-300">
+                    <div className="w-2.5 h-2.5 rounded-full bg-emerald-400"></div>
+                    <span className="font-medium text-emerald-200">Cyclone</span>
+                  </div>
+                  <div className="flex items-center gap-3 p-3 bg-emerald-500/10 border border-emerald-500/30 rounded-lg hover:bg-emerald-500/20 transition-colors duration-300">
+                    <div className="w-2.5 h-2.5 rounded-full bg-emerald-400"></div>
+                    <span className="font-medium text-emerald-200">Fire</span>
+                  </div>
+                  <div className="flex items-center gap-3 p-3 bg-emerald-500/10 border border-emerald-500/30 rounded-lg hover:bg-emerald-500/20 transition-colors duration-300">
+                    <div className="w-2.5 h-2.5 rounded-full bg-emerald-400"></div>
+                    <span className="font-medium text-emerald-200">Hailstorm</span>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
 
-              <p className="text-xs text-center text-emerald-400/70 font-medium">
-                🔒 Secured payment gateway
-              </p>
-            </CardContent>
-          </Card>
+          <div className="space-y-6">
+            <Card className="backdrop-blur-2xl bg-gradient-to-br from-emerald-950/80 to-green-950/80 border-2 border-emerald-400/40 shadow-2xl shadow-emerald-500/30 sticky top-8 hover:border-emerald-400/60 hover:shadow-emerald-500/40 transition-all duration-300">
+              <CardHeader className="pb-4 border-b border-emerald-500/30">
+                <CardTitle className="text-xl font-bold text-emerald-100">Premium Summary</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-5 pt-4">
+                <div className="space-y-3 bg-emerald-500/10 border border-emerald-500/30 p-4 rounded-lg">
+                  <div className="flex justify-between items-center">
+                    <span className="text-emerald-300 font-medium">Crop:</span>
+                    <Badge className="bg-emerald-600 text-emerald-50 hover:bg-emerald-700">{cropType || "Not selected"}</Badge>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-emerald-300 font-medium">Season:</span>
+                    <Badge className="bg-cyan-600 text-cyan-50 hover:bg-cyan-700">{season || "Not selected"}</Badge>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-emerald-300 font-medium">Land Area:</span>
+                    <span className="font-bold text-emerald-100">{landArea} acres</span>
+                  </div>
+                </div>
+
+                <div className="border-t border-emerald-500/30 pt-4">
+                  <div className="mb-2">
+                    <p className="text-sm text-emerald-300/80 font-medium mb-1">Total Premium:</p>
+                    <p className="text-4xl font-bold text-emerald-300">${premium.toFixed(2)}</p>
+                  </div>
+                  <p className="text-xs text-emerald-400/60">Per season</p>
+                </div>
+
+                <Button
+                  onClick={handleProceedToPayment}
+                  className="w-full bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-700 hover:to-green-700 text-white font-semibold py-6 rounded-lg transition-all duration-300 shadow-lg hover:shadow-emerald-500/50 text-base"
+                  disabled={!cropType || !season || isLoading}
+                >
+                  {isLoading ? (
+                    <div className="flex items-center gap-2">
+                      <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                      Processing...
+                    </div>
+                  ) : (
+                    <>
+                      <CreditCard className="w-5 h-5 mr-2" />
+                      Proceed to Payment
+                    </>
+                  )}
+                </Button>
+
+                <p className="text-xs text-center text-emerald-400/70 font-medium">
+                  🔒 Secured payment gateway
+                </p>
+              </CardContent>
+            </Card>
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 };

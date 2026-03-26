@@ -133,7 +133,7 @@ const CropHealth = () => {
                   Download Full Report
                 </Button>
                 {report.status === "Attention Needed" && (
-                  <Button size="sm" onClick={() => navigate("/claim-damage")} className="bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700 py-2.5 px-4 rounded-lg font-medium shadow-lg hover:shadow-amber-500/50 transition-all duration-300">
+                  <Button size="sm" onClick={() => navigate("/dashboard/claim-damage")} className="bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700 py-2.5 px-4 rounded-lg font-medium shadow-lg hover:shadow-amber-500/50 transition-all duration-300">
                     📋 File Damage Claim
                   </Button>
                 )}

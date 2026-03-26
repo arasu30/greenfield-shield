@@ -26,7 +26,7 @@ const ClaimDamage = () => {
     toast.success("Claim submitted successfully!");
     toast.info("AI analysis in progress. You'll receive updates soon.");
     setTimeout(() => {
-      navigate("/my-policies");
+      navigate("/dashboard/my-policies");
     }, 2000);
   };
 

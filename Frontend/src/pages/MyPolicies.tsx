@@ -133,7 +133,7 @@ const MyPolicies = () => {
             <h3 className="text-2xl font-bold text-slate-300 mb-2">No Policies Found</h3>
             <p className="text-slate-500 mb-8 max-w-md text-center">You haven't purchased any crop insurance policies yet. Protect your harvest today.</p>
             <Button
-              onClick={() => navigate("/buy-policy")}
+              onClick={() => navigate("/dashboard/buy-policy")}
               className="bg-emerald-600 hover:bg-emerald-700 text-white px-8 py-6 rounded-xl font-bold transition-all duration-300 shadow-lg shadow-emerald-500/20"
             >
               <Plus className="w-5 h-5 mr-2" />

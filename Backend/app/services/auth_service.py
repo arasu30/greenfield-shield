@@ -37,7 +37,13 @@ class AuthService:
                 role=role,
             )
 
+        # Validate user exists
+        if not user:
+            raise InvalidCredentialsException("Invalid email or password")
+        
         # Validate credentials
+        if not verify_password(password, user.password_hash):
+            raise InvalidCredentialsException("Invalid email or password")
         
         if not user.is_active:
             raise AccessDenied("User account is inactive")

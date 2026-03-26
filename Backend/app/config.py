@@ -33,6 +33,10 @@ class Settings(BaseSettings):
     SMTP_USER: str
     SMTP_PASSWORD: str
     FROM_EMAIL: str
+
+    # Stripe Payment Gateway
+    STRIPE_SECRET_KEY: str
+    STRIPE_PUBLISHABLE_KEY: str
     
     class Config:
         env_file = ".env"

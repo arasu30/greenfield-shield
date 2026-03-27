@@ -16,18 +16,9 @@ import OfficerFarmers from "./pages/OfficerFarmers.tsx";
 import OfficerPolicies from "./pages/OfficerPolicies";
 import AdminPanel from "./pages/AdminPanel";
 import Profile from "./pages/Profile";
-import NotFound from "./pages/NotFound";
 import FarmerSchemes from "./pages/FarmerSchemes";
-<<<<<<< HEAD
+import NotFound from "./pages/NotFound";
 import PaymentPage from "./pages/PaymentPage";
-=======
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { TooltipProvider } from "@/components/ui/tooltip"; // or correct path
-import { Toaster } from "@/components/ui/toaster"; // adjust path
-import { Toaster as Sonner } from "sonner"; // correct import for Sonner
-
->>>>>>> 2ff4443ddec2f0c66daa77e43f4b0c95a03f6916
 
 import DashboardRoutes from "./layouts/DashboardRoutes";
 

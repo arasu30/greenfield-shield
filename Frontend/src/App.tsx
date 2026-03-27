@@ -13,6 +13,12 @@ import AdminPanel from "./pages/AdminPanel";
 import Profile from "./pages/Profile";
 import NotFound from "./pages/NotFound";
 import FarmerSchemes from "./pages/FarmerSchemes";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { TooltipProvider } from "@/components/ui/tooltip"; // or correct path
+import { Toaster } from "@/components/ui/toaster"; // adjust path
+import { Toaster as Sonner } from "sonner"; // correct import for Sonner
+
 
 import DashboardRoutes from "./layouts/DashboardRoutes";
 

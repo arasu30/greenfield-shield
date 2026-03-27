@@ -8,7 +8,7 @@ class StripeService:
     def _get_stripe_api_key():
         """Lazy load Stripe API key"""
         if not hasattr(StripeService, '_stripe_initialized'):
-            stripe.api_key = settings.stripe_secret_key
+            stripe.api_key = settings.STRIPE_SECRET_KEY
             StripeService._stripe_initialized = True
         return stripe.api_key
 

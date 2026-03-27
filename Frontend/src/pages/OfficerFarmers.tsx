@@ -1,20 +1,13 @@
-import { useState, useEffect } from "react"; // Added comment to trigger re-save
+import { useState, useEffect } from "react";
 import DashboardLayout from "@/components/DashboardLayout";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Eye, User, Phone, Mail, MapPin, Sprout, Map as MapIcon, ChevronDown, ChevronUp } from "lucide-react";
 import { toast } from "sonner";
 import { LocationMap } from "@/components/LocationMap";
-import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogHeader,
-    DialogTitle,
-    DialogTrigger,
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 
 const OfficerFarmers = () => {
     const [farmers, setFarmers] = useState<any[]>([]);
@@ -25,193 +18,116 @@ const OfficerFarmers = () => {
         try {
             const token = localStorage.getItem('access_token');
             const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:8000';
-            const res = await fetch(`${backendUrl}/officer/farmers`, {
-                headers: { 'Authorization': `Bearer ${token}` }
-            });
+            const res = await fetch(`${backendUrl}/officer/farmers`, { headers: { 'Authorization': `Bearer ${token}` } });
             if (!res.ok) throw new Error("Failed to fetch farmers");
-            const data = await res.json();
-            setFarmers(data);
-        } catch (error) {
-            console.error("Error fetching farmers:", error);
-            toast.error("Failed to load farmers list");
-        } finally {
-            setIsLoading(false);
-        }
+            setFarmers(await res.json());
+        } catch (error) { console.error("Error:", error); toast.error("Failed to load farmers list"); }
+        finally { setIsLoading(false); }
     };
 
-    useEffect(() => {
-        fetchFarmers();
-    }, []);
+    useEffect(() => { fetchFarmers(); }, []);
 
     return (
         <DashboardLayout role="officer">
-            <div className="container mx-auto px-4 py-8 max-w-7xl">
-                <div className="mb-8">
-                    <h1 className="text-3xl font-bold text-white mb-2">Registered Farmers</h1>
-                    <p className="text-slate-400">View and manage all farmers registered in the system</p>
+            <div className="max-w-7xl mx-auto space-y-6 animate-fade-up">
+                <div>
+                    <h1 className="page-title">Registered Farmers</h1>
+                    <p className="page-subtitle">View and manage all farmers in the system</p>
                 </div>
 
-                <Card className="backdrop-blur-2xl bg-slate-900/80 border border-slate-800 shadow-2xl transition-all duration-300">
-                    <CardHeader className="pb-4 border-b border-slate-800/50">
-                        <CardTitle className="text-xl font-bold text-slate-100 flex items-center gap-2">
-                            <User className="w-5 h-5 text-green-400" />
-                            Farmer Directory
+                <Card className="glass-card rounded-xl">
+                    <CardHeader className="pb-4 border-b border-white/[0.06]">
+                        <CardTitle className="text-base font-semibold text-white flex items-center gap-2">
+                            <User className="w-4 h-4 text-emerald-400" /> Farmer Directory
                         </CardTitle>
                     </CardHeader>
-                    <CardContent className="pt-6">
+                    <CardContent className="p-0">
                         {isLoading ? (
-                            <div className="space-y-4">
-                                {Array(5).fill(0).map((_, i) => (
-                                    <div key={i} className="h-16 bg-slate-800/50 animate-pulse rounded-lg"></div>
-                                ))}
-                            </div>
+                            <div className="p-6 space-y-3">{Array(5).fill(0).map((_, i) => <div key={i} className="h-14 bg-white/[0.02] animate-pulse rounded-lg" />)}</div>
                         ) : farmers.length === 0 ? (
-                            <div className="text-center py-20 bg-slate-800/20 rounded-2xl border border-dashed border-slate-700">
-                                <p className="text-slate-400">No farmers registered in the system.</p>
-                            </div>
+                            <div className="text-center py-16"><p className="text-slate-500">No farmers registered.</p></div>
                         ) : (
                             <Table>
                                 <TableHeader>
-                                    <TableRow className="border-b border-slate-800 hover:bg-transparent">
-                                        <TableHead className="text-slate-400">Full Name</TableHead>
-                                        <TableHead className="text-slate-400">Contact</TableHead>
-                                        <TableHead className="text-slate-400">Member Since</TableHead>
-                                        <TableHead className="text-slate-400">Farms</TableHead>
-                                        <TableHead className="text-right text-slate-400">Actions</TableHead>
+                                    <TableRow className="border-b border-white/[0.06] hover:bg-transparent">
+                                        <TableHead className="text-slate-500 text-xs font-medium">Full Name</TableHead>
+                                        <TableHead className="text-slate-500 text-xs font-medium">Contact</TableHead>
+                                        <TableHead className="text-slate-500 text-xs font-medium">Member Since</TableHead>
+                                        <TableHead className="text-slate-500 text-xs font-medium">Farms</TableHead>
+                                        <TableHead className="text-right text-slate-500 text-xs font-medium">Actions</TableHead>
                                     </TableRow>
                                 </TableHeader>
                                 <TableBody>
                                     {farmers.map((farmer) => (
-                                        <TableRow key={farmer.id} className="hover:bg-slate-800/50 border-b border-slate-800/50">
-                                            <TableCell className="font-semibold text-slate-100">{farmer.full_name}</TableCell>
+                                        <TableRow key={farmer.id} className="border-b border-white/[0.04] hover:bg-white/[0.02] transition-colors">
+                                            <TableCell className="font-medium text-white text-sm">{farmer.full_name}</TableCell>
                                             <TableCell>
-                                                <div className="space-y-1">
-                                                    <p className="text-sm text-slate-300 flex items-center gap-2">
-                                                        <Mail className="w-3 h-3 text-slate-500" /> {farmer.email}
-                                                    </p>
-                                                    <p className="text-xs text-slate-400 flex items-center gap-2">
-                                                        <Phone className="w-3 h-3 text-slate-500" /> {farmer.phone || "N/A"}
-                                                    </p>
+                                                <div className="space-y-0.5">
+                                                    <p className="text-xs text-slate-400 flex items-center gap-1.5"><Mail className="w-3 h-3 text-slate-600" /> {farmer.email}</p>
+                                                    <p className="text-xs text-slate-500 flex items-center gap-1.5"><Phone className="w-3 h-3 text-slate-600" /> {farmer.phone || "N/A"}</p>
                                                 </div>
                                             </TableCell>
-                                            <TableCell className="text-slate-400 text-sm">
-                                                {new Date(farmer.created_at).toLocaleDateString()}
-                                            </TableCell>
-                                            <TableCell>
-                                                <Badge variant="secondary" className="bg-slate-800 text-slate-300 border-slate-700">
-                                                    {farmer.farms?.length || 0} Farm(s)
-                                                </Badge>
-                                            </TableCell>
+                                            <TableCell className="text-xs text-slate-500">{new Date(farmer.created_at).toLocaleDateString()}</TableCell>
+                                            <TableCell><Badge variant="outline" className="bg-white/[0.04] border-white/[0.08] text-slate-300 text-xs">{farmer.farms?.length || 0} Farm(s)</Badge></TableCell>
                                             <TableCell className="text-right">
                                                 <Dialog>
                                                     <DialogTrigger asChild>
-                                                        <Button variant="ghost" size="sm" className="hover:bg-green-500/10 hover:text-green-400">
-                                                            <Eye className="w-4 h-4 mr-2" /> View Details
+                                                        <Button variant="ghost" size="sm" className="hover:bg-white/[0.06] text-slate-400 text-xs">
+                                                            <Eye className="w-3.5 h-3.5 mr-1.5" /> View
                                                         </Button>
                                                     </DialogTrigger>
-                                                    <DialogContent className="max-w-3xl bg-slate-950 border-slate-800 text-slate-100">
+                                                    <DialogContent className="max-w-3xl bg-[#0d1326] border-white/[0.08] text-slate-200">
                                                         <DialogHeader>
-                                                            <DialogTitle className="text-2xl font-bold flex items-center gap-3">
-                                                                <div className="p-2 rounded-xl bg-green-500/20 text-green-400">
-                                                                    <User className="w-6 h-6" />
-                                                                </div>
+                                                            <DialogTitle className="text-lg font-semibold text-white flex items-center gap-2">
+                                                                <div className="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center"><User className="w-4 h-4 text-emerald-400" /></div>
                                                                 {farmer.full_name}
                                                             </DialogTitle>
-                                                            <DialogDescription className="text-slate-400">Farmer profile and agricultural assets</DialogDescription>
+                                                            <DialogDescription className="text-slate-500">Farmer profile and agricultural assets</DialogDescription>
                                                         </DialogHeader>
-
-                                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
-                                                            <div className="space-y-6">
-                                                                <Card className="bg-slate-900 border-slate-800">
-                                                                    <CardHeader className="pb-3 px-4 pt-4">
-                                                                        <CardTitle className="text-sm font-semibold text-slate-400 uppercase tracking-wider">Contact Info</CardTitle>
-                                                                    </CardHeader>
-                                                                    <CardContent className="px-4 pb-4 space-y-4">
-                                                                        <div className="flex items-start gap-3">
-                                                                            <Mail className="w-4 h-4 text-blue-400 mt-1" />
-                                                                            <div>
-                                                                                <p className="text-xs text-slate-500">Email Address</p>
-                                                                                <p className="text-sm font-medium">{farmer.email}</p>
+                                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mt-4">
+                                                            <div className="space-y-4">
+                                                                <div className="glass-card rounded-xl p-4 space-y-3">
+                                                                    <p className="text-[10px] text-slate-600 uppercase tracking-wider font-medium">Contact Info</p>
+                                                                    {[
+                                                                        { icon: Mail, color: "text-blue-400", label: "Email", value: farmer.email },
+                                                                        { icon: Phone, color: "text-emerald-400", label: "Phone", value: farmer.phone || "Not provided" },
+                                                                        { icon: MapPin, color: "text-amber-400", label: "Address", value: farmer.address || "Not provided" },
+                                                                    ].map((f, i) => (
+                                                                        <div key={i} className="flex items-start gap-2.5">
+                                                                            <f.icon className={`w-3.5 h-3.5 ${f.color} mt-0.5`} />
+                                                                            <div><p className="text-[10px] text-slate-600">{f.label}</p><p className="text-sm text-slate-200">{f.value}</p></div>
+                                                                        </div>
+                                                                    ))}
+                                                                </div>
+                                                                <div>
+                                                                    <p className="text-[10px] text-slate-600 uppercase tracking-wider font-medium mb-2">Policies ({farmer.policies?.length || 0})</p>
+                                                                    {farmer.policies && farmer.policies.length > 0 ? farmer.policies.map((policy: any) => (
+                                                                        <div key={policy.id} className="glass-card rounded-lg p-3 mb-2">
+                                                                            <div className="flex items-center justify-between">
+                                                                                <div>
+                                                                                    <p className="text-sm font-medium text-white">{policy.crop_type} - {policy.season}</p>
+                                                                                    <p className="text-[10px] text-slate-500 mt-0.5">Cov: ₹{policy.coverage.toLocaleString()} • Prem: ₹{policy.premium.toLocaleString()}</p>
+                                                                                </div>
+                                                                                <Badge variant="outline" className="bg-emerald-500/10 text-emerald-400 border-emerald-500/20 text-[10px]">{policy.status}</Badge>
                                                                             </div>
                                                                         </div>
-                                                                        <div className="flex items-start gap-3">
-                                                                            <Phone className="w-4 h-4 text-emerald-400 mt-1" />
-                                                                            <div>
-                                                                                <p className="text-xs text-slate-500">Phone</p>
-                                                                                <p className="text-sm font-medium">{farmer.phone || "Not provided"}</p>
-                                                                            </div>
-                                                                        </div>
-                                                                        <div className="flex items-start gap-3">
-                                                                            <MapPin className="w-4 h-4 text-amber-400 mt-1" />
-                                                                            <div>
-                                                                                <p className="text-xs text-slate-500">Primary Address</p>
-                                                                                <p className="text-sm font-medium">{farmer.address || "Not provided"}</p>
-                                                                            </div>
-                                                                        </div>
-                                                                    </CardContent>
-                                                                </Card>
-
-                                                                <div className="space-y-4">
-                                                                    <h3 className="text-sm font-semibold text-slate-400 uppercase tracking-wider px-1">Insurance Policies ({farmer.policies?.length || 0})</h3>
-                                                                    {farmer.policies && farmer.policies.length > 0 ? (
-                                                                        <div className="space-y-3">
-                                                                            {farmer.policies.map((policy: any) => (
-                                                                                <Card key={policy.id} className="bg-slate-900 border-slate-800 p-3 hover:border-blue-500/30 transition-all duration-300">
-                                                                                    <div className="flex items-center gap-3">
-                                                                                        <div className="flex-1">
-                                                                                            <p className="font-semibold text-sm text-slate-100">{policy.crop_type} - {policy.season}</p>
-                                                                                            <div className="flex gap-3 mt-1">
-                                                                                                <span className="text-[10px] text-slate-400 font-medium">Cov: ₹{policy.coverage.toLocaleString()}</span>
-                                                                                                <span className="text-[10px] text-slate-400 font-medium">Prem: ₹{policy.premium.toLocaleString()}</span>
-                                                                                            </div>
-                                                                                        </div>
-                                                                                        <Badge variant="outline" className="text-[10px] bg-emerald-600/10 text-emerald-400 border-emerald-500/20 px-1.5 py-0">
-                                                                                            {policy.status}
-                                                                                        </Badge>
-                                                                                    </div>
-                                                                                </Card>
-                                                                            ))}
-                                                                        </div>
-                                                                    ) : (
-                                                                        <div className="p-4 rounded-xl bg-slate-900/50 border border-dashed border-slate-800 text-center">
-                                                                            <p className="text-xs text-slate-500 italic">No policies purchased yet.</p>
-                                                                        </div>
-                                                                    )}
+                                                                    )) : <p className="text-xs text-slate-600 italic">No policies yet.</p>}
                                                                 </div>
                                                             </div>
-
-                                                            <div className="space-y-4">
-                                                                <h3 className="text-sm font-semibold text-slate-400 uppercase tracking-wider px-1">Farms ({farmer.farms?.length || 0})</h3>
-                                                                {farmer.farms && farmer.farms.length > 0 ? (
-                                                                    <div className="space-y-4">
-                                                                        {farmer.farms.map((farm: any) => (
-                                                                            <Card key={farm.id} className="bg-slate-900 border-slate-800 overflow-hidden hover:border-green-500/30 transition-all duration-300">
-                                                                                <div className="p-4 flex items-center gap-4">
-                                                                                    <div className="p-2 rounded-lg bg-green-500/10 text-green-400">
-                                                                                        <Sprout className="w-5 h-5" />
-                                                                                    </div>
-                                                                                    <div className="flex-1">
-                                                                                        <p className="font-semibold text-slate-100">{farm.farm_name || `Farm #${farm.id}`}</p>
-                                                                                        <div className="flex items-center gap-3 mt-1">
-                                                                                            <span className="text-xs text-slate-400">{farm.crop_type || "No crop specified"}</span>
-                                                                                            <span className="w-1 h-1 rounded-full bg-slate-700"></span>
-                                                                                            <span className="text-xs font-bold text-green-500">{farm.area_acres?.toFixed(2) || "0.00"} Acres</span>
-                                                                                        </div>
-                                                                                    </div>
-                                                                                </div>
-                                                                                {farm.boundary && farm.boundary.length > 0 && (
-                                                                                    <div className="px-4 pb-4">
-                                                                                        <FarmMapToggle farm={farm} />
-                                                                                    </div>
-                                                                                )}
-                                                                            </Card>
-                                                                        ))}
+                                                            <div>
+                                                                <p className="text-[10px] text-slate-600 uppercase tracking-wider font-medium mb-2">Farms ({farmer.farms?.length || 0})</p>
+                                                                {farmer.farms && farmer.farms.length > 0 ? farmer.farms.map((farm: any) => (
+                                                                    <div key={farm.id} className="glass-card rounded-lg overflow-hidden mb-3">
+                                                                        <div className="p-3 flex items-center gap-3">
+                                                                            <div className="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center"><Sprout className="w-4 h-4 text-emerald-400" /></div>
+                                                                            <div>
+                                                                                <p className="text-sm font-medium text-white">{farm.farm_name || `Farm #${farm.id}`}</p>
+                                                                                <p className="text-[10px] text-slate-500">{farm.crop_type || "N/A"} • <span className="text-emerald-400 font-medium">{farm.area_acres?.toFixed(2) || "0.00"} ac</span></p>
+                                                                            </div>
+                                                                        </div>
+                                                                        {farm.boundary && farm.boundary.length > 0 && <FarmMapToggle farm={farm} />}
                                                                     </div>
-                                                                ) : (
-                                                                    <div className="p-8 rounded-xl bg-slate-900/50 border border-dashed border-slate-800 text-center">
-                                                                        <p className="text-sm text-slate-500 italic">No farms mapped for this farmer yet.</p>
-                                                                    </div>
-                                                                )}
+                                                                )) : <p className="text-xs text-slate-600 italic">No farms mapped.</p>}
                                                             </div>
                                                         </div>
                                                     </DialogContent>
@@ -231,28 +147,17 @@ const OfficerFarmers = () => {
 
 const FarmMapToggle = ({ farm }: { farm: any }) => {
     const [isOpen, setIsOpen] = useState(false);
-
     return (
-        <div className="w-full">
+        <div className="px-3 pb-3">
             <div className="flex justify-end">
-                <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => setIsOpen(!isOpen)}
-                    className="text-xs text-blue-400 hover:text-blue-300 hover:bg-blue-500/10"
-                >
-                    <MapIcon className="w-3.5 h-3.5 mr-1.5" />
-                    {isOpen ? "Hide Map" : "View Map"}
+                <Button variant="ghost" size="sm" onClick={() => setIsOpen(!isOpen)} className="text-xs text-blue-400 hover:text-blue-300 h-7">
+                    <MapIcon className="w-3 h-3 mr-1" /> {isOpen ? "Hide" : "Map"}
                     {isOpen ? <ChevronUp className="w-3 h-3 ml-1" /> : <ChevronDown className="w-3 h-3 ml-1" />}
                 </Button>
             </div>
             {isOpen && (
-                <div className="mt-3 h-48 rounded-xl overflow-hidden border border-slate-800 bg-slate-950/50">
-                    <LocationMap
-                        currentPosition={null}
-                        boundary={farm.boundary}
-                        isRecording={false}
-                    />
+                <div className="mt-2 h-40 rounded-lg overflow-hidden border border-white/[0.06]">
+                    <LocationMap currentPosition={null} boundary={farm.boundary} isRecording={false} />
                 </div>
             )}
         </div>

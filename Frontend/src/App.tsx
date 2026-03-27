@@ -1,5 +1,10 @@
 import { Elements } from '@stripe/react-stripe-js';
 import stripePromise from './lib/stripe';
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { TooltipProvider } from "@/components/ui/tooltip";
+import { Toaster } from "@/components/ui/toaster";
+import { Toaster as Sonner } from "@/components/ui/sonner";
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import BuyPolicy from "./pages/BuyPolicy";
@@ -13,6 +18,7 @@ import AdminPanel from "./pages/AdminPanel";
 import Profile from "./pages/Profile";
 import NotFound from "./pages/NotFound";
 import FarmerSchemes from "./pages/FarmerSchemes";
+import PaymentPage from "./pages/PaymentPage";
 
 import DashboardRoutes from "./layouts/DashboardRoutes";
 
@@ -37,6 +43,7 @@ const App = () => (
               <Route path="claim-damage" element={<ClaimDamage />} />
               <Route path="crop-health" element={<CropHealth />} />
               <Route path="schemes" element={<FarmerSchemes />} />
+              <Route path="payment" element={<PaymentPage />} />
             </Route>
 
             <Route path="/officer-review" element={<OfficerReview />} />

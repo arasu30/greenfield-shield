@@ -63,7 +63,7 @@ export const LocationMap = ({ currentPosition, boundary = [], isRecording, onMap
     const polygonPositions = boundary.map(p => [p.lat, p.lng] as [number, number]);
 
     return (
-        <div className="h-[300px] w-full rounded-lg overflow-hidden border border-cyan-500/30 shadow-lg relative z-0">
+        <div className="h-[300px] w-full rounded-lg overflow-hidden border border-white/[0.08] shadow-lg relative z-0">
             <MapContainer
                 center={[center.lat, center.lng]}
                 zoom={18}

@@ -1,16 +1,11 @@
-class InsuranceService:
-    BASE_RATES = {
-        "Rice": 1200,
-        "Wheat": 1000,
-        "Cotton": 1500,
-        "Sugarcane": 1800,
-        "Maize": 900,
-    }
+from sqlalchemy.orm import Session
+from app.models.insurance_rate import InsuranceRate
 
+class InsuranceService:
     COVERAGE_MULTIPLIER = 50.0  # From frontend, coverage is premium * 50
 
     @classmethod
-    def calculate_premium(cls, crop_type: str, season: str, area_acres: float) -> dict:
+    def calculate_premium(cls, db: Session, crop_type: str, season: str, area_acres: float) -> dict:
         """
         Calculate premium and suggested coverage based on crop type, season, and area.
         Returns a dictionary with 'premium' and 'coverage'.
@@ -18,13 +13,22 @@ class InsuranceService:
         if area_acres <= 0:
             raise ValueError("Area must be greater than 0")
 
-        # Get base rate, default to 1000 if not found
-        base_rate = cls.BASE_RATES.get(crop_type, 1000)
+        # Get rate from database
+        rate_record = db.query(InsuranceRate).filter(
+            InsuranceRate.crop_type == crop_type,
+            InsuranceRate.season == season
+        ).first()
         
-        # Season multiplier based on frontend logic
-        season_multiplier = 1.2 if season.lower() == "kharif" else 1.0
-
-        premium = round(base_rate * area_acres * season_multiplier)
+        # Fallback to defaults if not in DB
+        if rate_record:
+            base_rate = rate_record.base_rate
+        else:
+            defaults = {"Rice": 1200, "Wheat": 1000, "Cotton": 1500, "Sugarcane": 1800, "Maize": 900}
+            base_rate = defaults.get(crop_type, 1000)
+        
+        # Season multiplier (if not already factored into DB rate)
+        # Assuming DB rate is the finalized rate per acre
+        premium = round(base_rate * area_acres)
         coverage = round(premium * cls.COVERAGE_MULTIPLIER)
 
         return {

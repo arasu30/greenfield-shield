@@ -1,14 +1,14 @@
 from pydantic import BaseModel
 from typing import Optional, List
 from datetime import datetime
-from app.models.claim import ClaimStatus
+from app.models.claim import ClaimStatus, DisasterType
 from app.api.schemas.policy import PolicyResponse
 
 class ClaimBase(BaseModel):
     policy_id: int
     crop_type: str
-    disaster_type: str
-    affected_area: Optional[str] = None
+    disaster_type: DisasterType
+    affected_area: Optional[float] = None # Changed from String to Float
     ai_damage: Optional[float] = None
     confidence: Optional[float] = None
 
@@ -24,6 +24,7 @@ class ClaimResponse(ClaimBase):
     farmer_name: Optional[str] = None
     policy: Optional[PolicyResponse] = None
     status: ClaimStatus
+    is_settled: bool = False
     created_at: datetime
     updated_at: datetime
 

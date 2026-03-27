@@ -36,6 +36,7 @@ class UserCRUD:
         address: str = None,
         department: str = None,
         officer_id: str = None,
+        commit: bool = True
     ) -> User:
         """Create a new user"""
         db_user = User(
@@ -49,8 +50,11 @@ class UserCRUD:
             officer_id=officer_id,
         )
         db.add(db_user)
-        db.commit()
-        db.refresh(db_user)
+        if commit:
+            db.commit()
+            db.refresh(db_user)
+        else:
+            db.flush() # Ensure ID is generated for dependent records
         return db_user
     
     @staticmethod
@@ -98,3 +102,18 @@ class UserCRUD:
     def get_active_users(db: Session) -> list[User]:
         """Get all active users"""
         return db.query(User).filter(User.is_active == True).all()
+
+    @staticmethod
+    def get_all_users(db: Session) -> list[User]:
+        """Get all users (for admin)"""
+        return db.query(User).all()
+
+    @staticmethod
+    def delete_user(db: Session, user_id: int) -> bool:
+        """Delete a user"""
+        user = db.query(User).filter(User.id == user_id).first()
+        if user:
+            db.delete(user)
+            db.commit()
+            return True
+        return False

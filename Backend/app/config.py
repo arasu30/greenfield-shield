@@ -34,7 +34,7 @@ class Settings(BaseSettings):
     SMTP_PASSWORD: str
     FROM_EMAIL: str
 
-    # Stripe Payment Gateway
+    # # Stripe Payment Gateway
     STRIPE_SECRET_KEY: str
     STRIPE_PUBLISHABLE_KEY: str
     

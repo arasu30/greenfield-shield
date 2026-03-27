@@ -1,149 +1,113 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, FileText, Loader2, Plus } from "lucide-react";
-import DashboardLayout from "@/components/DashboardLayout";
+import { ShieldCheck, Calendar, DollarSign, Loader2, FileText } from "lucide-react";
 import { toast } from "sonner";
 
-interface Policy {
-  id: number;
-  crop_type: string;
-  season: string;
-  premium: number;
-  coverage: number;
-  status: string;
-  start_date: string;
-  end_date: string;
-}
-
 const MyPolicies = () => {
-  const navigate = useNavigate();
-  const [policies, setPolicies] = useState<Policy[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+    const navigate = useNavigate();
+    const [policies, setPolicies] = useState<any[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
 
-  useEffect(() => {
-    const fetchPolicies = async () => {
-      try {
-        const accessToken = localStorage.getItem('access_token');
-        if (!accessToken) {
-          navigate("/login");
-          return;
-        }
+    useEffect(() => {
+        const fetchPolicies = async () => {
+            try {
+                const token = localStorage.getItem('access_token');
+                if (!token) { navigate("/login"); return; }
+                const res = await fetch(`${import.meta.env.VITE_BACKEND_URL || 'http://localhost:8000'}/farmer/my-policies`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                if (res.ok) setPolicies(await res.json());
+                else throw new Error("Failed to fetch");
+            } catch (err) { console.error(err); toast.error("Could not load policies"); }
+            finally { setIsLoading(false); }
+        };
+        fetchPolicies();
+    }, [navigate]);
 
-        const response = await fetch(`${import.meta.env.VITE_BACKEND_URL || 'http://localhost:8000'}/farmer/my-policies`, {
-          headers: {
-            "Authorization": `Bearer ${accessToken}`
-          }
-        });
-
-        if (!response.ok) {
-          throw new Error("Failed to fetch policies");
-        }
-
-        const data = await response.json();
-        setPolicies(data);
-      } catch (error) {
-        console.error("Fetch error:", error);
-        toast.error("Could not load your policies");
-      } finally {
-        setIsLoading(false);
-      }
+    const getStatusStyle = (status: string) => {
+        if (status === "Active") return "bg-emerald-500/15 text-emerald-400 border-emerald-500/20";
+        if (status === "Expired") return "bg-slate-500/15 text-slate-400 border-slate-500/20";
+        return "bg-amber-500/15 text-amber-400 border-amber-500/20";
     };
 
-    fetchPolicies();
-  }, [navigate]);
-
-  const formatDate = (dateStr: string) => {
-    if (!dateStr) return "N/A";
-    return new Date(dateStr).toLocaleDateString('en-IN', {
-      day: '2-digit',
-      month: 'short',
-      year: 'numeric'
-    });
-  };
-
-  return (
-    <div className="container mx-auto max-w-4xl animate-in fade-in slide-in-from-bottom-4 duration-700 font-sans">
-      {/* <Button variant="ghost" onClick={() => navigate("/dashboard")} className="mb-8 text-slate-300 hover:text-emerald-400 transition-all duration-300">
-          <ArrowLeft className="w-5 h-5 mr-2" />
-          Back to Dashboard
-        </Button> */}
-
-      <div className="mb-10">
-        <h2 className="text-5xl font-bold bg-gradient-to-r from-emerald-400 via-green-400 to-cyan-400 bg-clip-text text-transparent mb-3">My Policies</h2>
-        <p className="text-lg text-slate-300 font-medium">View and manage your insurance policies</p>
-      </div>
-
-      <div className="grid grid-cols-1 gap-6">
-        {isLoading ? (
-          <div className="flex flex-col items-center justify-center py-20 text-emerald-400">
-            <Loader2 className="w-12 h-12 animate-spin mb-4" />
-            <p className="text-xl font-medium">Loading your policies...</p>
-          </div>
-        ) : policies.length > 0 ? (
-          policies.map((policy) => (
-            <Card key={policy.id} className="backdrop-blur-2xl bg-slate-900/80 border border-emerald-500/30 shadow-2xl shadow-emerald-500/20 hover:border-emerald-400/50 hover:shadow-emerald-400/30 transition-all duration-300 cursor-pointer group transform hover:-translate-y-1">
-              <CardHeader className="pb-4 border-b border-emerald-500/20">
-                <div className="flex items-start justify-between">
-                  <div className="flex items-center gap-4">
-                    <div className="p-4 rounded-xl bg-emerald-500/20 group-hover:bg-emerald-500/30 group-hover:scale-110 transition-all duration-300 shadow-lg shadow-emerald-500/20">
-                      <FileText className="w-7 h-7 text-emerald-400" />
-                    </div>
-                    <div>
-                      <CardTitle className="text-xl font-bold text-emerald-100">{policy.crop_type}</CardTitle>
-                      <CardDescription className="mt-2 text-slate-300">
-                        Policy ID: <span className="font-semibold text-emerald-300">POL-{policy.id.toString().padStart(4, '0')}</span>
-                      </CardDescription>
-                    </div>
-                  </div>
-                  <Badge className={`${policy.status === 'Active' ? 'bg-emerald-600 text-emerald-50' : 'bg-slate-700 text-slate-200'} font-semibold px-4 py-2`}>
-                    {policy.status}
-                  </Badge>
+    return (
+        <div className="max-w-5xl mx-auto space-y-8 animate-fade-up">
+            <div className="flex items-center justify-between">
+                <div>
+                    <h1 className="page-title">My Policies</h1>
+                    <p className="page-subtitle">Manage your active crop insurance policies</p>
                 </div>
-              </CardHeader>
-              <CardContent className="pt-4">
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-                  <div className="space-y-2 p-3 bg-emerald-500/10 border border-emerald-500/30 rounded-lg">
-                    <p className="text-xs font-semibold text-emerald-300 uppercase tracking-wide">Season</p>
-                    <p className="text-lg font-bold text-emerald-100">{policy.season}</p>
-                  </div>
-                  <div className="space-y-2 p-3 bg-emerald-500/10 border border-emerald-500/30 rounded-lg">
-                    <p className="text-xs font-semibold text-emerald-300 uppercase tracking-wide">Duration</p>
-                    <p className="text-sm font-bold text-emerald-100">
-                      {formatDate(policy.start_date)} - {formatDate(policy.end_date)}
-                    </p>
-                  </div>
-                  <div className="space-y-2 p-3 bg-emerald-500/10 border border-emerald-500/30 rounded-lg">
-                    <p className="text-xs font-semibold text-emerald-300 uppercase tracking-wide">Premium paid</p>
-                    <p className="text-lg font-bold text-emerald-300">₹{policy.premium.toLocaleString()}</p>
-                  </div>
-                  <div className="space-y-2 p-3 bg-cyan-500/10 border border-cyan-500/30 rounded-lg">
-                    <p className="text-xs font-semibold text-cyan-300 uppercase tracking-wide">Coverage</p>
-                    <p className="text-lg font-bold text-cyan-300">₹{policy.coverage.toLocaleString()}</p>
-                  </div>
+                <Button onClick={() => navigate("/dashboard/buy-policy")}
+                    className="bg-emerald-600 hover:bg-emerald-500 text-white font-medium rounded-lg h-10 px-5 shadow-lg shadow-emerald-600/20">
+                    <ShieldCheck className="w-4 h-4 mr-2" /> New Policy
+                </Button>
+            </div>
+
+            {isLoading ? (
+                <div className="flex flex-col items-center justify-center py-20 text-slate-500">
+                    <Loader2 className="w-8 h-8 animate-spin mb-3" />
+                    <p className="text-sm">Loading policies...</p>
                 </div>
-              </CardContent>
-            </Card>
-          ))
-        ) : (
-          <div className="flex flex-col items-center justify-center py-20 bg-slate-900/50 border border-emerald-500/20 rounded-2xl backdrop-blur-sm">
-            <FileText className="w-16 h-16 text-slate-600 mb-6" />
-            <h3 className="text-2xl font-bold text-slate-300 mb-2">No Policies Found</h3>
-            <p className="text-slate-500 mb-8 max-w-md text-center">You haven't purchased any crop insurance policies yet. Protect your harvest today.</p>
-            <Button
-              onClick={() => navigate("/dashboard/buy-policy")}
-              className="bg-emerald-600 hover:bg-emerald-700 text-white px-8 py-6 rounded-xl font-bold transition-all duration-300 shadow-lg shadow-emerald-500/20"
-            >
-              <Plus className="w-5 h-5 mr-2" />
-              Buy Your First Policy
-            </Button>
-          </div>
-        )}
-      </div>
-    </div>
-  );
+            ) : policies.length > 0 ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    {policies.map((policy: any) => (
+                        <Card key={policy.id} className="glass-card-hover rounded-xl group">
+                            <CardContent className="p-5 space-y-4">
+                                <div className="flex items-start justify-between">
+                                    <div className="flex items-center gap-3">
+                                        <div className="w-10 h-10 rounded-lg bg-emerald-500/10 flex items-center justify-center">
+                                            <ShieldCheck className="w-5 h-5 text-emerald-400" />
+                                        </div>
+                                        <div>
+                                            <p className="text-sm font-medium text-white">{policy.crop_type}</p>
+                                            <p className="text-xs text-slate-500 mt-0.5">{policy.season} • #{policy.id}</p>
+                                        </div>
+                                    </div>
+                                    <Badge variant="outline" className={`text-xs ${getStatusStyle(policy.status)}`}>{policy.status}</Badge>
+                                </div>
+
+                                <div className="grid grid-cols-2 gap-3">
+                                    <div className="bg-white/[0.03] rounded-lg p-3">
+                                        <div className="flex items-center gap-1.5 text-slate-500 mb-1">
+                                            <DollarSign className="w-3 h-3" />
+                                            <span className="text-[10px] font-medium uppercase tracking-wider">Premium</span>
+                                        </div>
+                                        <p className="text-sm font-semibold text-white">₹{policy.premium?.toLocaleString()}</p>
+                                    </div>
+                                    <div className="bg-white/[0.03] rounded-lg p-3">
+                                        <div className="flex items-center gap-1.5 text-slate-500 mb-1">
+                                            <ShieldCheck className="w-3 h-3" />
+                                            <span className="text-[10px] font-medium uppercase tracking-wider">Coverage</span>
+                                        </div>
+                                        <p className="text-sm font-semibold text-white">₹{policy.coverage?.toLocaleString()}</p>
+                                    </div>
+                                </div>
+
+                                <div className="flex items-center justify-between text-xs text-slate-500 pt-1 border-t border-white/[0.04]">
+                                    <div className="flex items-center gap-1.5">
+                                        <Calendar className="w-3 h-3" />
+                                        <span>{new Date(policy.start_date).toLocaleDateString()} – {new Date(policy.end_date).toLocaleDateString()}</span>
+                                    </div>
+                                </div>
+                            </CardContent>
+                        </Card>
+                    ))}
+                </div>
+            ) : (
+                <div className="glass-card rounded-2xl flex flex-col items-center justify-center py-16 text-center">
+                    <FileText className="w-12 h-12 text-slate-700 mb-4" />
+                    <h3 className="text-lg font-medium text-slate-300 mb-1">No policies yet</h3>
+                    <p className="text-sm text-slate-600 mb-5">Protect your crops with our AI-powered insurance</p>
+                    <Button onClick={() => navigate("/dashboard/buy-policy")} className="bg-emerald-600 hover:bg-emerald-500 text-white">
+                        Buy Your First Policy
+                    </Button>
+                </div>
+            )}
+        </div>
+    );
 };
 
 export default MyPolicies;

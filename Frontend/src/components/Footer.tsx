@@ -5,7 +5,7 @@ const Footer = () => {
                 {/* Copyright Row */}
                 <div className="flex flex-col md:flex-row justify-between items-center border-b border-white/[0.03] pb-12 mb-12">
                     <p className="text-slate-500 text-xs font-medium tracking-wide">
-                        &copy; 2026 Cropsure by Digibranders. All rights reserved.
+                        &copy; 2026 Cropsure.All rights reserved.
                     </p>
                     <div className="flex gap-8 mt-6 md:mt-0">
                         <a href="#" className="text-slate-500 hover:text-emerald-400 transition-all duration-300 text-xs">Privacy Policy</a>

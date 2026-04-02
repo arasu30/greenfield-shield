@@ -284,8 +284,6 @@ const DashboardLayout = ({ children, role = 'farmer' }: DashboardLayoutProps) =>
                     </div>
                 </main>
             </div>
-
-            <Footer />
         </div>
     );
 };

@@ -138,14 +138,14 @@ const AdminPanel = () => {
         <DashboardLayout role="admin">
             <div className="max-w-7xl mx-auto space-y-6 animate-fade-up">
                 <Tabs value={activeTab} onValueChange={(v) => setSearchParams({ tab: v })}>
-                    <TabsList className="bg-white/[0.04] border border-white/[0.06] p-1 rounded-lg">
+                    {/* <TabsList className="bg-white/[0.04] border border-white/[0.06] p-1 rounded-lg">
                         {["overview", "users", "rates", "schemes", "compensation"].map((tab) => (
                             <TabsTrigger key={tab} value={tab}
                                 className="text-xs font-medium capitalize data-[state=active]:bg-emerald-500/15 data-[state=active]:text-emerald-400 data-[state=active]:shadow-none text-slate-400 rounded-md px-4 py-1.5">
                                 {tab}
                             </TabsTrigger>
                         ))}
-                    </TabsList>
+                    </TabsList> */}
 
                     {/* Overview */}
                     <TabsContent value="overview" className="space-y-6 mt-6">

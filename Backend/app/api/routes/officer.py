@@ -9,7 +9,7 @@ from app.crud.claim import ClaimCRUD
 from app.crud.farm import FarmCRUD
 from app.crud.user import UserCRUD
 from app.models.user import UserRole, User
-from app.models.claim import ClaimStatus
+from app.models.claim import ClaimStatus, Claim
 from app.models.policy import Policy
 from typing import List
 
@@ -59,7 +59,7 @@ def get_farmers(
         farmer_data.farms = enriched_farms
         
         # Policies are already loaded
-        farmer_data.policies = [PolicyResponse.from_orm(p) for p in farmer.policies]
+        farmer_data.policies = [PolicyResponse.model_validate(p) for p in farmer.policies]
         
         results.append(farmer_data)
         
@@ -108,7 +108,7 @@ def get_all_policies(
     for policy in policies:
         # PolicyResponse from_orm works well, but if we need farmer names we might need to extend it
         # For now, PolicyResponse is enough as it has farmer_id
-        results.append(PolicyResponse.from_orm(policy))
+        results.append(PolicyResponse.model_validate(policy))
         
     return results
 
@@ -131,11 +131,11 @@ def get_claims(
     # Enrich with farmer names
     results = []
     for claim in claims:
-        claim_resp = ClaimResponse.from_orm(claim)
+        claim_resp = ClaimResponse.model_validate(claim)
         claim_resp.farmer_name = claim.farmer.full_name if claim.farmer else "Unknown Farmer"
         
         if claim.policy:
-            claim_resp.policy = PolicyResponse.from_orm(claim.policy)
+            claim_resp.policy = PolicyResponse.model_validate(claim.policy)
             
         results.append(claim_resp)
         
@@ -156,10 +156,10 @@ def update_claim_status(
     farmer = db.query(User).filter(User.id == claim.farmer_id).first()
     policy = db.query(Policy).filter(Policy.id == claim.policy_id).first()
     
-    resp = ClaimResponse.from_orm(claim)
+    resp = ClaimResponse.model_validate(claim)
     resp.farmer_name = farmer.full_name if farmer else "Unknown Farmer"
     
     if policy:
-        resp.policy = PolicyResponse.from_orm(policy)
+        resp.policy = PolicyResponse.model_validate(policy)
         
     return resp

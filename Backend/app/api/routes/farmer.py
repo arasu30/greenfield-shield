@@ -10,6 +10,7 @@ from app.models.user import UserRole
 from app.utils.errors import AccessDenied
 from geoalchemy2 import functions as geofunc
 from typing import List
+from app.api.schemas.farmer import SaveFarmRequest, SaveFarmResponse
 
 router = APIRouter(prefix="/farmer", tags=["Farmer"])
 

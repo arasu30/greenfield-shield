@@ -23,3 +23,26 @@ class PolicyResponse(PolicyBase):
 
     class Config:
         from_attributes = True
+
+# Payment schemas
+class PaymentIntentRequest(BaseModel):
+    crop_type: str
+    season: str
+    premium: float
+    coverage: float
+    scheme_id: Optional[int] = None
+
+class PaymentIntentResponse(BaseModel):
+    client_secret: str
+    payment_intent_id: str
+    amount: int
+    currency: str
+    status: str
+
+class PaymentConfirmationRequest(BaseModel):
+    payment_intent_id: str
+    crop_type: str
+    season: str
+    premium: float
+    coverage: float
+    scheme_id: Optional[int] = None

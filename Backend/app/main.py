@@ -11,7 +11,13 @@ from .api.routes import auth
 from .api.routes import farmer
 from .api.routes import officer
 from .api.routes import scheme # Added scheme router
-from .models.claim import Claim # Ensure Claim model is loaded for metadata
+from .api.routes import admin # Added admin router
+from .models.user import User
+from .models.claim import Claim
+from .models.farm import Farm
+from .models.policy import Policy
+from .models.scheme import Scheme
+from .models.insurance_rate import InsuranceRate
 
 from contextlib import asynccontextmanager
 
@@ -67,11 +73,9 @@ app = FastAPI(
     version="1.0.0",
     lifespan=lifespan
 )
-
-# Add CORS middleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origin_regex="http://localhost:.*",  # Allow any port on localhost
+    allow_origins=settings.FRONTEND_URLS,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -91,6 +95,7 @@ app.include_router(auth.router)
 app.include_router(farmer.router)
 app.include_router(officer.router)
 app.include_router(scheme.router, prefix="/schemes", tags=["Schemes"]) # Scheme routes
+app.include_router(admin.router) # Admin routes
 
 @app.get("/", tags=["Health"])
 def root():

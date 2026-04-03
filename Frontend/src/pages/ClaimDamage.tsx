@@ -1,202 +1,206 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { ArrowLeft, Upload, AlertCircle } from "lucide-react";
+import { Upload, AlertCircle, Info, Loader2 } from "lucide-react";
 import { toast } from "sonner";
-import DashboardLayout from "@/components/DashboardLayout";
 
 const ClaimDamage = () => {
-  const navigate = useNavigate();
-  const [disasterType, setDisasterType] = useState("");
-  const [date, setDate] = useState("");
-  const [affectedArea, setAffectedArea] = useState("");
-  const [description, setDescription] = useState("");
-  const [files, setFiles] = useState<FileList | null>(null);
+    const navigate = useNavigate();
+    const [policies, setPolicies] = useState<any[]>([]);
+    const [selectedPolicyId, setSelectedPolicyId] = useState("");
+    const [disasterType, setDisasterType] = useState("");
+    const [date, setDate] = useState("");
+    const [affectedArea, setAffectedArea] = useState("");
+    const [description, setDescription] = useState("");
+    const [files, setFiles] = useState<FileList | null>(null);
+    const [isLoading, setIsLoading] = useState(false);
+    const [isFetchingPolicies, setIsFetchingPolicies] = useState(true);
 
-  const handleSubmit = () => {
-    if (!disasterType || !date || !affectedArea) {
-      toast.error("Please fill all required fields");
-      return;
-    }
-    toast.success("Claim submitted successfully!");
-    toast.info("AI analysis in progress. You'll receive updates soon.");
-    setTimeout(() => {
-      navigate("/my-policies");
-    }, 2000);
-  };
+    useEffect(() => {
+        const fetchPolicies = async () => {
+            try {
+                const token = localStorage.getItem('access_token');
+                const res = await fetch(`${import.meta.env.VITE_BACKEND_URL || 'http://localhost:8000'}/farmer/my-policies`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                if (res.ok) {
+                    const data = await res.json();
+                    setPolicies(data.filter((p: any) => p.status === "Active"));
+                }
+            } catch (err) { console.error(err); }
+            finally { setIsFetchingPolicies(false); }
+        };
+        fetchPolicies();
+    }, []);
 
-  return (
-    <div className="container mx-auto max-w-6xl animate-in fade-in slide-in-from-bottom-4 duration-700">
-      {/* <Button variant="ghost" onClick={() => navigate("/dashboard")} className="mb-8 text-slate-300 hover:text-red-400 transition-all duration-300">
-          <ArrowLeft className="w-5 h-5 mr-2" />
-          Back to Dashboard
-        </Button> */}
+    const handleSubmit = async () => {
+        if (!selectedPolicyId || !disasterType || !date || !affectedArea) { 
+            toast.error("Please fill all required fields"); return; 
+        }
+        
+        const selectedPolicy = policies.find(p => p.id.toString() === selectedPolicyId);
+        
+        setIsLoading(true);
+        try {
+            const token = localStorage.getItem('access_token');
+            const formData = new FormData();
+            formData.append('policy_id', selectedPolicyId);
+            formData.append('crop_type', selectedPolicy?.crop_type || "Unknown");
+            formData.append('disaster_type', disasterType);
+            formData.append('affected_area', affectedArea);
+            formData.append('description', description);
+            
+            if (files) {
+                Array.from(files).forEach(file => {
+                    formData.append('files', file);
+                });
+            }
 
-      <div className="mb-10">
-        <h2 className="text-5xl font-bold bg-gradient-to-r from-red-400 via-orange-400 to-red-400 bg-clip-text text-transparent mb-3">Claim Crop Damage</h2>
-        <p className="text-lg text-slate-300 font-medium">Submit your damage claim for AI-powered assessment</p>
-      </div>
+            const res = await fetch(`${import.meta.env.VITE_BACKEND_URL || 'http://localhost:8000'}/farmer/create-claim`, {
+                method: 'POST',
+                headers: { 
+                    'Authorization': `Bearer ${token}`
+                    // Content-Type is set automatically for FormData
+                },
+                body: formData
+            });
+            
+            if (!res.ok) throw new Error("Failed to submit claim");
+            
+            toast.success("Claim submitted successfully!");
+            toast.info("AI analysis in progress. You'll receive updates soon.");
+            setTimeout(() => { navigate("/dashboard/my-policies"); }, 2000);
+        } catch (err: any) {
+            toast.error(err.message);
+        } finally {
+            setIsLoading(false);
+        }
+    };
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="md:col-span-2 space-y-6">
-          <Card className="backdrop-blur-2xl bg-slate-900/80 border border-red-500/30 shadow-2xl shadow-red-500/20 hover:border-red-400/50 hover:shadow-red-400/30 transition-all duration-300">
-            <CardHeader className="pb-4 border-b border-red-500/20">
-              <CardTitle className="text-2xl font-bold text-red-100">Damage Details</CardTitle>
-              <CardDescription className="text-slate-300">Provide information about the crop damage</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-5 pt-4">
-              <div className="space-y-2">
-                <Label htmlFor="policy" className="font-semibold text-red-200">Select Policy *</Label>
-                <Select>
-                  <SelectTrigger id="policy" className="py-6 bg-slate-800/50 border border-red-500/30 text-slate-100 placeholder-slate-500 rounded-lg focus:border-red-400 focus:ring-2 focus:ring-red-500/50">
-                    <SelectValue placeholder="Choose an active policy" />
-                  </SelectTrigger>
-                  <SelectContent className="bg-slate-900 border border-red-500/30">
-                    <SelectItem value="POL-2024-001">POL-2024-001 - Rice (Kharif 2024)</SelectItem>
-                    <SelectItem value="POL-2024-012">POL-2024-012 - Cotton (Kharif 2024)</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
+    const inputClass = "h-11 bg-white/[0.03] border-white/[0.08] text-slate-100 placeholder-slate-600 focus:border-emerald-500/40 rounded-lg";
 
-              <div className="space-y-2">
-                <Label htmlFor="disaster-type" className="font-semibold text-red-200">Disaster Type *</Label>
-                <Select onValueChange={setDisasterType}>
-                  <SelectTrigger id="disaster-type" className="py-6 bg-slate-800/50 border border-red-500/30 text-slate-100 placeholder-slate-500 rounded-lg focus:border-red-400 focus:ring-2 focus:ring-red-500/50">
-                    <SelectValue placeholder="Select disaster type" />
-                  </SelectTrigger>
-                  <SelectContent className="bg-slate-900 border border-red-500/30">
-                    <SelectItem value="Flood">💧 Flood</SelectItem>
-                    <SelectItem value="Drought">🏜️ Drought</SelectItem>
-                    <SelectItem value="Pest Attack">🐛 Pest Attack</SelectItem>
-                    <SelectItem value="Cyclone">🌪️ Cyclone</SelectItem>
-                    <SelectItem value="Hailstorm">❄️ Hailstorm</SelectItem>
-                    <SelectItem value="Fire">🔥 Fire</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
+    return (
+        <div className="max-w-4xl mx-auto space-y-8 animate-fade-up">
+            <div>
+                <h1 className="page-title">Claim Crop Damage</h1>
+                <p className="page-subtitle">Submit your damage claim for AI-powered assessment</p>
+            </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="date" className="font-semibold text-red-200">Date of Incident *</Label>
-                <Input
-                  id="date"
-                  type="date"
-                  value={date}
-                  onChange={(e) => setDate(e.target.value)}
-                  className="py-6 bg-slate-800/50 border border-red-500/30 text-slate-100 placeholder-slate-500 rounded-lg focus:border-red-400 focus:ring-2 focus:ring-red-500/50"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="affected-area" className="font-semibold text-red-200">Affected Area (Acres) *</Label>
-                <Input
-                  id="affected-area"
-                  type="number"
-                  step="0.1"
-                  placeholder="Enter affected area"
-                  value={affectedArea}
-                  onChange={(e) => setAffectedArea(e.target.value)}
-                  className="py-6 bg-slate-800/50 border border-red-500/30 text-slate-100 placeholder-slate-500 rounded-lg focus:border-red-400 focus:ring-2 focus:ring-red-500/50"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="description" className="font-semibold text-red-200">Description (Optional)</Label>
-                <Textarea
-                  id="description"
-                  placeholder="Describe the damage in detail..."
-                  rows={4}
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
-                  className="py-3 bg-slate-800/50 border border-red-500/30 text-slate-100 placeholder-slate-500 rounded-lg focus:border-red-400 focus:ring-2 focus:ring-red-500/50"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="photos" className="font-semibold text-red-200">Upload Field Photos</Label>
-                <div className="border-2 border-dashed border-red-500/30 rounded-lg p-6 text-center hover:border-red-400/50 transition-colors cursor-pointer bg-red-500/5">
-                  <input
-                    id="photos"
-                    type="file"
-                    multiple
-                    accept="image/*"
-                    className="hidden"
-                    onChange={(e) => setFiles(e.target.files)}
-                  />
-                  <label htmlFor="photos" className="cursor-pointer">
-                    <Upload className="w-8 h-8 mx-auto mb-2 text-red-400" />
-                    <p className="text-sm text-red-300">
-                      Click to upload or drag and drop
-                    </p>
-                    <p className="text-xs text-red-300/60 mt-1">
-                      PNG, JPG up to 10MB each
-                    </p>
-                    {files && (
-                      <p className="text-sm text-red-400 mt-2">
-                        {files.length} file(s) selected
-                      </p>
-                    )}
-                  </label>
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div className="lg:col-span-2">
+                    <Card className="glass-card rounded-xl">
+                        <CardHeader className="pb-4 border-b border-white/[0.06]">
+                            <CardTitle className="text-lg font-semibold text-white flex items-center gap-2">
+                                <AlertCircle className="w-5 h-5 text-amber-400" /> Damage Details
+                            </CardTitle>
+                        </CardHeader>
+                        <CardContent className="p-6 space-y-5">
+                            <div className="space-y-2">
+                                <Label className="text-slate-400 text-sm">Select Policy *</Label>
+                                <Select value={selectedPolicyId} onValueChange={setSelectedPolicyId}>
+                                    <SelectTrigger className={inputClass}>
+                                        <SelectValue placeholder={isFetchingPolicies ? "Loading policies..." : "Choose an active policy"} />
+                                    </SelectTrigger>
+                                    <SelectContent className="bg-[#151d35] border-white/[0.08] text-slate-200">
+                                        {policies.length > 0 ? (
+                                            policies.map(p => (
+                                                <SelectItem key={p.id} value={p.id.toString()}>
+                                                    #{p.id} - {p.crop_type} ({p.season})
+                                                </SelectItem>
+                                            ))
+                                        ) : (
+                                            <SelectItem value="none" disabled>No active policies found</SelectItem>
+                                        )}
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                            <div className="space-y-2">
+                                <Label className="text-slate-400 text-sm">Disaster Type *</Label>
+                                <Select onValueChange={setDisasterType}>
+                                    <SelectTrigger className={inputClass}><SelectValue placeholder="Select disaster type" /></SelectTrigger>
+                                    <SelectContent className="bg-[#151d35] border-white/[0.08] text-slate-200">
+                                        <SelectItem value="Flood">💧 Flood</SelectItem>
+                                        <SelectItem value="Drought">🏜️ Drought</SelectItem>
+                                        <SelectItem value="Pest Attack">🐛 Pest Attack</SelectItem>
+                                        <SelectItem value="Cyclone">🌪️ Cyclone</SelectItem>
+                                        <SelectItem value="Hailstorm">❄️ Hailstorm</SelectItem>
+                                        <SelectItem value="Fire">🔥 Fire</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                            <div className="space-y-2">
+                                <Label className="text-slate-400 text-sm">Date of Incident *</Label>
+                                <Input type="date" value={date} onChange={(e) => setDate(e.target.value)} className={inputClass} />
+                            </div>
+                            <div className="space-y-2">
+                                <Label className="text-slate-400 text-sm">Affected Area (Acres) *</Label>
+                                <Input type="number" step="0.1" placeholder="Enter affected area" value={affectedArea} onChange={(e) => setAffectedArea(e.target.value)} className={inputClass} />
+                            </div>
+                            <div className="space-y-2">
+                                <Label className="text-slate-400 text-sm">Description (Optional)</Label>
+                                <Textarea placeholder="Describe the damage in detail..." rows={3} value={description} onChange={(e) => setDescription(e.target.value)}
+                                    className="bg-white/[0.03] border-white/[0.08] text-slate-100 placeholder-slate-600 focus:border-emerald-500/40 rounded-lg" />
+                            </div>
+                            <div className="space-y-2">
+                                <Label className="text-slate-400 text-sm">Upload Field Photos</Label>
+                                <div className="border border-dashed border-white/[0.1] rounded-lg p-6 text-center hover:border-white/[0.2] transition-colors cursor-pointer bg-white/[0.02]">
+                                    <input id="photos" type="file" multiple accept="image/*" className="hidden" onChange={(e) => setFiles(e.target.files)} />
+                                    <label htmlFor="photos" className="cursor-pointer">
+                                        <Upload className="w-6 h-6 mx-auto mb-2 text-slate-500" />
+                                        <p className="text-sm text-slate-400">Click to upload or drag and drop</p>
+                                        <p className="text-xs text-slate-600 mt-1">PNG, JPG up to 10MB each</p>
+                                        {files && <p className="text-xs text-emerald-400 mt-2">{files.length} file(s) selected</p>}
+                                    </label>
+                                </div>
+                            </div>
+                        </CardContent>
+                    </Card>
                 </div>
-              </div>
-            </CardContent>
-          </Card>
+
+                <div className="space-y-5">
+                    <Card className="glass-card rounded-xl">
+                        <CardHeader className="pb-3 border-b border-white/[0.06]">
+                            <CardTitle className="text-sm font-medium text-amber-400 flex items-center gap-2">
+                                <Info className="w-4 h-4" /> Important
+                            </CardTitle>
+                        </CardHeader>
+                        <CardContent className="p-4 space-y-2 text-xs text-slate-400">
+                            <p>• Upload clear photos of damaged crops</p>
+                            <p>• Include images from multiple angles</p>
+                            <p>• AI will analyze satellite data automatically</p>
+                            <p>• Claims are processed within 48-72 hours</p>
+                            <p>• You'll receive updates via SMS</p>
+                        </CardContent>
+                    </Card>
+
+                    <Card className="glass-card rounded-xl">
+                        <CardHeader className="pb-3 border-b border-white/[0.06]">
+                            <CardTitle className="text-sm font-medium text-slate-300">What Happens Next?</CardTitle>
+                        </CardHeader>
+                        <CardContent className="p-4 space-y-3">
+                            {["AI analyzes photos & satellite data", "Officer reviews the assessment", "Compensation approved & transferred"].map((step, i) => (
+                                <div key={i} className="flex gap-3 items-start">
+                                    <div className="w-5 h-5 rounded-full bg-white/[0.06] flex items-center justify-center flex-shrink-0 mt-0.5">
+                                        <span className="text-[10px] font-semibold text-slate-400">{i + 1}</span>
+                                    </div>
+                                    <p className="text-xs text-slate-400">{step}</p>
+                                </div>
+                            ))}
+                        </CardContent>
+                    </Card>
+
+                    <Button onClick={handleSubmit} disabled={isLoading} className="w-full bg-amber-600 hover:bg-amber-500 text-white h-11 font-medium rounded-lg shadow-lg shadow-amber-600/20">
+                        {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : "Submit Claim"}
+                    </Button>
+                </div>
+            </div>
         </div>
-
-        <div className="space-y-6">
-          <Card className="backdrop-blur-2xl bg-red-500/10 border-2 border-red-500/40 hover:border-red-400/60 transition-all duration-300">
-            <CardHeader className="border-b border-red-500/30">
-              <CardTitle className="flex items-center gap-2 text-red-300">
-                <AlertCircle className="w-5 h-5" />
-                Important
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3 text-sm text-red-200/80 pt-4">
-              <p>• Upload clear photos of damaged crops</p>
-              <p>• Include images from multiple angles</p>
-              <p>• AI will analyze satellite data automatically</p>
-              <p>• Claims are processed within 48-72 hours</p>
-              <p>• You'll receive updates via SMS</p>
-            </CardContent>
-          </Card>
-
-          <Card className="backdrop-blur-2xl bg-red-950/50 border border-red-500/30 shadow-2xl shadow-red-500/20">
-            <CardHeader className="border-b border-red-500/30">
-              <CardTitle className="text-lg text-red-200">What Happens Next?</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3 text-sm text-red-200/80 pt-4">
-              <div className="flex gap-3">
-                <div className="w-6 h-6 rounded-full bg-red-500/30 flex items-center justify-center flex-shrink-0 border border-red-500/50">
-                  <span className="text-xs font-bold text-red-300">1</span>
-                </div>
-                <p>AI analyzes your photos and satellite data</p>
-              </div>
-              <div className="flex gap-3">
-                <div className="w-6 h-6 rounded-full bg-red-500/30 flex items-center justify-center flex-shrink-0 border border-red-500/50">
-                  <span className="text-xs font-bold text-red-300">2</span>
-                </div>
-                <p>Officer reviews the AI assessment</p>
-              </div>
-              <div className="flex gap-3">
-                <div className="w-6 h-6 rounded-full bg-red-500/30 flex items-center justify-center flex-shrink-0 border border-red-500/50">
-                  <span className="text-xs font-bold text-red-300">3</span>
-                </div>
-                <p>Compensation approved & transferred</p>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Button onClick={handleSubmit} className="w-full bg-gradient-to-r from-red-600 to-orange-600 hover:from-red-700 hover:to-orange-700 text-white font-semibold py-6 rounded-lg transition-all duration-300 shadow-lg hover:shadow-red-500/50" size="lg">
-            Submit Claim
-          </Button>
-        </div>
-      </div>
-    </div>
-  );
+    );
 };
 
 export default ClaimDamage;

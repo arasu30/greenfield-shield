@@ -27,7 +27,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
-import { AnimatedParticles } from "@/components/AnimatedParticles";
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -47,7 +46,7 @@ interface DashboardLayoutProps {
 const DashboardLayout = ({ children, role = 'farmer' }: DashboardLayoutProps) => {
     const navigate = useNavigate();
     const location = useLocation();
-    const [sidebarOpen, setSidebarOpen] = useState(false); // Mobile toggle
+    const [sidebarOpen, setSidebarOpen] = useState(false);
     const [isCollapsed, setIsCollapsed] = useState(() => {
         const saved = localStorage.getItem("sidebarCollapsed");
         return saved ? JSON.parse(saved) : false;
@@ -63,22 +62,13 @@ const DashboardLayout = ({ children, role = 'farmer' }: DashboardLayoutProps) =>
 
     React.useEffect(() => {
         const handleResize = () => {
-            if (window.innerWidth < 1024) {
-                setSidebarOpen(false);
-            }
+            if (window.innerWidth < 1024) setSidebarOpen(false);
         };
         window.addEventListener('resize', handleResize);
-
-        // Load user from local storage
         const storedUser = localStorage.getItem('user');
         if (storedUser) {
-            try {
-                setUser(JSON.parse(storedUser));
-            } catch (e) {
-                console.error("Failed to parse user data", e);
-            }
+            try { setUser(JSON.parse(storedUser)); } catch (e) { console.error("Failed to parse user data", e); }
         }
-
         return () => window.removeEventListener('resize', handleResize);
     }, []);
 
@@ -96,10 +86,8 @@ const DashboardLayout = ({ children, role = 'farmer' }: DashboardLayoutProps) =>
         { label: "Overview", icon: LayoutDashboard, path: "/admin" },
         { label: "User Management", icon: User, path: "/admin?tab=users" },
         { label: "Insurance Rates", icon: DollarSign, path: "/admin?tab=rates" },
-
         { label: "Finance", type: 'header' },
         { label: "Compensations", icon: DollarSign, path: "/admin?tab=compensation" },
-        // { label: "System Logs", icon: AlertTriangle, path: "/admin/logs" },
     ];
 
     const officerNavItems = [
@@ -108,13 +96,11 @@ const DashboardLayout = ({ children, role = 'farmer' }: DashboardLayoutProps) =>
         { label: "Approved Today", icon: CheckCircle, path: "/officer-review?status=approved" },
         { label: "Rejected Claims", icon: XCircle, path: "/officer-review?status=rejected" },
         { label: "Total Claims", icon: AlertCircle, path: "/officer-review?status=all" },
-
         { label: "Policy Management", type: 'header' },
         { label: "Active Policies", icon: ShieldCheck, path: "/officer/policies?status=active" },
         { label: "Pending Policies", icon: Calendar, path: "/officer/policies?status=pending" },
         { label: "Expired Policies", icon: ShieldCheck, path: "/officer/policies?status=expired" },
         { label: "All Policies", icon: FileText, path: "/officer/policies" },
-
         { label: "Reports", type: 'header' },
         { label: "Farmers", icon: User, path: "/officer/farmers" },
     ];
@@ -129,84 +115,69 @@ const DashboardLayout = ({ children, role = 'farmer' }: DashboardLayoutProps) =>
     };
 
     return (
-        <div className="flex flex-col min-h-screen bg-slate-950 text-slate-100 font-sans">
-            {/* Background Ambience */}
-            <div className="fixed inset-0 pointer-events-none z-0">
-                <AnimatedParticles />
-                <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-cyan-900/20 rounded-full blur-[100px] opacity-30 animate-pulse"></div>
-                <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-green-900/20 rounded-full blur-[100px] opacity-30 animate-pulse"></div>
-            </div>
-
-            {/* Middle Section: Sidebar + Main Content */}
-            <div className="flex flex-1 relative z-10">
+        <div className="flex flex-col min-h-screen bg-[#0a0f1e] text-slate-100 font-sans">
+            <div className="flex flex-1 relative">
                 {/* Sidebar */}
                 <aside
                     className={cn(
-                        "fixed lg:sticky top-0 lg:h-screen inset-y-0 left-0 z-50 bg-slate-900/80 backdrop-blur-xl border-r border-slate-800 transition-all duration-300 flex flex-col rounded-br-[40px]",
+                        "fixed lg:sticky top-0 lg:h-screen inset-y-0 left-0 z-50 bg-[#0d1326]/95 backdrop-blur-xl border-r border-white/[0.06] transition-all duration-300 flex flex-col",
                         sidebarOpen ? "translate-x-0 w-64 h-full" : "-translate-x-full lg:translate-x-0",
-                        isCollapsed ? "lg:w-20" : "lg:w-64"
+                        isCollapsed ? "lg:w-[72px]" : "lg:w-60"
                     )}
                 >
-                    {/* Header / Toggle */}
+                    {/* Logo */}
                     <div
-                        className={cn("p-6 flex items-center gap-3 cursor-pointer relative", isCollapsed ? "justify-center px-2" : "")}
+                        className={cn("p-5 flex items-center gap-3 cursor-pointer relative", isCollapsed ? "justify-center px-3" : "")}
                         onClick={() => !isCollapsed && navigate(role === 'admin' ? '/admin' : role === 'officer' ? '/officer-review' : '/dashboard')}
                     >
-                        <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-green-500 to-cyan-500 flex items-center justify-center shadow-lg shadow-green-500/20 shrink-0">
-                            <Sprout className="w-6 h-6 text-white" />
+                        <div className="w-9 h-9 rounded-lg bg-emerald-500 flex items-center justify-center shrink-0">
+                            <Sprout className="w-5 h-5 text-white" />
                         </div>
-
                         {!isCollapsed && (
-                            <span className="text-xl font-bold bg-gradient-to-r from-white to-slate-400 bg-clip-text text-transparent whitespace-nowrap overflow-hidden transition-all duration-300">
-                                CropSure
-                            </span>
+                            <span className="text-lg font-semibold text-white whitespace-nowrap overflow-hidden">CropSure</span>
                         )}
-
-                        {/* Desktop Collapse Toggle */}
                         <button
-                            onClick={(e) => {
-                                e.stopPropagation();
-                                toggleCollapse();
-                            }}
-                            className="hidden lg:flex absolute -right-3 top-8 w-6 h-6 bg-slate-800 border border-slate-700 rounded-full items-center justify-center hover:bg-slate-700 hover:text-white text-slate-400 transition-colors shadow-lg z-50"
+                            onClick={(e) => { e.stopPropagation(); toggleCollapse(); }}
+                            className="hidden lg:flex absolute -right-3 top-7 w-6 h-6 bg-[#151d35] border border-white/[0.08] rounded-full items-center justify-center hover:bg-white/[0.08] text-slate-400 hover:text-white transition-colors z-50"
                         >
                             {isCollapsed ? <ChevronRight className="w-3 h-3" /> : <ChevronLeft className="w-3 h-3" />}
                         </button>
                     </div>
 
                     {/* Navigation */}
-                    <nav className="flex-1 px-3 space-y-2 mt-4 overflow-y-auto scrollbar-thin scrollbar-thumb-slate-800">
+                    <nav className="flex-1 px-3 space-y-1 mt-2 overflow-y-auto scrollbar-thin">
                         <TooltipProvider delayDuration={0}>
                             {navItems.map((item: any, idx) => {
                                 if (item.type === 'header') {
-                                    if (isCollapsed) return <div key={idx} className="h-px bg-slate-800 my-2 mx-4" />;
+                                    if (isCollapsed) return <div key={idx} className="h-px bg-white/[0.06] my-3 mx-2" />;
                                     return (
-                                        <div key={idx} className="px-4 py-2 mt-4 mb-1 text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                                        <div key={idx} className="px-3 py-2 mt-5 mb-1 text-[11px] font-medium text-slate-500 uppercase tracking-wider">
                                             {item.label}
                                         </div>
                                     );
                                 }
 
-                                const isActive = (location.pathname + location.search) === item.path || (item.path.indexOf('?') === -1 && location.pathname === item.path);
+                                const isActive = item.path.includes('?') 
+                                    ? (location.pathname + location.search) === item.path 
+                                    : location.pathname === item.path && location.search === "";
 
                                 const content = (
                                     <button
                                         onClick={() => navigate(item.path)}
                                         className={cn(
-                                            "w-full flex items-center gap-3 px-3 py-3 rounded-xl transition-all duration-200 group relative overflow-hidden",
+                                            "w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 group relative",
                                             isActive
-                                                ? "bg-gradient-to-r from-green-500/10 to-cyan-500/10 text-white"
-                                                : "text-slate-400 hover:text-slate-200 hover:bg-slate-800/50",
+                                                ? "bg-emerald-500/10 text-white"
+                                                : "text-slate-400 hover:text-slate-200 hover:bg-white/[0.04]",
                                             isCollapsed ? "justify-center" : ""
                                         )}
                                     >
                                         {isActive && (
-                                            <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-green-400 to-cyan-400 rounded-r-full"></div>
+                                            <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-5 bg-emerald-500 rounded-r-full" />
                                         )}
-                                        <item.icon className={cn("w-5 h-5 shrink-0", isActive ? "text-green-400" : "text-slate-500 group-hover:text-slate-300")} />
-
+                                        <item.icon className={cn("w-[18px] h-[18px] shrink-0", isActive ? "text-emerald-400" : "text-slate-500 group-hover:text-slate-300")} />
                                         {!isCollapsed && (
-                                            <span className="font-medium whitespace-nowrap overflow-hidden">{item.label}</span>
+                                            <span className="text-sm font-medium whitespace-nowrap overflow-hidden">{item.label}</span>
                                         )}
                                     </button>
                                 );
@@ -215,109 +186,104 @@ const DashboardLayout = ({ children, role = 'farmer' }: DashboardLayoutProps) =>
                                     return (
                                         <Tooltip key={idx}>
                                             <TooltipTrigger asChild>{content}</TooltipTrigger>
-                                            <TooltipContent side="right" className="bg-slate-800 text-slate-200 border-slate-700">
+                                            <TooltipContent side="right" className="bg-[#151d35] text-slate-200 border-white/[0.08]">
                                                 {item.label}
                                             </TooltipContent>
                                         </Tooltip>
                                     );
                                 }
-
                                 return <div key={idx}>{content}</div>;
                             })}
                         </TooltipProvider>
                     </nav>
 
-                    {/* Footer / User Profile (Sidebar Bottom) */}
-                    {/* Can stay empty or have simple profile if needed later */}
+                    {/* Sidebar Footer */}
+                    <div className="p-3 border-t border-white/[0.06]">
+                        <button
+                            onClick={handleLogout}
+                            className={cn(
+                                "w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-400 hover:text-red-400 hover:bg-red-500/[0.08] transition-all duration-200",
+                                isCollapsed ? "justify-center" : ""
+                            )}
+                        >
+                            <LogOut className="w-[18px] h-[18px] shrink-0" />
+                            {!isCollapsed && <span className="text-sm font-medium">Log out</span>}
+                        </button>
+                    </div>
                 </aside>
 
-                {/* Overlay for mobile sidebar */}
+                {/* Mobile overlay */}
                 {sidebarOpen && (
-                    <div
-                        className="fixed inset-0 bg-black/50 z-40 lg:hidden"
-                        onClick={() => setSidebarOpen(false)}
-                    />
+                    <div className="fixed inset-0 bg-black/60 z-40 lg:hidden" onClick={() => setSidebarOpen(false)} />
                 )}
 
-                {/* Main Content Area */}
+                {/* Main Content */}
                 <main className="flex-1 flex flex-col min-w-0">
                     {/* Header */}
-                    <header className="sticky top-0 z-40 h-20 border-b border-slate-800/50 bg-slate-900/80 backdrop-blur-md flex items-center justify-between px-6 lg:px-10 shrink-0 transition-all duration-300">
+                    <header className="sticky top-0 z-40 h-16 border-b border-white/[0.06] bg-[#0a0f1e]/80 backdrop-blur-xl flex items-center justify-between px-6 lg:px-8 shrink-0">
                         <div className="flex items-center gap-4">
-                            <button
-                                onClick={() => setSidebarOpen(!sidebarOpen)}
-                                className="lg:hidden p-2 text-slate-400 hover:text-white"
-                            >
-                                <Menu className="w-6 h-6" />
+                            <button onClick={() => setSidebarOpen(!sidebarOpen)} className="lg:hidden p-2 text-slate-400 hover:text-white">
+                                <Menu className="w-5 h-5" />
                             </button>
-
-                            <div className="hidden md:flex relative w-96">
+                            <div className="hidden md:flex relative w-80">
                                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
                                 <Input
-                                    placeholder="Search policies, claims, or documents..."
-                                    className="pl-10 bg-slate-950/50 border-slate-800 text-slate-200 focus:border-green-500/30 h-10 rounded-xl"
+                                    placeholder="Search..."
+                                    className="pl-9 bg-white/[0.04] border-white/[0.06] text-slate-200 focus:border-emerald-500/30 h-9 rounded-lg text-sm"
                                 />
                             </div>
                         </div>
 
-                        <div className="flex items-center gap-6">
+                        <div className="flex items-center gap-4">
                             <button className="relative p-2 text-slate-400 hover:text-white transition-colors">
-                                <Bell className="w-5 h-5" />
-                                <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full border border-slate-900"></span>
+                                <Bell className="w-[18px] h-[18px]" />
+                                <span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 bg-emerald-500 rounded-full" />
                             </button>
 
-                            <div className="h-8 w-[1px] bg-slate-800"></div>
+                            <div className="h-6 w-px bg-white/[0.08]" />
 
                             <DropdownMenu>
                                 <DropdownMenuTrigger asChild>
-                                    <div className="flex items-center gap-3 cursor-pointer group p-1 pr-3 rounded-full hover:bg-slate-800/50 transition-all duration-300 border border-transparent hover:border-slate-800">
-                                        <Avatar className="w-9 h-9 border border-green-500/50 shadow-lg shadow-green-500/20 group-hover:shadow-green-500/40 transition-all duration-300">
+                                    <div className="flex items-center gap-2.5 cursor-pointer group p-1 pr-2 rounded-lg hover:bg-white/[0.04] transition-all duration-200">
+                                        <Avatar className="w-8 h-8 border border-white/[0.1]">
                                             <AvatarImage src="/placeholder-user.jpg" />
-                                            <AvatarFallback className="bg-gradient-to-br from-green-600 to-emerald-700 text-white font-bold text-xs">
-                                                {user?.full_name 
-                                                    ? user.full_name.substring(0, 2).toUpperCase() 
+                                            <AvatarFallback className="bg-emerald-600 text-white font-medium text-xs">
+                                                {user?.full_name
+                                                    ? user.full_name.substring(0, 2).toUpperCase()
                                                     : (role === 'admin' ? 'AD' : role === 'officer' ? 'OF' : 'FM')}
                                             </AvatarFallback>
                                         </Avatar>
-                                        <div className="block text-left hidden md:block">
-                                            <p className="text-sm font-semibold text-slate-100 group-hover:text-white transition-colors leading-none mb-1">
+                                        <div className="hidden md:block text-left">
+                                            <p className="text-sm font-medium text-slate-200 leading-none mb-0.5">
                                                 {user?.full_name || (role === 'admin' ? 'Administrator' : role === 'officer' ? 'Field Officer' : 'Farmer')}
                                             </p>
-                                            <div className="flex items-center gap-1.5">
-                                                <div className={cn("w-1.5 h-1.5 rounded-full animate-pulse", role === 'admin' ? "bg-purple-500" : "bg-green-500")}></div>
-                                                <p className={cn("text-xs font-medium leading-none", role === 'admin' ? "text-purple-400" : "text-green-400")}>
-                                                    {role === 'admin' ? 'Administrator' : role === 'officer' ? 'Officer' : 'Farmer'}
-                                                </p>
-                                            </div>
+                                            <p className="text-[11px] text-slate-500 leading-none capitalize">{role}</p>
                                         </div>
-                                        <ChevronDown className="w-4 h-4 text-slate-500 group-hover:text-slate-300 transition-transform duration-300 group-hover:rotate-180" />
+                                        <ChevronDown className="w-3.5 h-3.5 text-slate-500" />
                                     </div>
                                 </DropdownMenuTrigger>
-                                <DropdownMenuContent align="end" className="w-56 bg-slate-900 border-slate-800 text-slate-200 p-1 shadow-2xl">
-                                    <DropdownMenuLabel className="text-xs text-slate-500 uppercase tracking-widest px-3 py-2">My Account</DropdownMenuLabel>
-                                    <DropdownMenuSeparator className="bg-slate-800" />
-                                    <DropdownMenuItem onClick={() => navigate('/dashboard/profile')} className="focus:bg-slate-800 focus:text-white cursor-pointer py-2.5 rounded-lg px-3 group/item">
-                                        <User className="mr-3 h-4 w-4 text-slate-500 group-hover/item:text-green-400" />
-                                        <span className="font-medium">Profile</span>
+                                <DropdownMenuContent align="end" className="w-52 bg-[#151d35] border-white/[0.08] text-slate-200 p-1">
+                                    <DropdownMenuLabel className="text-[11px] text-slate-500 uppercase tracking-wider px-3 py-2">My Account</DropdownMenuLabel>
+                                    <DropdownMenuSeparator className="bg-white/[0.06]" />
+                                    <DropdownMenuItem onClick={() => navigate('/dashboard/profile')} className="focus:bg-white/[0.06] focus:text-white cursor-pointer py-2 rounded-md px-3 text-sm">
+                                        <User className="mr-2 h-4 w-4 text-slate-500" />
+                                        Profile
                                     </DropdownMenuItem>
-                                    <DropdownMenuItem onClick={handleLogout} className="focus:bg-red-900/20 focus:text-red-400 text-red-400 cursor-pointer py-2.5 rounded-lg px-3 group/item">
-                                        <LogOut className="mr-3 h-4 w-4 text-red-400 group-hover/item:translate-x-1 transition-transform" />
-                                        <span className="font-medium">Log out</span>
+                                    <DropdownMenuItem onClick={handleLogout} className="focus:bg-red-500/10 focus:text-red-400 text-red-400 cursor-pointer py-2 rounded-md px-3 text-sm">
+                                        <LogOut className="mr-2 h-4 w-4" />
+                                        Log out
                                     </DropdownMenuItem>
                                 </DropdownMenuContent>
                             </DropdownMenu>
                         </div>
                     </header>
 
-                    {/* Scrollable Page Content */}
-                    <div className="flex-1 p-6 lg:p-12">
+                    {/* Page Content */}
+                    <div className="flex-1 p-6 lg:p-10">
                         {children}
                     </div>
                 </main>
             </div>
-
-            {/* Footer - Full Width Below Sidebar */}
-            <Footer />
         </div>
     );
 };

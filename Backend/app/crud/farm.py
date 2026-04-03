@@ -15,7 +15,8 @@ class FarmCRUD:
         farmer_id: int, 
         boundary_points: list[dict[str, float]], 
         farm_name: str = None, 
-        crop_type: str = None
+        crop_type: str = None,
+        commit: bool = True
     ) -> Farm:
         logger.info(f"Starting create_farm for farmer_id: {farmer_id}")
         
@@ -52,8 +53,11 @@ class FarmCRUD:
 
             print("DEBUG: Saving farm to database...")
             db.add(new_farm)
-            db.commit()
-            db.refresh(new_farm)
+            if commit:
+                db.commit()
+                db.refresh(new_farm)
+            else:
+                db.flush()
             
             print("DEBUG: Calculating farm area...")
             # Calculate area in acres using PostGIS ST_Area
@@ -62,8 +66,11 @@ class FarmCRUD:
             print(f"DEBUG: Raw area in sqm: {area_sqm}")
             new_farm.area_acres = area_sqm / 4046.86
             
-            db.commit()
-            db.refresh(new_farm)
+            if commit:
+                db.commit()
+                db.refresh(new_farm)
+            else:
+                db.flush()
             print(f"DEBUG: Farm saved. ID: {new_farm.id}, Area: {new_farm.area_acres}")
             logger.info(f"Farm created with ID: {new_farm.id}, Area: {new_farm.area_acres} acres")
             return new_farm

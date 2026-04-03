@@ -1,4 +1,5 @@
 from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, Float
+from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from geoalchemy2 import Geography
 from app.database.base import Base
@@ -11,6 +12,9 @@ class Farm(Base):
     farmer_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     farm_name = Column(String, nullable=True)
     crop_type = Column(String, nullable=True)
+    
+    # Relationships
+    farmer = relationship("User", back_populates="farms")
     
     # The spatial boundary of the farm
     # Using Geography type for accurate area calculations in acres

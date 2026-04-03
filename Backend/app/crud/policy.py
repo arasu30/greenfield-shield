@@ -7,9 +7,10 @@ from datetime import datetime, timedelta
 class PolicyCRUD:
     @staticmethod
     def create_policy(db: Session, farmer_id: int, policy_data: PolicyCreate) -> Policy:
-        # Simple date logic: 4 months from now
+        # Dynamic duration based on season
+        duration_days = 150 if policy_data.season.lower() == "kharif" else 180
         start_date = datetime.now()
-        end_date = start_date + timedelta(days=120)
+        end_date = start_date + timedelta(days=duration_days)
         
         new_policy = Policy(
             farmer_id=farmer_id,
@@ -40,6 +41,13 @@ class PolicyCRUD:
 
     @staticmethod
     def get_all_policies(db: Session, status: str = None) -> List[Policy]:
+        # Bug 13: Auto-expire policies on fetch
+        db.query(Policy).filter(
+            Policy.status == PolicyStatus.ACTIVE,
+            Policy.end_date < datetime.now()
+        ).update({"status": PolicyStatus.EXPIRED})
+        db.commit()
+
         query = db.query(Policy)
         if status:
             query = query.filter(Policy.status == status)

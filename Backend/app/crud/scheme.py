@@ -24,3 +24,20 @@ def create_scheme(db: Session, scheme: SchemeCreate):
     db.commit()
     db.refresh(db_scheme)
     return db_scheme
+
+def update_scheme(db: Session, scheme_id: int, scheme_data: dict):
+    db_scheme = get_scheme(db, scheme_id)
+    if db_scheme:
+        for key, value in scheme_data.items():
+            setattr(db_scheme, key, value)
+        db.commit()
+        db.refresh(db_scheme)
+    return db_scheme
+
+def delete_scheme(db: Session, scheme_id: int):
+    db_scheme = get_scheme(db, scheme_id)
+    if db_scheme:
+        db_scheme.is_active = False # Soft delete
+        db.commit()
+        return True
+    return False

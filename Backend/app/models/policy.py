@@ -1,4 +1,5 @@
 from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, Float, Enum as SQLEnum
+from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from app.database.base import Base
 import enum
@@ -19,6 +20,10 @@ class Policy(Base):
     premium = Column(Float, nullable=False)
     coverage = Column(Float, nullable=False)
     status = Column(SQLEnum(PolicyStatus), default=PolicyStatus.ACTIVE, nullable=False)
+    
+    # Relationships
+    farmer = relationship("User", back_populates="policies")
+    claims = relationship("Claim", back_populates="policy")
     
     start_date = Column(DateTime(timezone=True), nullable=True)
     end_date = Column(DateTime(timezone=True), nullable=True)

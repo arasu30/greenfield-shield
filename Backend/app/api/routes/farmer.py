@@ -27,6 +27,7 @@ from app.api.schemas.insurance import (
 from app.services.insurance_service import InsuranceService
 from geoalchemy2 import functions as geofunc
 from typing import List
+from app.api.schemas.farmer import SaveFarmRequest, SaveFarmResponse
 
 router = APIRouter(prefix="/farmer", tags=["Farmer"])
 
@@ -289,3 +290,38 @@ async def create_claim(
     )
     
     return ClaimCRUD.create_claim(db, current_user["id"], claim_data)
+
+
+@router.post("/save-farm", response_model=SaveFarmResponse)
+def save_farm(
+    data: SaveFarmRequest,
+    db: Session = Depends(get_db)
+):
+    """
+    Save a mapped farm from the Flutter app.
+    Auth not required yet — farmer_id passed directly.
+    (Wire up get_current_user_dependency later when Flutter has JWT)
+    """
+    if len(data.boundary_points) < 3:
+        from fastapi import HTTPException
+        raise HTTPException(
+            status_code=422,
+            detail="A farm boundary needs at least 3 GPS points."
+        )
+
+    farm = FarmCRUD.create_farm(
+        db=db,
+        farmer_id=data.farmer_id,
+        boundary_points=data.boundary_points,
+        farm_name=data.farm_name,
+        crop_type=data.crop_type,
+    )
+
+    return SaveFarmResponse(
+        farm_id=farm.id,
+        farmer_id=farm.farmer_id,
+        farm_name=farm.farm_name,
+        crop_type=farm.crop_type,
+        area_acres=farm.area_acres or 0.0,
+        message="Farm saved successfully"
+    )

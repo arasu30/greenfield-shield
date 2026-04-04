@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -8,6 +8,7 @@ import { toast } from "sonner";
 
 const MyPolicies = () => {
     const navigate = useNavigate();
+    const [searchParams, setSearchParams] = useSearchParams();
     const [policies, setPolicies] = useState<any[]>([]);
     const [isLoading, setIsLoading] = useState(true);
 
@@ -24,8 +25,43 @@ const MyPolicies = () => {
             } catch (err) { console.error(err); toast.error("Could not load policies"); }
             finally { setIsLoading(false); }
         };
-        fetchPolicies();
-    }, [navigate]);
+
+        const confirmRedirectPayment = async () => {
+            const paymentIntent = searchParams.get("payment_intent");
+            const redirectStatus = searchParams.get("redirect_status");
+            const pendingData = sessionStorage.getItem("pendingPolicyDetails");
+
+            if (paymentIntent && redirectStatus === "succeeded" && pendingData) {
+                setIsLoading(true);
+                try {
+                    const token = localStorage.getItem('access_token');
+                    const policyDetails = JSON.parse(pendingData);
+                    await fetch(`${import.meta.env.VITE_BACKEND_URL || 'http://localhost:8000'}/farmer/confirm-payment`, {
+                        method: 'POST',
+                        headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            payment_intent_id: paymentIntent,
+                            ...policyDetails,
+                        }),
+                    });
+                    toast.success("Policy purchased successfully!");
+                } catch (err) {
+                    toast.error("Failed to finalize policy after payment");
+                } finally {
+                    sessionStorage.removeItem("pendingPolicyDetails");
+                    searchParams.delete("payment_intent");
+                    searchParams.delete("payment_intent_client_secret");
+                    searchParams.delete("redirect_status");
+                    setSearchParams(searchParams);
+                    fetchPolicies();
+                }
+            } else {
+                fetchPolicies();
+            }
+        };
+
+        confirmRedirectPayment();
+    }, [navigate, searchParams, setSearchParams]);
 
     const getStatusStyle = (status: string) => {
         if (status === "Active") return "bg-emerald-500/15 text-emerald-400 border-emerald-500/20";

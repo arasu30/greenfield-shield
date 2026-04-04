@@ -30,6 +30,17 @@ class StripeService:
             intent = stripe.PaymentIntent.create(
                 amount=amount,
                 currency=currency,
+                description="Crop Insurance Premium",
+                shipping={
+                    "name": "Farmer",
+                    "address": {
+                        "line1": "123 Farm Road",
+                        "city": "Mumbai",
+                        "state": "MH",
+                        "postal_code": "400001",
+                        "country": "IN",
+                    },
+                },
                 metadata=metadata or {},
                 automatic_payment_methods={
                     'enabled': True,
@@ -60,11 +71,11 @@ class StripeService:
         try:
             intent = stripe.PaymentIntent.retrieve(payment_intent_id)
             return {
-                'status': intent.status,
-                'amount': intent.amount,
-                'currency': intent.currency,
-                'payment_method': intent.payment_method,
-                'charges': intent.charges
+                'status': getattr(intent, 'status', 'requires_action'),
+                'amount': getattr(intent, 'amount', 0),
+                'currency': getattr(intent, 'currency', 'usd'),
+                'payment_method': getattr(intent, 'payment_method', None),
+                'latest_charge': getattr(intent, 'latest_charge', None)
             }
         except stripe.error.StripeError as e:
             raise Exception(f"Stripe error: {str(e)}")
@@ -84,10 +95,10 @@ class StripeService:
         StripeService._get_stripe_api_key()  # Ensure API key is set
         try:
             intent = stripe.PaymentIntent.retrieve(payment_intent_id)
-            if not intent.charges.data:
+            charge_id = getattr(intent, 'latest_charge', None)
+            
+            if not charge_id:
                 raise Exception("No charges found for this payment intent")
-
-            charge_id = intent.charges.data[0].id
 
             refund_params = {'charge': charge_id}
             if amount:

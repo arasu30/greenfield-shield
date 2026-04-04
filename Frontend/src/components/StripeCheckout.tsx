@@ -24,7 +24,17 @@ const StripeCheckoutForm: React.FC<StripeCheckoutFormProps> = ({ clientSecret, a
         try {
             const { error, paymentIntent } = await stripe.confirmPayment({
                 elements,
-                confirmParams: { return_url: `${window.location.origin}/dashboard/my-policies` },
+                confirmParams: {
+                    return_url: `${window.location.origin}/dashboard/my-policies`,
+                    payment_method_data: {
+                        billing_details: {
+                            name: 'Test Farmer',
+                            address: {
+                                country: 'IN',
+                            }
+                        }
+                    }
+                },
                 redirect: 'if_required',
             });
             if (error) { toast.error(error.message || 'Payment failed'); }
@@ -49,7 +59,7 @@ const StripeCheckoutForm: React.FC<StripeCheckoutFormProps> = ({ clientSecret, a
                 <Button type="submit" disabled={!stripe || isProcessing}
                     className="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white">
                     {isProcessing ? (<><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Processing...</>)
-                        : (<><CreditCard className="w-4 h-4 mr-2" /> Pay ₹{(amount / 100).toFixed(2)}</>)}
+                        : (<><CreditCard className="w-4 h-4 mr-2" /> Pay ₹{amount.toFixed(2)}</>)}
                 </Button>
             </div>
         </form>

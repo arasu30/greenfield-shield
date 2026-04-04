@@ -14,11 +14,9 @@ def predict_damage_from_array(arr: np.ndarray) -> int:
     Returns:
         0 for no damage, 1 for damaged.
     """
-    from app.services import preprocessing
-
     if arr.ndim == 3 and arr.shape[0] != 3:
-        # assume raw band-first array, convert to model input
-        arr = preprocessing.make_model_input_from_bands(arr)
+        # Simple fallback for raw band-first array without heavy preprocessing
+        arr = arr[:3, :, :]
 
     if arr.size == 0:
         raise ValueError("empty array provided to damage predictor")

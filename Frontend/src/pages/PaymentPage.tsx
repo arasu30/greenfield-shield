@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -9,6 +10,12 @@ const PaymentPage = () => {
     const location = useLocation();
     const navigate = useNavigate();
     const { clientSecret, amount, policyDetails } = location.state || {};
+
+    useEffect(() => {
+        if (policyDetails) {
+            sessionStorage.setItem("pendingPolicyDetails", JSON.stringify(policyDetails));
+        }
+    }, [policyDetails]);
 
     if (!clientSecret || !amount || !policyDetails) {
         return (

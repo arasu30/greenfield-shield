@@ -5,10 +5,9 @@ from pathlib import Path
 from sqlalchemy.orm import Session
 
 from app.crud.farm import FarmCRUD
-from app.services import gee_service, damage_service, nasnet_service
+from app.services import gee_service, damage_service
 
 logger = logging.getLogger(__name__)
-
 
 def assess_crop_damage_for_farm(
     db: Session,
@@ -58,13 +57,7 @@ def assess_crop_damage_for_farm(
             logger.info(f"NPZ saved to {npz_path}")
         
         # Step 5: Preprocess to model input (ndvi, vv, red)
-        from app.services import preprocessing
-        try:
-            model_input = preprocessing.make_model_input_from_bands(geotiff_array)
-        except Exception as e:
-            # if preprocessing fails, fallback to raw array
-            logger.warning(f"Preprocessing failed, using raw array: {e}")
-            model_input = geotiff_array
+        model_input = geotiff_array
 
         # Step 6: Run damage prediction using the Keras model
         logger.info("Running damage prediction on prepared data")
@@ -84,20 +77,41 @@ def assess_crop_damage_for_farm(
                 # Convert to PIL Image and then to bytes for NASNet
                 import numpy as np
                 from PIL import Image
-                from io import BytesIO
                 
                 if rgb_array.shape[0] == 3:
                     # Transpose to (height, width, channels) for PIL
                     rgb_img = np.transpose(rgb_array, (1, 2, 0))
                     pil_img = Image.fromarray(rgb_img, mode='RGB')
                     
-                    # Convert to bytes
-                    img_bytes = BytesIO()
-                    pil_img.save(img_bytes, format='JPEG')
-                    img_bytes.seek(0)
+                    # Convert to file and send to Gradio Client
+                    with tempfile.NamedTemporaryFile(delete=False, suffix=".jpg") as tmp_img:
+                        pil_img.save(tmp_img, format='JPEG')
+                        tmp_img_path = tmp_img.name
+                        
+                    from gradio_client import Client, handle_file
+                    import os
+                    client = Client("arasu247/cropsure")
+                    result_str = client.predict(
+                        image_filepath=handle_file(tmp_img_path),
+                        api_name="/predict"
+                    )
+                    os.unlink(tmp_img_path)
                     
-                    nasnet_result = nasnet_service.predict_image(img_bytes.getvalue())
-                    logger.info(f"NASNet prediction: {nasnet_result}")
+                    results = []
+                    for line in result_str.strip().split('\n'):
+                        if not line: continue
+                        try:
+                            parts = line.split(': ')
+                            prob = float(parts[-1])
+                            label_desc = parts[0].split(' (')
+                            label = label_desc[0].strip()
+                            desc = label_desc[1].replace(')', '').strip()
+                            results.append({"label": label, "description": desc, "probability": prob})
+                        except Exception:
+                            pass
+                            
+                    nasnet_result = results
+                    logger.info(f"NASNet prediction (HuggingFace): {nasnet_result}")
         except Exception as e:
             logger.warning(f"NASNet prediction failed (not critical): {e}")
         

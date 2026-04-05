@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { ShieldCheck, Loader2, Globe, Map, FileText, CheckCircle, Info, Lock, Upload } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import { useLanguage } from "@/lib/LanguageContext";
 
 const CROP_OPTIONS = [
     { value: "Rice", label: "Rice" },
@@ -59,6 +60,7 @@ const BuyPolicy = () => {
     const [premium, setPremium] = useState<{ premium: number; coverage: number } | null>(null);
     const [isProcessing, setIsProcessing] = useState(false);
     const [isLoadingData, setIsLoadingData] = useState(true);
+    const { t, lang } = useLanguage();
 
     useEffect(() => {
         const fetchData = async () => {
@@ -242,12 +244,12 @@ const BuyPolicy = () => {
         <div className="max-w-5xl mx-auto space-y-8 animate-fade-up">
             <div>
                 <h1 className="page-title">
-                    {selectedScheme ? "Apply for Scheme" : "Buy Insurance Policy"}
+                    {selectedScheme ? t("buy.applyScheme") : t("buy.title")}
                 </h1>
                 <p className="page-subtitle">
                     {selectedScheme 
                         ? `Applying for: ${selectedScheme.name}` 
-                        : "Protect your crops with AI-powered insurance coverage"}
+                        : t("buy.desc")}
                 </p>
             </div>
 
@@ -258,8 +260,8 @@ const BuyPolicy = () => {
                             <Info className="w-6 h-6 text-emerald-400" />
                         </div>
                         <div>
-                            <h4 className="text-sm font-semibold text-white">Save on your Premium</h4>
-                            <p className="text-xs text-slate-400">Apply through Government Schemes to get massive subsidies and easier payouts.</p>
+                            <h4 className="text-sm font-semibold text-white">{t("buy.savePremium")}</h4>
+                            <p className="text-xs text-slate-400">{t("buy.savePremiumDesc")}</p>
                         </div>
                     </div>
                     <Button 
@@ -267,7 +269,7 @@ const BuyPolicy = () => {
                         onClick={() => navigate("/dashboard/schemes")}
                         className="bg-emerald-500/10 border-emerald-500/20 text-emerald-400 hover:bg-emerald-500 hover:text-white transition-all text-xs font-medium"
                     >
-                        View Available Schemes
+                        {t("buy.viewSchemes")}
                     </Button>
                 </div>
             )}
@@ -279,15 +281,15 @@ const BuyPolicy = () => {
                     <Card className="glass-card rounded-xl border-emerald-500/10">
                         <CardHeader className="pb-4">
                             <CardTitle className="text-lg font-semibold text-white flex items-center gap-2">
-                                <Map className="w-5 h-5 text-emerald-400" /> Land Records
+                                <Map className="w-5 h-5 text-emerald-400" /> {t("buy.landRecords")}
                             </CardTitle>
                         </CardHeader>
                         <CardContent className="p-6 pt-0 space-y-4">
                             <div className="space-y-2 animate-in fade-in duration-300">
-                                <Label className="text-slate-400 text-sm">Select Registered Farm</Label>
+                                <Label className="text-slate-400 text-sm">{t("buy.selectFarm")}</Label>
                                 <Select value={selectedFarmId} onValueChange={handleFarmSelect}>
                                     <SelectTrigger className={inputClass}>
-                                        <SelectValue placeholder={farms.length > 0 ? "Select a mapped farm" : "No farms mapped yet"} />
+                                        <SelectValue placeholder={farms.length > 0 ? t("buy.selectFarm") : t("buy.noMapped")} />
                                     </SelectTrigger>
                                     <SelectContent className="bg-[#151d35] border-white/[0.08] text-slate-200">
                                         {farms.map(f => (
@@ -301,13 +303,13 @@ const BuyPolicy = () => {
                                     <div className="p-3 rounded-lg bg-amber-500/5 border border-amber-500/10 mt-2">
                                         <p className="text-[11px] text-amber-500/70 italic flex items-center gap-1.5 leading-relaxed">
                                             <Info className="w-3.5 h-3.5" /> 
-                                            No registered land found. Please map your land in the <strong>Cropsure Mobile App</strong> before buying a policy.
+                                            {t("buy.noRegistered")} <strong>{t("buy.cropsureApp")}</strong> {t("buy.beforeBuying")}
                                         </p>
                                     </div>
                                 ) : (
                                     <p className="text-[10px] text-slate-500 flex items-center gap-1">
                                         <CheckCircle className="w-3 h-3 text-emerald-500" />
-                                        Data verified from your registered land mapping records.
+                                        {t("buy.dataVerified")}
                                     </p>
                                 )}
                             </div>
@@ -319,17 +321,17 @@ const BuyPolicy = () => {
                         <Card className="glass-card rounded-2xl border-emerald-500/10 shadow-2xl shadow-emerald-500/5 transition-all">
                             <CardHeader className="pb-4 border-b border-white/[0.06]">
                                 <CardTitle className="text-lg font-semibold text-white flex items-center gap-2">
-                                    <ShieldCheck className="w-5 h-5 text-emerald-400" /> Documentation Vault
+                                    <ShieldCheck className="w-5 h-5 text-emerald-400" /> {t("buy.docVault")}
                                 </CardTitle>
                             </CardHeader>
                             <CardContent className="p-6">
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                                     {/* Identity Verification */}
                                     <div className="space-y-4">
-                                        <Label className="text-slate-400 text-sm">Identity Verification</Label>
+                                        <Label className="text-slate-400 text-sm">{t("buy.identity")}</Label>
                                         <div className="group space-y-2">
                                             <div className="flex items-center justify-between">
-                                                <Label className="text-[11px] font-semibold text-slate-500 group-focus-within:text-emerald-400 transition-colors">Aadhaar (Last 4 digits)</Label>
+                                                <Label className="text-[11px] font-semibold text-slate-500 group-focus-within:text-emerald-400 transition-colors">{t("buy.aadhaar")}</Label>
                                                 {proofsData["Aadhaar (Last 4 digits)"]?.length === 4 && <CheckCircle className="w-3 h-3 text-emerald-500 animate-in zoom-in" />}
                                             </div>
                                             <div className="relative">
@@ -343,17 +345,17 @@ const BuyPolicy = () => {
                                                 />
                                             </div>
                                             <p className="text-[9px] text-slate-600 flex items-center gap-1">
-                                                <ShieldCheck className="w-2.5 h-2.5" /> Your data is encrypted and secure
+                                                <ShieldCheck className="w-2.5 h-2.5" /> {t("buy.secureData")}
                                             </p>
                                         </div>
                                     </div>
 
                                     {/* Bank Details */}
                                     <div className="space-y-4">
-                                        <Label className="text-slate-400 text-sm">Bank Details</Label>
+                                        <Label className="text-slate-400 text-sm">{t("buy.bankDetails")}</Label>
                                         <div className="space-y-3">
                                             <div className="space-y-1.5">
-                                                <Label className="text-[11px] font-semibold text-slate-500">Account Number</Label>
+                                                <Label className="text-[11px] font-semibold text-slate-500">{t("buy.accNo")}</Label>
                                                 <Input 
                                                     placeholder="Enter your account number"
                                                     value={proofsData["Account Number"] || ""}
@@ -362,7 +364,7 @@ const BuyPolicy = () => {
                                                 />
                                             </div>
                                             <div className="space-y-1.5">
-                                                <Label className="text-[11px] font-semibold text-slate-500">IFSC Code</Label>
+                                                <Label className="text-[11px] font-semibold text-slate-500">{t("buy.ifsc")}</Label>
                                                 <Input 
                                                     placeholder="e.g. SBIN0001234"
                                                     value={proofsData["IFSC Code"] || ""}
@@ -382,22 +384,22 @@ const BuyPolicy = () => {
                     <Card className="glass-card rounded-xl">
                         <CardHeader className="pb-4 border-b border-white/[0.06]">
                             <CardTitle className="text-lg font-semibold text-white flex items-center gap-2">
-                                <ShieldCheck className="w-5 h-5 text-emerald-400" /> Policy Details
+                                <ShieldCheck className="w-5 h-5 text-emerald-400" /> {t("buy.policyDetails")}
                             </CardTitle>
                         </CardHeader>
                         <CardContent className="p-6 space-y-6">
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <div className="space-y-2">
-                                    <Label className="text-slate-400 text-sm">Crop Type</Label>
+                                    <Label className="text-slate-400 text-sm">{t("buy.cropType")}</Label>
                                     <Select value={cropType} onValueChange={setCropType}>
-                                        <SelectTrigger className={inputClass}><SelectValue placeholder="Select crop type" /></SelectTrigger>
+                                        <SelectTrigger className={inputClass}><SelectValue placeholder={t("addFarm.selectCrop")} /></SelectTrigger>
                                         <SelectContent className="bg-[#151d35] border-white/[0.08] text-slate-200">
                                             {CROP_OPTIONS.map(c => <SelectItem key={c.value} value={c.value}>{c.label}</SelectItem>)}
                                         </SelectContent>
                                     </Select>
                                 </div>
                                 <div className="space-y-2">
-                                    <Label className="text-slate-400 text-sm">Season</Label>
+                                    <Label className="text-slate-400 text-sm">{t("buy.season")}</Label>
                                     <Select value={season} onValueChange={setSeason}>
                                         <SelectTrigger className={inputClass}><SelectValue placeholder="Select season" /></SelectTrigger>
                                         <SelectContent className="bg-[#151d35] border-white/[0.08] text-slate-200">
@@ -408,11 +410,11 @@ const BuyPolicy = () => {
                             </div>
                             
                             <div className="space-y-2">
-                                <Label className="text-slate-400 text-sm">Area (Acres)</Label>
+                                <Label className="text-slate-400 text-sm">{t("buy.area")}</Label>
                                 <Input 
                                     type="number" 
                                     step="0.1" 
-                                    placeholder="Area will be fetched from selected farm" 
+                                    placeholder={t("buy.area")}
                                     value={area} 
                                     disabled
                                     className={cn(inputClass, "bg-white/[0.01] border-emerald-500/20 text-emerald-400 cursor-not-allowed")} 
@@ -421,7 +423,7 @@ const BuyPolicy = () => {
 
                             <Button onClick={handleCalculate} disabled={isCalculating}
                                 className="w-full bg-emerald-600 hover:bg-emerald-500 text-white h-11 font-medium rounded-lg shadow-lg shadow-emerald-600/20">
-                                {isCalculating ? (<><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Calculating...</>) : "Check Premium & Offer"}
+                                {isCalculating ? (<><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Calculating...</>) : t("buy.checkPremium")}
                             </Button>
                         </CardContent>
                     </Card>
@@ -434,10 +436,10 @@ const BuyPolicy = () => {
                     <Card className="glass-card rounded-xl border-emerald-500/20 shadow-xl shadow-emerald-500/5">
                         <CardHeader className="pb-3 border-b border-white/[0.06]">
                             <CardTitle className="text-sm font-medium text-slate-400 flex items-center justify-between">
-                                Premium Summary
+                                {t("buy.summary")}
                                 {selectedScheme && (
                                     <span className="text-[10px] bg-emerald-500/20 text-emerald-400 px-2 py-0.5 rounded-full border border-emerald-500/20">
-                                        Subsidized
+                                        {t("buy.subsidized")}
                                     </span>
                                 )}
                             </CardTitle>
@@ -447,24 +449,24 @@ const BuyPolicy = () => {
                                 <>
                                     <div className="space-y-4">
                                         <div className="flex justify-between text-xs">
-                                            <span className="text-slate-500">Total Market Cost</span>
+                                            <span className="text-slate-500">{t("buy.marketCost")}</span>
                                             <span className="text-slate-300 line-through">₹{(premium as any).market_total.toLocaleString()}</span>
                                         </div>
                                         <div className="flex justify-between text-xs">
-                                            <span className="text-emerald-500 font-medium italic">Govt. Subsidy (90%)</span>
+                                            <span className="text-emerald-500 font-medium italic">{t("buy.govtSubsidy")}</span>
                                             <span className="text-emerald-500">-₹{(premium as any).subsidy_amount.toLocaleString()}</span>
                                         </div>
                                         <div className="h-px bg-white/[0.06]" />
                                         <div className="space-y-1">
-                                            <p className="text-[10px] text-slate-500 uppercase tracking-wider font-semibold">Your Subsidized Premium</p>
+                                            <p className="text-[10px] text-slate-500 uppercase tracking-wider font-semibold">{t("buy.yourPremium")}</p>
                                             <p className="text-4xl font-bold text-emerald-400">₹{premium.premium.toLocaleString()}</p>
                                         </div>
                                     </div>
 
                                     <div className="space-y-1 bg-white/[0.02] p-4 rounded-xl border border-white/[0.04]">
-                                        <p className="text-[10px] text-slate-500 uppercase tracking-wider">Total Sum Insured (Coverage)</p>
+                                        <p className="text-[10px] text-slate-500 uppercase tracking-wider">{t("buy.coverage")}</p>
                                         <p className="text-xl font-semibold text-white">₹{premium.coverage.toLocaleString()}</p>
-                                        <p className="text-[9px] text-slate-600 mt-1">Full market value protected by government mandate.</p>
+                                        <p className="text-[9px] text-slate-600 mt-1">{t("buy.coverageDesc")}</p>
                                     </div>
                                     
                                     <Button 
@@ -480,11 +482,11 @@ const BuyPolicy = () => {
                                         {isProcessing ? (
                                             <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Processing...</>
                                         ) : (
-                                            "Pay"
+                                            t("buy.pay")
                                         )}
                                     </Button>
                                     <div className="flex items-center justify-center gap-2 text-[10px] text-slate-500">
-                                        <ShieldCheck className="w-3 h-3" /> Secure Payment via Stripe India
+                                        <ShieldCheck className="w-3 h-3" /> {t("buy.securePayment")}
                                     </div>
                                 </>
                             ) : (

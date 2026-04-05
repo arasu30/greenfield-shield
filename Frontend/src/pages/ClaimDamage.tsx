@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Upload, AlertCircle, Info, Loader2 } from "lucide-react";
 import { toast } from "sonner";
+import { useLanguage } from "@/lib/LanguageContext";
 
 const ClaimDamage = () => {
     const navigate = useNavigate();
@@ -20,6 +21,7 @@ const ClaimDamage = () => {
     const [files, setFiles] = useState<FileList | null>(null);
     const [isLoading, setIsLoading] = useState(false);
     const [isFetchingPolicies, setIsFetchingPolicies] = useState(true);
+    const { t } = useLanguage();
 
     useEffect(() => {
         const fetchPolicies = async () => {
@@ -87,8 +89,8 @@ const ClaimDamage = () => {
     return (
         <div className="max-w-4xl mx-auto space-y-8 animate-fade-up">
             <div>
-                <h1 className="page-title">Claim Crop Damage</h1>
-                <p className="page-subtitle">Submit your damage claim for AI-powered assessment</p>
+                <h1 className="page-title">{t("claim.title")}</h1>
+                <p className="page-subtitle">{t("claim.desc")}</p>
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -96,15 +98,15 @@ const ClaimDamage = () => {
                     <Card className="glass-card rounded-xl">
                         <CardHeader className="pb-4 border-b border-white/[0.06]">
                             <CardTitle className="text-lg font-semibold text-white flex items-center gap-2">
-                                <AlertCircle className="w-5 h-5 text-amber-400" /> Damage Details
+                                <AlertCircle className="w-5 h-5 text-amber-400" /> {t("claim.damageDetails")}
                             </CardTitle>
                         </CardHeader>
                         <CardContent className="p-6 space-y-5">
                             <div className="space-y-2">
-                                <Label className="text-slate-400 text-sm">Select Policy *</Label>
+                                <Label className="text-slate-400 text-sm">{t("claim.selectPolicy")}</Label>
                                 <Select value={selectedPolicyId} onValueChange={setSelectedPolicyId}>
                                     <SelectTrigger className={inputClass}>
-                                        <SelectValue placeholder={isFetchingPolicies ? "Loading policies..." : "Choose an active policy"} />
+                                        <SelectValue placeholder={isFetchingPolicies ? "Loading policies..." : t("claim.choosePolicy")} />
                                     </SelectTrigger>
                                     <SelectContent className="bg-[#151d35] border-white/[0.08] text-slate-200">
                                         {policies.length > 0 ? (
@@ -120,7 +122,7 @@ const ClaimDamage = () => {
                                 </Select>
                             </div>
                             <div className="space-y-2">
-                                <Label className="text-slate-400 text-sm">Disaster Type *</Label>
+                                <Label className="text-slate-400 text-sm">{t("claim.distress")}</Label>
                                 <Select onValueChange={setDisasterType}>
                                     <SelectTrigger className={inputClass}><SelectValue placeholder="Select disaster type" /></SelectTrigger>
                                     <SelectContent className="bg-[#151d35] border-white/[0.08] text-slate-200">
@@ -134,25 +136,25 @@ const ClaimDamage = () => {
                                 </Select>
                             </div>
                             <div className="space-y-2">
-                                <Label className="text-slate-400 text-sm">Date of Incident *</Label>
+                                <Label className="text-slate-400 text-sm">{t("claim.date")}</Label>
                                 <Input type="date" value={date} onChange={(e) => setDate(e.target.value)} className={inputClass} />
                             </div>
                             <div className="space-y-2">
-                                <Label className="text-slate-400 text-sm">Affected Area (Acres) *</Label>
+                                <Label className="text-slate-400 text-sm">{t("claim.affectedArea")}</Label>
                                 <Input type="number" step="0.1" placeholder="Enter affected area" value={affectedArea} onChange={(e) => setAffectedArea(e.target.value)} className={inputClass} />
                             </div>
                             <div className="space-y-2">
-                                <Label className="text-slate-400 text-sm">Description (Optional)</Label>
+                                <Label className="text-slate-400 text-sm">{t("claim.description")}</Label>
                                 <Textarea placeholder="Describe the damage in detail..." rows={3} value={description} onChange={(e) => setDescription(e.target.value)}
                                     className="bg-white/[0.03] border-white/[0.08] text-slate-100 placeholder-slate-600 focus:border-emerald-500/40 rounded-lg" />
                             </div>
                             <div className="space-y-2">
-                                <Label className="text-slate-400 text-sm">Upload Field Photos</Label>
+                                <Label className="text-slate-400 text-sm">{t("claim.uploadPhotos")}</Label>
                                 <div className="border border-dashed border-white/[0.1] rounded-lg p-6 text-center hover:border-white/[0.2] transition-colors cursor-pointer bg-white/[0.02]">
                                     <input id="photos" type="file" multiple accept="image/*" className="hidden" onChange={(e) => setFiles(e.target.files)} />
                                     <label htmlFor="photos" className="cursor-pointer">
                                         <Upload className="w-6 h-6 mx-auto mb-2 text-slate-500" />
-                                        <p className="text-sm text-slate-400">Click to upload or drag and drop</p>
+                                        <p className="text-sm text-slate-400">{t("claim.uploadHint")}</p>
                                         <p className="text-xs text-slate-600 mt-1">PNG, JPG up to 10MB each</p>
                                         {files && <p className="text-xs text-emerald-400 mt-2">{files.length} file(s) selected</p>}
                                     </label>
@@ -166,24 +168,24 @@ const ClaimDamage = () => {
                     <Card className="glass-card rounded-xl">
                         <CardHeader className="pb-3 border-b border-white/[0.06]">
                             <CardTitle className="text-sm font-medium text-amber-400 flex items-center gap-2">
-                                <Info className="w-4 h-4" /> Important
+                                <Info className="w-4 h-4" /> {t("claim.important")}
                             </CardTitle>
                         </CardHeader>
                         <CardContent className="p-4 space-y-2 text-xs text-slate-400">
-                            <p>• Upload clear photos of damaged crops</p>
-                            <p>• Include images from multiple angles</p>
-                            <p>• AI will analyze satellite data automatically</p>
-                            <p>• Claims are processed within 48-72 hours</p>
-                            <p>• You'll receive updates via SMS</p>
+                            <p>• {t("claim.hint1")}</p>
+                            <p>• {t("claim.hint2")}</p>
+                            <p>• {t("claim.hint3")}</p>
+                            <p>• {t("claim.hint4")}</p>
+                            <p>• {t("claim.hint5")}</p>
                         </CardContent>
                     </Card>
 
                     <Card className="glass-card rounded-xl">
                         <CardHeader className="pb-3 border-b border-white/[0.06]">
-                            <CardTitle className="text-sm font-medium text-slate-300">What Happens Next?</CardTitle>
+                            <CardTitle className="text-sm font-medium text-slate-300">{t("claim.next")}</CardTitle>
                         </CardHeader>
                         <CardContent className="p-4 space-y-3">
-                            {["AI analyzes photos & satellite data", "Officer reviews the assessment", "Compensation approved & transferred"].map((step, i) => (
+                            {[t("claim.step1"), t("claim.step2"), t("claim.step3")].map((step, i) => (
                                 <div key={i} className="flex gap-3 items-start">
                                     <div className="w-5 h-5 rounded-full bg-white/[0.06] flex items-center justify-center flex-shrink-0 mt-0.5">
                                         <span className="text-[10px] font-semibold text-slate-400">{i + 1}</span>
@@ -195,7 +197,7 @@ const ClaimDamage = () => {
                     </Card>
 
                     <Button onClick={handleSubmit} disabled={isLoading} className="w-full bg-amber-600 hover:bg-amber-500 text-white h-11 font-medium rounded-lg shadow-lg shadow-amber-600/20">
-                        {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : "Submit Claim"}
+                        {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : t("claim.submit")}
                     </Button>
                 </div>
             </div>

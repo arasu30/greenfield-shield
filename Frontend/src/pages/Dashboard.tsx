@@ -11,6 +11,7 @@ import { LocationMap } from "@/components/LocationMap";
 import { toast } from "sonner";
 import { AddFarmModal } from "@/components/AddFarmModal";
 import { Plus } from "lucide-react";
+import { useLanguage } from "@/lib/LanguageContext";
 
 const Dashboard = () => {
     const navigate = useNavigate();
@@ -19,6 +20,7 @@ const Dashboard = () => {
     const [farms, setFarms] = useState<any[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [isAddFarmOpen, setIsAddFarmOpen] = useState(false);
+    const { t } = useLanguage();
 
     useEffect(() => {
         const storedUser = localStorage.getItem('user');
@@ -79,21 +81,21 @@ const Dashboard = () => {
             {/* Welcome */}
             <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
                 <div className="space-y-1">
-                    <h1 className="page-title">Welcome back, {user?.full_name?.split(' ')[0] || 'Farmer'}</h1>
-                    <p className="page-subtitle">Here's your real-time farm overview</p>
+                    <h1 className="page-title">{t("dash.welcome")}, {user?.full_name?.split(' ')[0] || 'Farmer'}</h1>
+                    <p className="page-subtitle">{t("dash.overview")}</p>
                 </div>
                 <div className="flex flex-wrap gap-3">
                     <Button 
                         onClick={() => setIsAddFarmOpen(true)} 
                         className="bg-white/10 hover:bg-white/20 text-white border border-white/10 font-medium rounded-lg h-10 px-6 flex items-center gap-2"
                     >
-                        <Plus className="w-4 h-4" /> Add Farm
+                        <Plus className="w-4 h-4" /> {t("dash.addFarm")}
                     </Button>
                     <Button onClick={() => navigate("/dashboard/buy-policy")} className="bg-emerald-600 hover:bg-emerald-500 text-white font-medium rounded-lg h-10 px-6">
-                        Buy Policy
+                        {t("nav.buyPolicy")}
                     </Button>
                     <Button onClick={() => navigate("/dashboard/claim-damage")} variant="outline" className="border-white/10 text-white hover:bg-white/5 h-10 px-6">
-                        Claim Damage
+                        {t("nav.claimDamage")}
                     </Button>
                 </div>
             </div>
@@ -127,8 +129,8 @@ const Dashboard = () => {
             <div className="space-y-4">
                 <div className="flex items-center justify-between">
                     <div>
-                        <h2 className="text-lg font-semibold text-white">Your Mapped Land</h2>
-                        <p className="text-xs text-slate-500">Verified boundaries from your registration</p>
+                        <h2 className="text-lg font-semibold text-white">{t("dash.mappedLand")}</h2>
+                        <p className="text-xs text-slate-500">{t("dash.mappedLandSub")}</p>
                     </div>
                 </div>
                 
@@ -156,7 +158,7 @@ const Dashboard = () => {
                                             </div>
                                         </div>
                                         <Button variant="ghost" size="sm" onClick={() => navigate("/dashboard/crop-health")} className="h-8 text-xs text-slate-400 hover:text-white hover:bg-white/5">
-                                            Analyze Health <ArrowRight className="w-3 h-3 ml-1" />
+                                            {t("dash.analyzeHealth")} <ArrowRight className="w-3 h-3 ml-1" />
                                         </Button>
                                     </div>
                                     <div className="h-56 relative bg-[#0a0f1e]">
@@ -175,10 +177,10 @@ const Dashboard = () => {
                 ) : (
                     <div className="glass-card rounded-2xl flex flex-col items-center justify-center py-16 text-center border-dashed border-2 border-white/5">
                         <Satellite className="w-12 h-12 text-slate-700 mb-4" />
-                        <h3 className="text-lg font-medium text-slate-300 mb-1">No Farm Land Mapped</h3>
-                        <p className="text-sm text-slate-600 mb-6 max-w-xs">You haven't mapped your land yet. Map your farm to enable satellite monitoring and insurance coverage.</p>
+                        <h3 className="text-lg font-medium text-slate-300 mb-1">{t("dash.noMappedLand")}</h3>
+                        <p className="text-sm text-slate-600 mb-6 max-w-xs">{t("dash.noMappedLandDesc")}</p>
                         <Button variant="outline" className="border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/10">
-                            Map Your Farm Now
+                            {t("dash.mapFarmNow")}
                         </Button>
                     </div>
                 )}

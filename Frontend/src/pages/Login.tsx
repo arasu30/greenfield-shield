@@ -6,7 +6,8 @@ import { OfficerRegister } from "@/components/OfficerRegister";
 import { OfficerLogin } from "@/components/OfficerLogin";
 import { Sprout, ShieldCheck, Users, Satellite, Brain, Shield, X, Github, Linkedin, Info, Globe, ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { Language, languageLabels, t } from "@/lib/i18n";
+import { Language, languageLabels, t as i18nT } from "@/lib/i18n";
+import { useLanguage } from "@/lib/LanguageContext";
 import Footer from "@/components/Footer";
 
 
@@ -24,13 +25,13 @@ const Login = () => {
     const [selectedRole, setSelectedRole] = useState<RoleType>("farmer");
     const [view, setView] = useState<ViewType>("login");
     const [showAbout, setShowAbout] = useState(false);
-    const [lang, setLang] = useState<Language>("en");
+    const { lang, setLang, t } = useLanguage();
     const [langOpen, setLangOpen] = useState(false);
 
     const roles = [
-        { id: "farmer" as RoleType, label: t(lang, "role.farmer"), icon: Sprout },
-        { id: "officer" as RoleType, label: t(lang, "role.officer"), icon: ShieldCheck },
-        { id: "admin" as RoleType, label: t(lang, "role.admin"), icon: Users },
+        { id: "farmer" as RoleType, label: t("role.farmer"), icon: Sprout },
+        { id: "officer" as RoleType, label: t("role.officer"), icon: ShieldCheck },
+        { id: "admin" as RoleType, label: t("role.admin"), icon: Users },
     ];
 
     return (
@@ -44,7 +45,7 @@ const Login = () => {
                     className="absolute top-6 left-6 z-50 flex items-center gap-2 px-4 py-2 rounded-lg glass-card hover:bg-white/[0.08] transition-all duration-200 text-slate-400 hover:text-white group"
                 >
                     <Info className="w-4 h-4 text-emerald-400" />
-                    <span className="text-sm font-medium">{t(lang, "about.title")}</span>
+                    <span className="text-sm font-medium">{t("about.title")}</span>
                 </button>
 
                 {/* Language Selector — Top Right */}
@@ -97,7 +98,7 @@ const Login = () => {
                                 </div>
                             </div>
                             <div>
-                                <p className="text-[11px] text-slate-500 uppercase tracking-wider font-medium mb-3">{t(lang, "about.ourTeam")}</p>
+                                <p className="text-[11px] text-slate-500 uppercase tracking-wider font-medium mb-3">{t("about.ourTeam")}</p>
                                 <div className="grid grid-cols-2 gap-3">
                                     {teamMembers.map((member, i) => (
                                         <div key={i} className="bg-white/[0.03] border border-white/[0.06] rounded-xl p-4 text-center hover:bg-white/[0.06] transition-all duration-200">
@@ -133,17 +134,17 @@ const Login = () => {
                         </div>
                         <div className="space-y-4">
                             <h1 className="text-5xl font-semibold text-white leading-[1.1] tracking-tight">
-                                {t(lang, "brand.headline")}{" "}
-                                <span className="text-gradient-primary">{t(lang, "brand.headlineAccent")}</span>{" "}
-                                {t(lang, "brand.headlineEnd")}
+                                {t("brand.headline")}{" "}
+                                <span className="text-gradient-primary">{t("brand.headlineAccent")}</span>{" "}
+                                {t("brand.headlineEnd")}
                             </h1>
-                            <p className="text-lg text-slate-400 leading-relaxed">{t(lang, "brand.subtitle")}</p>
+                            <p className="text-lg text-slate-400 leading-relaxed">{t("brand.subtitle")}</p>
                         </div>
                         <div className="space-y-4 pt-2">
                             {[
-                                { icon: Satellite, text: t(lang, "brand.feature1"), color: "text-blue-400" },
-                                { icon: Brain, text: t(lang, "brand.feature2"), color: "text-purple-400" },
-                                { icon: Shield, text: t(lang, "brand.feature3"), color: "text-emerald-400" },
+                                { icon: Satellite, text: t("brand.feature1"), color: "text-blue-400" },
+                                { icon: Brain, text: t("brand.feature2"), color: "text-purple-400" },
+                                { icon: Shield, text: t("brand.feature3"), color: "text-emerald-400" },
                             ].map((feature, i) => (
                                 <div key={i} className="flex items-center gap-3">
                                     <div className="w-7 h-7 rounded-lg bg-white/[0.04] flex items-center justify-center">
@@ -168,12 +169,12 @@ const Login = () => {
 
                         <div className="h-[72px] flex flex-col justify-end">
                             <h2 className="text-2xl font-semibold text-white animate-in slide-in-from-left-2 duration-300">
-                                {view === "login" ? t(lang, "login.welcomeBack") : t(lang, "login.createAccount")}
+                                {view === "login" ? t("login.welcomeBack") : t("login.createAccount")}
                             </h2>
                             <p className="text-sm text-slate-400 mt-1 animate-in slide-in-from-left-4 duration-500">
                                 {view === "login"
-                                    ? (selectedRole === "farmer" ? t(lang, "login.signinPhone") : t(lang, "login.signinDashboard"))
-                                    : t(lang, "login.registerStart")}
+                                    ? (selectedRole === "farmer" ? t("login.signinPhone") : t("login.signinDashboard"))
+                                    : t("login.registerStart")}
                             </p>
                         </div>
 
@@ -206,12 +207,12 @@ const Login = () => {
                         <div className="text-center text-sm text-slate-500 min-h-[1.5rem] flex items-center justify-center">
                             {selectedRole !== "admin" ? (
                                 <p>
-                                    {view === "login" ? t(lang, "login.noAccount") : t(lang, "login.alreadyRegistered")}{" "}
+                                    {view === "login" ? t("login.noAccount") : t("login.alreadyRegistered")}{" "}
                                     <button
                                         onClick={() => setView(view === "login" ? "register" : "login")}
                                         className="text-emerald-400 hover:text-emerald-300 font-medium transition-colors"
                                     >
-                                        {view === "login" ? t(lang, "login.register") : t(lang, "login.signIn")}
+                                        {view === "login" ? t("login.register") : t("login.signIn")}
                                     </button>
                                 </p>
                             ) : (

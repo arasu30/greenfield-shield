@@ -5,12 +5,14 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ShieldCheck, Calendar, DollarSign, Loader2, FileText } from "lucide-react";
 import { toast } from "sonner";
+import { useLanguage } from "@/lib/LanguageContext";
 
 const MyPolicies = () => {
     const navigate = useNavigate();
     const [searchParams, setSearchParams] = useSearchParams();
     const [policies, setPolicies] = useState<any[]>([]);
     const [isLoading, setIsLoading] = useState(true);
+    const { t } = useLanguage();
 
     useEffect(() => {
         const fetchPolicies = async () => {
@@ -73,12 +75,12 @@ const MyPolicies = () => {
         <div className="max-w-5xl mx-auto space-y-8 animate-fade-up">
             <div className="flex items-center justify-between">
                 <div>
-                    <h1 className="page-title">My Policies</h1>
-                    <p className="page-subtitle">Manage your active crop insurance policies</p>
+                    <h1 className="page-title">{t("pol.title")}</h1>
+                    <p className="page-subtitle">{t("pol.desc")}</p>
                 </div>
                 <Button onClick={() => navigate("/dashboard/buy-policy")}
                     className="bg-emerald-600 hover:bg-emerald-500 text-white font-medium rounded-lg h-10 px-5 shadow-lg shadow-emerald-600/20">
-                    <ShieldCheck className="w-4 h-4 mr-2" /> New Policy
+                    <ShieldCheck className="w-4 h-4 mr-2" /> {t("pol.new")}
                 </Button>
             </div>
 
@@ -109,14 +111,14 @@ const MyPolicies = () => {
                                     <div className="bg-white/[0.03] rounded-lg p-3">
                                         <div className="flex items-center gap-1.5 text-slate-500 mb-1">
                                             <DollarSign className="w-3 h-3" />
-                                            <span className="text-[10px] font-medium uppercase tracking-wider">Premium</span>
+                                            <span className="text-[10px] font-medium uppercase tracking-wider">{t("pol.premium")}</span>
                                         </div>
                                         <p className="text-sm font-semibold text-white">₹{policy.premium?.toLocaleString()}</p>
                                     </div>
                                     <div className="bg-white/[0.03] rounded-lg p-3">
                                         <div className="flex items-center gap-1.5 text-slate-500 mb-1">
                                             <ShieldCheck className="w-3 h-3" />
-                                            <span className="text-[10px] font-medium uppercase tracking-wider">Coverage</span>
+                                            <span className="text-[10px] font-medium uppercase tracking-wider">{t("pol.coverage")}</span>
                                         </div>
                                         <p className="text-sm font-semibold text-white">₹{policy.coverage?.toLocaleString()}</p>
                                     </div>
@@ -135,10 +137,10 @@ const MyPolicies = () => {
             ) : (
                 <div className="glass-card rounded-2xl flex flex-col items-center justify-center py-16 text-center">
                     <FileText className="w-12 h-12 text-slate-700 mb-4" />
-                    <h3 className="text-lg font-medium text-slate-300 mb-1">No policies yet</h3>
-                    <p className="text-sm text-slate-600 mb-5">Protect your crops with our AI-powered insurance</p>
+                    <h3 className="text-lg font-medium text-slate-300 mb-1">{t("pol.noPolicies")}</h3>
+                    <p className="text-sm text-slate-600 mb-5">{t("pol.protect")}</p>
                     <Button onClick={() => navigate("/dashboard/buy-policy")} className="bg-emerald-600 hover:bg-emerald-500 text-white">
-                        Buy Your First Policy
+                        {t("pol.buyFirst")}
                     </Button>
                 </div>
             )}

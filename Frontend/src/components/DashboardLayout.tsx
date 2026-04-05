@@ -1,5 +1,8 @@
 import React, { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
+import { useLanguage } from "@/lib/LanguageContext";
+import { languageLabels, Language } from "@/lib/i18n";
+import { Globe } from "lucide-react";
 import {
     LayoutDashboard,
     ShieldCheck,
@@ -59,6 +62,7 @@ const DashboardLayout = ({ children, role = 'farmer' }: DashboardLayoutProps) =>
     };
 
     const [user, setUser] = useState<any>(null);
+    const { lang, setLang, t } = useLanguage();
 
     React.useEffect(() => {
         const handleResize = () => {
@@ -73,12 +77,12 @@ const DashboardLayout = ({ children, role = 'farmer' }: DashboardLayoutProps) =>
     }, []);
 
     const farmerNavItems = [
-        { label: "Dashboard", icon: LayoutDashboard, path: "/dashboard" },
-        { label: "Govt Schemes", icon: BookOpen, path: "/dashboard/schemes" },
-        { label: "Buy Policy", icon: ShieldCheck, path: "/dashboard/buy-policy" },
-        { label: "My Policies", icon: FileText, path: "/dashboard/my-policies" },
-        { label: "Claim Damage", icon: AlertTriangle, path: "/dashboard/claim-damage" },
-        { label: "Crop Health", icon: Satellite, path: "/dashboard/crop-health" },
+        { label: t("nav.dashboard"), icon: LayoutDashboard, path: "/dashboard" },
+        { label: t("nav.schemes"), icon: BookOpen, path: "/dashboard/schemes" },
+        { label: t("nav.buyPolicy"), icon: ShieldCheck, path: "/dashboard/buy-policy" },
+        { label: t("nav.myPolicies"), icon: FileText, path: "/dashboard/my-policies" },
+        { label: t("nav.claimDamage"), icon: AlertTriangle, path: "/dashboard/claim-damage" },
+        { label: t("nav.cropHealth"), icon: Satellite, path: "/dashboard/crop-health" },
     ];
 
     const adminNavItems = [
@@ -207,7 +211,7 @@ const DashboardLayout = ({ children, role = 'farmer' }: DashboardLayoutProps) =>
                             )}
                         >
                             <LogOut className="w-[18px] h-[18px] shrink-0" />
-                            {!isCollapsed && <span className="text-sm font-medium">Log out</span>}
+                            {!isCollapsed && <span className="text-sm font-medium">{t("nav.logout")}</span>}
                         </button>
                     </div>
                 </aside>
@@ -228,6 +232,33 @@ const DashboardLayout = ({ children, role = 'farmer' }: DashboardLayoutProps) =>
                         </div>
 
                         <div className="flex items-center gap-4">
+                            <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                    <button className="relative p-2 text-slate-400 hover:text-white transition-colors flex items-center gap-1.5 focus:outline-none focus:ring-2 focus:ring-emerald-500 rounded-lg">
+                                        <Globe className="w-4 h-4" />
+                                        <span className="text-xs uppercase font-medium">{lang}</span>
+                                        <ChevronDown className="w-3 h-3 ml-0.5 opacity-50" />
+                                    </button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent align="end" className="w-40 bg-[#151d35] border-white/[0.08] text-slate-200 p-1">
+                                    {(Object.entries(languageLabels) as [Language, string][]).map(([code, label]) => (
+                                        <DropdownMenuItem 
+                                            key={code} 
+                                            onClick={() => setLang(code)}
+                                            className={cn(
+                                                "focus:bg-white/[0.06] focus:text-white cursor-pointer py-2 rounded-md px-3 text-sm flex justify-between",
+                                                lang === code && "text-emerald-400"
+                                            )}
+                                        >
+                                            {label}
+                                            {lang === code && <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 my-auto" />}
+                                        </DropdownMenuItem>
+                                    ))}
+                                </DropdownMenuContent>
+                            </DropdownMenu>
+
+                            <div className="h-6 w-px bg-white/[0.08]" />
+
                             <button className="relative p-2 text-slate-400 hover:text-white transition-colors">
                                 <Bell className="w-[18px] h-[18px]" />
                                 <span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 bg-emerald-500 rounded-full" />
@@ -256,15 +287,15 @@ const DashboardLayout = ({ children, role = 'farmer' }: DashboardLayoutProps) =>
                                     </div>
                                 </DropdownMenuTrigger>
                                 <DropdownMenuContent align="end" className="w-52 bg-[#151d35] border-white/[0.08] text-slate-200 p-1">
-                                    <DropdownMenuLabel className="text-[11px] text-slate-500 uppercase tracking-wider px-3 py-2">My Account</DropdownMenuLabel>
+                                    <DropdownMenuLabel className="text-[11px] text-slate-500 uppercase tracking-wider px-3 py-2">{t("nav.myAccount")}</DropdownMenuLabel>
                                     <DropdownMenuSeparator className="bg-white/[0.06]" />
                                     <DropdownMenuItem onClick={() => navigate('/dashboard/profile')} className="focus:bg-white/[0.06] focus:text-white cursor-pointer py-2 rounded-md px-3 text-sm">
                                         <User className="mr-2 h-4 w-4 text-slate-500" />
-                                        Profile
+                                        {t("nav.profile")}
                                     </DropdownMenuItem>
                                     <DropdownMenuItem onClick={handleLogout} className="focus:bg-red-500/10 focus:text-red-400 text-red-400 cursor-pointer py-2 rounded-md px-3 text-sm">
                                         <LogOut className="mr-2 h-4 w-4" />
-                                        Log out
+                                        {t("nav.logout")}
                                     </DropdownMenuItem>
                                 </DropdownMenuContent>
                             </DropdownMenu>

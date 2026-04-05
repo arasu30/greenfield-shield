@@ -2,6 +2,7 @@ import { Elements } from '@stripe/react-stripe-js';
 import stripePromise from './lib/stripe';
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { LanguageProvider } from "@/lib/LanguageContext";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
@@ -26,35 +27,37 @@ const queryClient = new QueryClient();
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <Elements stripe={stripePromise}>
-      <TooltipProvider>
-        <Toaster />
-        <Sonner position="top-center" theme="light" richColors duration={2000} />
-        <BrowserRouter>
-          <Routes>
-            <Route path="/" element={<Login />} />
+    <LanguageProvider>
+      <Elements stripe={stripePromise}>
+        <TooltipProvider>
+          <Toaster />
+          <Sonner position="top-center" theme="light" richColors duration={2000} />
+          <BrowserRouter>
+            <Routes>
+              <Route path="/" element={<Login />} />
 
-            {/* Nested Dashboard Routes */}
-            <Route path="/dashboard" element={<DashboardRoutes />}>
-              <Route index element={<Dashboard />} />
-              <Route path="profile" element={<Profile />} />
-              <Route path="buy-policy" element={<BuyPolicy />} />
-              <Route path="my-policies" element={<MyPolicies />} />
-              <Route path="claim-damage" element={<ClaimDamage />} />
-              <Route path="crop-health" element={<CropHealth />} />
-              <Route path="schemes" element={<FarmerSchemes />} />
-              <Route path="payment" element={<PaymentPage />} />
-            </Route>
+              {/* Nested Dashboard Routes */}
+              <Route path="/dashboard" element={<DashboardRoutes />}>
+                <Route index element={<Dashboard />} />
+                <Route path="profile" element={<Profile />} />
+                <Route path="buy-policy" element={<BuyPolicy />} />
+                <Route path="my-policies" element={<MyPolicies />} />
+                <Route path="claim-damage" element={<ClaimDamage />} />
+                <Route path="crop-health" element={<CropHealth />} />
+                <Route path="schemes" element={<FarmerSchemes />} />
+                <Route path="payment" element={<PaymentPage />} />
+              </Route>
 
-            <Route path="/officer-review" element={<OfficerReview />} />
-            <Route path="/officer/farmers" element={<OfficerFarmers />} />
-            <Route path="/officer/policies" element={<OfficerPolicies />} />
-            <Route path="/admin" element={<AdminPanel />} />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </BrowserRouter>
-      </TooltipProvider>
-    </Elements>
+              <Route path="/officer-review" element={<OfficerReview />} />
+              <Route path="/officer/farmers" element={<OfficerFarmers />} />
+              <Route path="/officer/policies" element={<OfficerPolicies />} />
+              <Route path="/admin" element={<AdminPanel />} />
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </BrowserRouter>
+        </TooltipProvider>
+      </Elements>
+    </LanguageProvider>
   </QueryClientProvider>
 );
 

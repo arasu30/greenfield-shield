@@ -18,8 +18,6 @@ class FarmCRUD:
         crop_type: str = None,
         commit: bool = True
     ) -> Farm:
-        logger.info(f"Starting create_farm for farmer_id: {farmer_id}")
-        
         try:
             # Filter for unique points to avoid geometry errors if the user stands still
             unique_points = []
@@ -36,15 +34,12 @@ class FarmCRUD:
                 logger.error(f"Insufficient unique points: {len(unique_points)}")
                 raise ValueError("A farm boundary must have at least 3 distinct unique locations.")
 
-            print(f"DEBUG: Preparing farm boundary with {len(unique_points)} points")
             # Ensure the polygon is closed
             coords = [(p.lng, p.lat) for p in unique_points]
             coords.append(coords[0])
 
             wkt_coords = ", ".join([f"{lng} {lat}" for lng, lat in coords])
             wkt = f"POLYGON(({wkt_coords}))"
-            
-            logger.info(f"WKT prepared successfully")
 
             new_farm = Farm(
                 farmer_id=farmer_id,
@@ -53,7 +48,6 @@ class FarmCRUD:
                 boundary=f"SRID=4326;{wkt}"
             )
 
-            print("DEBUG: Saving farm to database...")
             db.add(new_farm)
             if commit:
                 db.commit()
@@ -61,16 +55,13 @@ class FarmCRUD:
             else:
                 db.flush()
             
-            print("DEBUG: Calculating farm area...")
             # Use func.ST_Area to query the committed row's geography
             # ST_Area(geography) returns square meters
             area_sqm = db.query(func.ST_Area(Farm.boundary)).filter(Farm.id == new_farm.id).scalar()
             
             if area_sqm is not None:
-                print(f"DEBUG: Calculated area in sqm: {area_sqm}")
                 new_farm.area_acres = area_sqm / 4046.86
             else:
-                print("DEBUG: Area calculation returned None")
                 new_farm.area_acres = 0.0
             
             if commit:
@@ -78,8 +69,6 @@ class FarmCRUD:
                 db.refresh(new_farm)
             else:
                 db.flush()
-            print(f"DEBUG: Farm saved. ID: {new_farm.id}, Area: {new_farm.area_acres}")
-            logger.info(f"Farm created with ID: {new_farm.id}, Area: {new_farm.area_acres} acres")
             return new_farm
 
         except Exception as e:
@@ -101,16 +90,13 @@ class FarmCRUD:
         """Extract lat/lng points from the farm's boundary geography."""
         try:
             if not farm.boundary:
-                print(f"DEBUG: No boundary for farm {farm.id}")
                 return []
             
             # Convert WKBElement to shapely geometry
             shape = to_shape(farm.boundary)
-            print(f"DEBUG: Parsed shape type: {type(shape)}")
             
             # Get exterior coords (lng, lat)
             coords = list(shape.exterior.coords)
-            print(f"DEBUG: Extracted {len(coords)} coordinates")
             
             # Return as list of {lat, lng} for the frontend
             return [{"lat": lat, "lng": lng} for lng, lat in coords]

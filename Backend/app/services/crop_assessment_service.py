@@ -29,40 +29,30 @@ def assess_crop_damage_for_farm(
     
     try:
         # Step 1: Fetch farm from database
-        logger.info(f"Fetching farm {farm_id} from database")
         farm = FarmCRUD.get_farm_by_id(db, farm_id)
         
         if not farm:
             raise ValueError(f"Farm with ID {farm_id} not found")
         
-        logger.info(f"Farm found: {farm.farm_name}, crop: {farm.crop_type}")
-        
         # Step 2: Extract coordinates from farm boundary
-        logger.info("Extracting coordinates from farm boundary")
         region = gee_service.extract_coordinates_from_farm_boundary(farm)
-        logger.info(f"Region extracted: {region}")
         
         # Step 3: Fetch GeoTIFF from Google Earth Engine
-        logger.info(f"Fetching GeoTIFF from GEE asset: {gee_asset_id}")
         geotiff_array = gee_service.fetch_geotiff_as_array(
             asset_id=gee_asset_id,
             region=region,
             scale=scale
         )
-        logger.info(f"GeoTIFF fetched, array shape: {geotiff_array.shape}")
         
         # Step 4: Convert array to NPZ (save temporarily)
         with tempfile.NamedTemporaryFile(suffix=".npz", delete=False) as tmp:
             npz_path = gee_service.convert_array_to_npz(geotiff_array, tmp.name)
-            logger.info(f"NPZ saved to {npz_path}")
         
         # Step 5: Preprocess to model input (ndvi, vv, red)
         model_input = geotiff_array
 
         # Step 6: Run damage prediction using the Keras model
-        logger.info("Running damage prediction on prepared data")
         damage_prediction = damage_service.predict_damage_from_array(model_input)
-        logger.info(f"Damage prediction: {damage_prediction}")
         
         # Optional: also try NASNet if we have a visual representation
         # This would require converting the multispectral array to RGB
@@ -111,7 +101,6 @@ def assess_crop_damage_for_farm(
                             pass
                             
                     nasnet_result = results
-                    logger.info(f"NASNet prediction (HuggingFace): {nasnet_result}")
         except Exception as e:
             logger.warning(f"NASNet prediction failed (not critical): {e}")
         
@@ -133,7 +122,6 @@ def assess_crop_damage_for_farm(
         
         # Fallback for demo purposes if the real assessment fails
         if farm_id in [1, 2]:
-            logger.info(f"Returning mock assessment for demo farm_id: {farm_id}")
             return {
                 "farm_id": farm_id,
                 "farm_name": "Demo Farm " + ("Rice" if farm_id == 1 else "Cotton"),

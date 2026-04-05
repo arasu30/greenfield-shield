@@ -16,6 +16,7 @@ import { MapPin, Sprout, Loader2, Trash2, CheckCircle } from "lucide-react";
 import { toast } from "sonner";
 
 import { cn } from "@/lib/utils";
+import { useLanguage } from "@/lib/LanguageContext";
 
 interface AddFarmModalProps {
     isOpen: boolean;
@@ -42,6 +43,7 @@ export const AddFarmModal = ({ isOpen, onClose, onSuccess }: AddFarmModalProps) 
     const [mappingMode, setMappingMode] = useState<"click" | "walk">("click");
     const [isWalking, setIsWalking] = useState(false);
     const [currentPosition, setCurrentPosition] = useState<{ lat: number; lng: number } | null>(null);
+    const { t } = useLanguage();
 
     // Geolocation Tracking Logic
     React.useEffect(() => {
@@ -147,16 +149,16 @@ export const AddFarmModal = ({ isOpen, onClose, onSuccess }: AddFarmModalProps) 
                         <div className="space-y-6">
                             <DialogHeader className="p-0">
                                 <DialogTitle className="text-xl font-bold text-white flex items-center gap-2">
-                                    <Sprout className="w-5 h-5 text-emerald-400" /> Add Farm
+                                    <Sprout className="w-5 h-5 text-emerald-400" /> {t("addFarm.title")}
                                 </DialogTitle>
                                 <DialogDescription className="text-slate-500 text-xs mt-1">
-                                    Define your land boundary and crop details for accurate satellite monitoring.
+                                    {t("addFarm.desc")}
                                 </DialogDescription>
                             </DialogHeader>
 
                             <div className="space-y-4">
                                 <div className="space-y-2">
-                                    <Label className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Mapping Method</Label>
+                                    <Label className="text-xs font-semibold text-slate-400 uppercase tracking-wider">{t("addFarm.mappingMethod")}</Label>
                                     <div className="grid grid-cols-2 gap-2">
                                         <button
                                             onClick={() => { setMappingMode("click"); setIsWalking(false); }}
@@ -167,7 +169,7 @@ export const AddFarmModal = ({ isOpen, onClose, onSuccess }: AddFarmModalProps) 
                                                     : "bg-white/[0.02] border-white/[0.06] text-slate-500 hover:border-white/10 hover:text-slate-300"
                                             )}
                                         >
-                                            <MapPin className="w-4 h-4" /> Manual Click
+                                            <MapPin className="w-4 h-4" /> {t("addFarm.manualClick")}
                                         </button>
                                         <button
                                             onClick={() => setMappingMode("walk")}
@@ -178,15 +180,15 @@ export const AddFarmModal = ({ isOpen, onClose, onSuccess }: AddFarmModalProps) 
                                                     : "bg-white/[0.02] border-white/[0.06] text-slate-500 hover:border-white/10 hover:text-slate-300"
                                             )}
                                         >
-                                            <Sprout className="w-4 h-4" /> Walk Boundary
+                                            <Sprout className="w-4 h-4" /> {t("addFarm.walkBoundary")}
                                         </button>
                                     </div>
                                 </div>
 
                                 <div className="space-y-2">
-                                    <Label className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Farm Name</Label>
+                                    <Label className="text-xs font-semibold text-slate-400 uppercase tracking-wider">{t("addFarm.farmName")}</Label>
                                     <Input
-                                        placeholder="e.g. Green Valley"
+                                        placeholder={t("addFarm.farmNamePlace")}
                                         value={farmName}
                                         onChange={(e) => setFarmName(e.target.value)}
                                         className="bg-white/[0.03] border-white/[0.08] focus:border-emerald-500/50 h-10 text-sm"
@@ -194,10 +196,10 @@ export const AddFarmModal = ({ isOpen, onClose, onSuccess }: AddFarmModalProps) 
                                 </div>
 
                                 <div className="space-y-2">
-                                    <Label className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Primary Crop</Label>
+                                    <Label className="text-xs font-semibold text-slate-400 uppercase tracking-wider">{t("addFarm.primaryCrop")}</Label>
                                     <Select value={cropType} onValueChange={setCropType}>
                                         <SelectTrigger className="bg-white/[0.03] border-white/[0.08] h-10 text-sm">
-                                            <SelectValue placeholder="Select Crop" />
+                                            <SelectValue placeholder={t("addFarm.selectCrop")} />
                                         </SelectTrigger>
                                         <SelectContent className="bg-[#151d35] border-white/[0.08] text-slate-200">
                                             {CROP_OPTIONS.map((c) => (
@@ -212,7 +214,7 @@ export const AddFarmModal = ({ isOpen, onClose, onSuccess }: AddFarmModalProps) 
                                 {mappingMode === "walk" && (
                                     <div className="space-y-3 p-3 rounded-xl bg-blue-500/5 border border-blue-500/10 animate-in fade-in zoom-in duration-300">
                                         <div className="flex items-center justify-between text-[10px] font-bold text-blue-400 uppercase tracking-tight">
-                                            <span>GPS Tracking Mode</span>
+                                            <span>{t("addFarm.gpsTracking")}</span>
                                             {isWalking && <div className="w-2 h-2 rounded-full bg-blue-400 animate-pulse" />}
                                         </div>
                                         <Button
@@ -223,10 +225,10 @@ export const AddFarmModal = ({ isOpen, onClose, onSuccess }: AddFarmModalProps) 
                                                 !isWalking && "bg-blue-600 hover:bg-blue-500 shadow-lg shadow-blue-900/20"
                                             )}
                                         >
-                                            {isWalking ? "Stop Tracking" : "Start Walking"}
+                                            {isWalking ? t("addFarm.stopTracking") : t("addFarm.startWalking")}
                                         </Button>
                                         <p className="text-[9px] text-slate-500 leading-tight italic">
-                                            Walk around the perimeter. Points are dropped automatically as you move.
+                                            {t("addFarm.gpsDesc")}
                                         </p>
                                     </div>
                                 )}
@@ -235,10 +237,10 @@ export const AddFarmModal = ({ isOpen, onClose, onSuccess }: AddFarmModalProps) 
                                     <div className="p-3 rounded-lg bg-emerald-500/5 border border-emerald-500/10">
                                         <div className="flex items-center gap-2 mb-2">
                                             <MapPin className="w-3.5 h-3.5 text-emerald-400" />
-                                            <span className="text-[11px] font-bold text-emerald-400 uppercase">Instructions</span>
+                                            <span className="text-[11px] font-bold text-emerald-400 uppercase">{t("addFarm.instructions")}</span>
                                         </div>
                                         <p className="text-[10px] text-slate-500 leading-relaxed italic">
-                                            Click on the map to define each corner of your farm. A minimum of 3 points is required.
+                                            {t("addFarm.instructionsDesc")}
                                         </p>
                                     </div>
                                 )}
@@ -247,7 +249,7 @@ export const AddFarmModal = ({ isOpen, onClose, onSuccess }: AddFarmModalProps) 
 
                         <div className="space-y-2 pt-4">
                             <div className="flex items-center justify-between px-1">
-                                <span className="text-[10px] font-medium text-slate-500 uppercase">Points mapped</span>
+                                <span className="text-[10px] font-medium text-slate-500 uppercase">{t("addFarm.pointsMapped")}</span>
                                 <span className={boundary.length >= 3 ? "text-emerald-400 font-bold text-xs" : "text-amber-400 font-bold text-xs"}>
                                     {boundary.length} / 3 min
                                 </span>
@@ -268,7 +270,7 @@ export const AddFarmModal = ({ isOpen, onClose, onSuccess }: AddFarmModalProps) 
                                 onClick={handleReset}
                                 className="absolute top-4 right-4 z-10 p-2 bg-red-500/10 hover:bg-red-500/20 text-red-500 border border-red-500/20 rounded-lg transition-all backdrop-blur-md flex items-center gap-2 text-xs font-bold"
                             >
-                                <Trash2 className="w-3.5 h-3.5" /> Clear Points
+                                <Trash2 className="w-3.5 h-3.5" /> {t("addFarm.clear")}
                             </button>
                         )}
                     </div>
@@ -288,14 +290,14 @@ export const AddFarmModal = ({ isOpen, onClose, onSuccess }: AddFarmModalProps) 
                     </div>
                     <div className="flex gap-3">
                         <Button variant="ghost" onClick={onClose} className="text-slate-400 hover:text-white hover:bg-white/5 h-10 px-6 text-sm font-medium">
-                            Cancel
+                            {t("addFarm.cancel")}
                         </Button>
                         <Button
                             onClick={handleSave}
                             disabled={isSaving || boundary.length < 3 || !farmName}
                             className="bg-emerald-600 hover:bg-emerald-500 text-white font-bold h-10 px-10 transition-all shadow-lg shadow-emerald-900/20 rounded-lg min-w-[140px]"
                         >
-                            {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : "Add Farm"}
+                            {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : t("addFarm.btnSave")}
                         </Button>
                     </div>
                 </DialogFooter>

@@ -11,6 +11,7 @@ class DashboardStat(BaseModel):
     border: str
 
 class FarmInfo(BaseModel):
+    id: Optional[int] = None
     name: Optional[str] = None
     area: Optional[float] = None
     crop_type: Optional[str] = None
@@ -30,7 +31,7 @@ class BoundaryPoint(BaseModel):
     lng: float
 
 class SaveFarmRequest(BaseModel):
-    farmer_id: int
+    farmer_id: Optional[int] = None
     farm_name: Optional[str] = "My Farm"
     crop_type: Optional[str] = None
     insurance_id: Optional[str] = None

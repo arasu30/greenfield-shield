@@ -8,6 +8,9 @@ import {
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { LocationMap } from "@/components/LocationMap";
+import { toast } from "sonner";
+import { AddFarmModal } from "@/components/AddFarmModal";
+import { Plus } from "lucide-react";
 
 const Dashboard = () => {
     const navigate = useNavigate();
@@ -15,6 +18,7 @@ const Dashboard = () => {
     const [stats, setStats] = useState<any[]>([]);
     const [farms, setFarms] = useState<any[]>([]);
     const [isLoading, setIsLoading] = useState(true);
+    const [isAddFarmOpen, setIsAddFarmOpen] = useState(false);
 
     useEffect(() => {
         const storedUser = localStorage.getItem('user');
@@ -31,6 +35,16 @@ const Dashboard = () => {
             const res = await fetch(`${import.meta.env.VITE_BACKEND_URL || 'http://localhost:8000'}/farmer/dashboard-stats`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
+
+            if (res.status === 401) {
+                console.warn("Session expired or token invalid. Redirecting to login...");
+                localStorage.removeItem('access_token');
+                localStorage.removeItem('user');
+                toast.error("Session expired. Please login again.");
+                navigate("/login");
+                return;
+            }
+
             if (res.ok) {
                 const data = await res.json();
                 setStats(data.stats || []);
@@ -56,13 +70,25 @@ const Dashboard = () => {
 
     return (
         <div className="space-y-8 animate-fade-up">
+            <AddFarmModal 
+                isOpen={isAddFarmOpen} 
+                onClose={() => setIsAddFarmOpen(false)} 
+                onSuccess={fetchDashboardData} 
+            />
+
             {/* Welcome */}
             <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
                 <div className="space-y-1">
                     <h1 className="page-title">Welcome back, {user?.full_name?.split(' ')[0] || 'Farmer'}</h1>
                     <p className="page-subtitle">Here's your real-time farm overview</p>
                 </div>
-                <div className="flex gap-3">
+                <div className="flex flex-wrap gap-3">
+                    <Button 
+                        onClick={() => setIsAddFarmOpen(true)} 
+                        className="bg-white/10 hover:bg-white/20 text-white border border-white/10 font-medium rounded-lg h-10 px-6 flex items-center gap-2"
+                    >
+                        <Plus className="w-4 h-4" /> Add Farm
+                    </Button>
                     <Button onClick={() => navigate("/dashboard/buy-policy")} className="bg-emerald-600 hover:bg-emerald-500 text-white font-medium rounded-lg h-10 px-6">
                         Buy Policy
                     </Button>

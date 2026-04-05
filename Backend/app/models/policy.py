@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, Float, Enum as SQLEnum
+from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, Float, Enum as SQLEnum, JSON
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from app.database.base import Base
@@ -20,6 +20,7 @@ class Policy(Base):
     premium = Column(Float, nullable=False)
     coverage = Column(Float, nullable=False)
     status = Column(SQLEnum(PolicyStatus), default=PolicyStatus.ACTIVE, nullable=False)
+    proofs = Column(JSON, nullable=True) # Dictionary to store document IDs/references
     
     # Relationships
     farmer = relationship("User", back_populates="policies")

@@ -1,25 +1,75 @@
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Satellite, TrendingDown, Calendar, Download } from "lucide-react";
+import { Satellite, TrendingDown, Calendar, Download, Loader2 } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
+import { useToast } from "@/hooks/use-toast";
 
 const CropHealth = () => {
     const navigate = useNavigate();
+    const { toast } = useToast();
+    const [downloading, setDownloading] = useState<string | null>(null);
 
     const reports = [
         {
-            id: "RPT-2024-087", policyId: "POL-2024-001", cropType: "Rice", date: "15 Aug 2024",
+            id: "RPT-2024-087", policyId: "POL-2024-001", farmId: 1, cropType: "Rice", date: "15 Aug 2024",
             ndviBefore: 0.82, ndviAfter: 0.68, healthDrop: 17, status: "Attention Needed",
             analysis: "Significant decrease in vegetation health detected. Possible water stress or pest activity.",
         },
         {
-            id: "RPT-2024-065", policyId: "POL-2024-012", cropType: "Cotton", date: "10 Aug 2024",
+            id: "RPT-2024-065", policyId: "POL-2024-012", farmId: 2, cropType: "Cotton", date: "10 Aug 2024",
             ndviBefore: 0.75, ndviAfter: 0.73, healthDrop: 3, status: "Healthy",
             analysis: "Normal seasonal variation. Crop health is within expected parameters.",
         },
     ];
+
+    const handleDownloadReport = async (reportId: string, farmId: number) => {
+        setDownloading(reportId);
+        try {
+            const backendUrl = import.meta.env.VITE_BACKEND_URL || "http://localhost:8000";
+            const response = await fetch(`${backendUrl}/assess/report/${farmId}`);
+            
+            if (!response.ok) {
+                // Try to parse the error message from the response
+                let errorMessage = "Could not generate or download the report.";
+                try {
+                    const errorDetail = await response.json();
+                    if (errorDetail && errorDetail.detail) {
+                        errorMessage = errorDetail.detail;
+                    }
+                } catch (e) {
+                    // Response might not be JSON
+                }
+                throw new Error(errorMessage);
+            }
+
+            const blob = await response.blob();
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = `CropReport_${reportId}.pdf`;
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+            document.body.removeChild(a);
+
+            toast({
+                title: "Success",
+                description: "Your report has been downloaded successfully.",
+            });
+        } catch (error: any) {
+            console.error("Download failed:", error);
+            toast({
+                variant: "destructive",
+                title: "Download Failed",
+                description: error.message || "Something went wrong. Please check your backend connection.",
+            });
+        } finally {
+            setDownloading(null);
+        }
+    };
 
     return (
         <div className="max-w-5xl mx-auto space-y-8 animate-fade-up">
@@ -89,8 +139,24 @@ const CropHealth = () => {
                             </div>
 
                             <div className="flex gap-3">
-                                <Button variant="outline" size="sm" className="border-white/[0.08] text-slate-300 hover:bg-white/[0.06] text-xs">
-                                    <Download className="w-3.5 h-3.5 mr-1.5" /> Download Report
+                                <Button 
+                                    variant="outline" 
+                                    size="sm" 
+                                    disabled={downloading === report.id}
+                                    onClick={() => handleDownloadReport(report.id, report.farmId)}
+                                    className="border-white/[0.08] text-slate-300 hover:bg-white/[0.06] text-xs"
+                                >
+                                    {downloading === report.id ? (
+                                        <>
+                                            <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />
+                                            Generating...
+                                        </>
+                                    ) : (
+                                        <>
+                                            <Download className="w-3.5 h-3.5 mr-1.5" />
+                                            Download Report
+                                        </>
+                                    )}
                                 </Button>
                                 {report.status === "Attention Needed" && (
                                     <Button size="sm" onClick={() => navigate("/dashboard/claim-damage")}

@@ -159,7 +159,7 @@ const DashboardLayout = ({ children, role = 'farmer' }: DashboardLayoutProps) =>
 
                                 const isActive = item.path.includes('?') 
                                     ? (location.pathname + location.search) === item.path 
-                                    : location.pathname === item.path && location.search === "";
+                                    : (location.pathname === item.path && location.search === "");
 
                                 const content = (
                                     <button
@@ -225,13 +225,6 @@ const DashboardLayout = ({ children, role = 'farmer' }: DashboardLayoutProps) =>
                             <button onClick={() => setSidebarOpen(!sidebarOpen)} className="lg:hidden p-2 text-slate-400 hover:text-white">
                                 <Menu className="w-5 h-5" />
                             </button>
-                            <div className="hidden md:flex relative w-80">
-                                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
-                                <Input
-                                    placeholder="Search..."
-                                    className="pl-9 bg-white/[0.04] border-white/[0.06] text-slate-200 focus:border-emerald-500/30 h-9 rounded-lg text-sm"
-                                />
-                            </div>
                         </div>
 
                         <div className="flex items-center gap-4">

@@ -27,7 +27,7 @@ from app.api.schemas.insurance import (
 from app.services.insurance_service import InsuranceService
 from geoalchemy2 import functions as geofunc
 from typing import List
-from app.api.schemas.farmer import SaveFarmRequest, SaveFarmResponse
+from app.api.schemas.farmer import SaveFarmRequest, SaveFarmResponse, FarmInfo
 
 router = APIRouter(prefix="/farmer", tags=["Farmer"])
 
@@ -119,6 +119,7 @@ def get_dashboard_stats(
     farm_details = []
     for farm in farms:
         farm_details.append({
+            "id": farm.id,
             "name": farm.farm_name,
             "area": farm.area_acres if farm.area_acres is not None else 0.0,
             "crop_type": farm.crop_type,
@@ -131,6 +132,26 @@ def get_dashboard_stats(
         stats=stats,
         farms=farm_details
     )
+
+@router.get("/farms", response_model=List[FarmInfo])
+def get_my_farms(
+    current_user = Depends(get_current_user_dependency),
+    db: Session = Depends(get_db)
+):
+    """Get all registered farms for the current farmer"""
+    if current_user["role"] != UserRole.FARMER:
+        raise AccessDenied("Only farmers can view their farms")
+    
+    farms = FarmCRUD.get_farms_by_farmer(db, current_user["id"])
+    return [
+        FarmInfo(
+            id=f.id,
+            name=f.farm_name,
+            area=f.area_acres if f.area_acres is not None else 0.0,
+            crop_type=f.crop_type,
+            boundary=FarmCRUD.get_boundary_points(f)
+        ) for f in farms
+    ]
 
 @router.post("/calculate-premium", response_model=PremiumCalculationResponse)
 def calculate_premium(request: PremiumCalculationRequest, db: Session = Depends(get_db)):
@@ -182,7 +203,8 @@ def create_payment_intent(
         'farmer_id': str(current_user['id']),
         'crop_type': payment_data.crop_type,
         'season': payment_data.season,
-        'scheme_id': str(payment_data.scheme_id) if payment_data.scheme_id else None
+        'scheme_id': str(payment_data.scheme_id) if payment_data.scheme_id else None,
+        'proofs': str(payment_data.proofs) if payment_data.proofs else None
     }
 
     try:
@@ -218,7 +240,8 @@ def confirm_payment(
             season=confirmation_data.season,
             premium=confirmation_data.premium,
             coverage=confirmation_data.coverage,
-            scheme_id=confirmation_data.scheme_id
+            scheme_id=confirmation_data.scheme_id,
+            proofs=confirmation_data.proofs
         )
 
         return PolicyCRUD.create_policy(db, current_user["id"], policy_data)
@@ -295,23 +318,26 @@ async def create_claim(
 @router.post("/save-farm", response_model=SaveFarmResponse)
 def save_farm(
     data: SaveFarmRequest,
+    current_user = Depends(get_current_user_dependency),
     db: Session = Depends(get_db)
 ):
     """
-    Save a mapped farm from the Flutter app.
-    Auth not required yet — farmer_id passed directly.
-    (Wire up get_current_user_dependency later when Flutter has JWT)
+    Save a mapped farm for the current authenticated farmer.
+    Supports point-and-click mapping from the web dashboard.
     """
+    if current_user["role"] != UserRole.FARMER:
+        raise AccessDenied("Only farmers can register farms")
+
     if len(data.boundary_points) < 3:
-        from fastapi import HTTPException
         raise HTTPException(
             status_code=422,
-            detail="A farm boundary needs at least 3 GPS points."
+            detail="A farm boundary needs at least 3 GPS points to form a valid area."
         )
 
+    # Use the authenticated user's ID for security
     farm = FarmCRUD.create_farm(
         db=db,
-        farmer_id=data.farmer_id,
+        farmer_id=current_user["id"],
         boundary_points=data.boundary_points,
         farm_name=data.farm_name,
         crop_type=data.crop_type,

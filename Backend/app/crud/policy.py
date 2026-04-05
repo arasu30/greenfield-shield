@@ -20,6 +20,7 @@ class PolicyCRUD:
             premium=policy_data.premium,
             coverage=policy_data.coverage,
             status=PolicyStatus.ACTIVE,
+            proofs=policy_data.proofs,
             start_date=start_date,
             end_date=end_date
         )

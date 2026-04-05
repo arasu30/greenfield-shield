@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from typing import Optional
+from typing import Optional, Dict
 from datetime import datetime
 from app.models.policy import PolicyStatus
 
@@ -9,6 +9,7 @@ class PolicyBase(BaseModel):
     premium: float
     coverage: float
     scheme_id: Optional[int] = None
+    proofs: Optional[Dict[str, str]] = None
 
 class PolicyCreate(PolicyBase):
     pass
@@ -31,6 +32,7 @@ class PaymentIntentRequest(BaseModel):
     premium: float
     coverage: float
     scheme_id: Optional[int] = None
+    proofs: Optional[Dict[str, str]] = None
 
 class PaymentIntentResponse(BaseModel):
     client_secret: str
@@ -46,3 +48,4 @@ class PaymentConfirmationRequest(BaseModel):
     premium: float
     coverage: float
     scheme_id: Optional[int] = None
+    proofs: Optional[Dict[str, str]] = None

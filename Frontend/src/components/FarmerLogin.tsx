@@ -3,7 +3,12 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Phone, KeyRound, Loader2, ArrowRight, RotateCcw } from "lucide-react";
+import {
+    InputOTP,
+    InputOTPGroup,
+    InputOTPSlot,
+} from "@/components/ui/input-otp";
+import { Phone, Loader2, ArrowRight, RotateCcw } from "lucide-react";
 import { toast } from "sonner";
 import { Language, t } from "@/lib/i18n";
 
@@ -24,8 +29,9 @@ export const FarmerLogin = ({ lang = "en" as Language }: { lang?: Language }) =>
         setStep("otp");
     };
 
-    const handleVerifyOTP = async () => {
-        if (!otp || otp.length !== 6) {
+    const handleVerifyOTP = async (providedOtp?: string) => {
+        const otpValue = providedOtp || otp;
+        if (!otpValue || otpValue.length !== 6) {
             toast.error("Please enter a valid 6-digit OTP");
             return;
         }
@@ -35,7 +41,7 @@ export const FarmerLogin = ({ lang = "en" as Language }: { lang?: Language }) =>
             const res = await fetch(`${import.meta.env.VITE_BACKEND_URL || 'http://localhost:8000'}/auth/otp-login`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ phone, otp }),
+                body: JSON.stringify({ phone, otp: otpValue }),
             });
 
             if (!res.ok) {
@@ -105,27 +111,32 @@ export const FarmerLogin = ({ lang = "en" as Language }: { lang?: Language }) =>
                         </button>
                     </div>
 
-                    <div className="space-y-2">
+                    <div className="space-y-3">
                         <Label className="text-slate-300 text-sm font-medium">{t(lang, "farmer.enterOtp")}</Label>
-                        <div className="relative">
-                            <KeyRound className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-500" />
-                            <Input
-                                type="text"
-                                placeholder={t(lang, "farmer.otpPlaceholder")}
-                                value={otp}
+                        <div className="flex justify-center py-2">
+                            <InputOTP
                                 maxLength={6}
-                                onChange={(e) => setOtp(e.target.value.replace(/\D/g, ""))}
-                                className={`pl-10 text-center tracking-[0.3em] text-lg font-semibold ${inputClass}`}
-                                onKeyDown={(e) => e.key === 'Enter' && handleVerifyOTP()}
-                                autoFocus
-                            />
+                                value={otp}
+                                onChange={(val) => setOtp(val)}
+                                onComplete={() => handleVerifyOTP()}
+                            >
+                                <InputOTPGroup className="gap-2.5">
+                                    {[0, 1, 2, 3, 4, 5].map((index) => (
+                                        <InputOTPSlot
+                                            key={index}
+                                            index={index}
+                                            className="w-[46px] h-[58px] text-xl font-bold bg-white/[0.04] border-white/[0.1] text-emerald-400 rounded-xl transition-all duration-300 ring-offset-[#0a0f1e] focus-visible:ring-emerald-500/30 focus-visible:border-emerald-500/50"
+                                        />
+                                    ))}
+                                </InputOTPGroup>
+                            </InputOTP>
                         </div>
                     </div>
 
                     <Button
-                        onClick={handleVerifyOTP}
-                        disabled={isLoading}
-                        className="w-full bg-emerald-600 hover:bg-emerald-500 text-white h-11 font-medium rounded-lg transition-all duration-200 shadow-lg shadow-emerald-600/20"
+                        onClick={() => handleVerifyOTP()}
+                        disabled={isLoading || otp.length !== 6}
+                        className="w-full bg-emerald-600 hover:bg-emerald-500 text-white h-11 font-medium rounded-lg transition-all duration-200 shadow-lg shadow-emerald-600/20 disabled:opacity-50 disabled:shadow-none"
                     >
                         {isLoading ? (
                             <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> {t(lang, "farmer.verifying")}</>

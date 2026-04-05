@@ -210,7 +210,7 @@ class AuthService:
         }
     
     @staticmethod
-    def refresh_access_token(refresh_token: str) -> dict:
+    def refresh_access_token(db: Session, refresh_token: str) -> dict:
         """Generate new access token from refresh token"""
         payload = verify_token(refresh_token)
         
@@ -218,12 +218,18 @@ class AuthService:
             raise InvalidCredentialsException()
         
         user_id = int(payload.get("sub"))
-        email = payload.get("email")
+        user = UserCRUD.get_user_by_id(db, user_id)
         
+        if not user or not user.is_active:
+             raise InvalidCredentialsException()
+
         access_token = create_access_token(
             data={
-                "sub": str(user_id),
-                "email": email,
+                "sub": str(user.id),
+                "email": user.email,
+                "full_name": user.full_name,
+                "role": user.role.value,
+                "phone": user.phone,
                 "type": "access",
             }
         )

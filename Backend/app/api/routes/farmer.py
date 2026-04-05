@@ -16,6 +16,7 @@ from app.crud.policy import PolicyCRUD
 from app.crud.claim import ClaimCRUD
 from app.models.user import UserRole
 from app.models.policy import Policy
+from app.models.farm import Farm
 from app.utils.errors import AccessDenied
 from app.api.schemas.claim import ClaimCreate, ClaimResponse
 from app.api.schemas.insurance import (
@@ -48,8 +49,9 @@ def get_dashboard_stats(
         # If area_acres is zero or None, try to re-calculate it from boundary
         if not farm.area_acres or farm.area_acres < 0.01:
             try:
-                # Use geofunc.ST_Area for explicit geoalchemy2 usage
-                area_sqm = db.query(geofunc.ST_Area(farm.boundary)).scalar()
+                # Use func.ST_Area to query the row's geography
+                from sqlalchemy import func
+                area_sqm = db.query(func.ST_Area(Farm.boundary)).filter(Farm.id == farm.id).scalar()
                 
                 if area_sqm and area_sqm > 0:
                     calculated_acres = area_sqm / 4046.86

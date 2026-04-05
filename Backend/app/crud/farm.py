@@ -62,9 +62,9 @@ class FarmCRUD:
                 db.flush()
             
             print("DEBUG: Calculating farm area...")
-            # Use geofunc.ST_Area with explicit geography casting
+            # Use func.ST_Area to query the committed row's geography
             # ST_Area(geography) returns square meters
-            area_sqm = db.query(geofunc.ST_Area(new_farm.boundary)).scalar()
+            area_sqm = db.query(func.ST_Area(Farm.boundary)).filter(Farm.id == new_farm.id).scalar()
             
             if area_sqm is not None:
                 print(f"DEBUG: Calculated area in sqm: {area_sqm}")

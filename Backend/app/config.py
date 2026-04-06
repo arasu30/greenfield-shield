@@ -23,9 +23,10 @@ class Settings(BaseSettings):
     DEBUG: bool = True
     HOST: str = "0.0.0.0"
     PORT: int = 8000
-
-    # CORS
-    FRONTEND_URL: str = "http://localhost:5173"
+    FRONTEND_URLS: list[str] = [
+        "http://localhost:5173",
+        "http://127.0.0.1:5173"
+]
 
     # Email
     SMTP_SERVER: str = "smtp.gmail.com"
@@ -33,9 +34,13 @@ class Settings(BaseSettings):
     SMTP_USER: str
     SMTP_PASSWORD: str
     FROM_EMAIL: str
+
+    # # Stripe Payment Gateway
+    STRIPE_SECRET_KEY: str
+    STRIPE_PUBLISHABLE_KEY: str
     
     class Config:
         env_file = ".env"
         case_sensitive = True
-
+        extra = "allow"   
 settings = Settings()

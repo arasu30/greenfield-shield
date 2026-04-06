@@ -7,11 +7,17 @@ from .database.base import Base
 from .api.routes import auth
 # from .api.routes import model
 # from .api.routes import damage
-# from .api.routes import crop_assessment
 from .api.routes import farmer
 from .api.routes import officer
 from .api.routes import scheme # Added scheme router
-from .models.claim import Claim # Ensure Claim model is loaded for metadata
+from .api.routes import admin # Added admin router
+from .api.routes import crop_assessment # Enable crop assessment
+from .models.user import User
+from .models.claim import Claim
+from .models.farm import Farm
+from .models.policy import Policy
+from .models.scheme import Scheme
+from .models.insurance_rate import InsuranceRate
 
 from contextlib import asynccontextmanager
 
@@ -67,15 +73,11 @@ app = FastAPI(
     version="1.0.0",
     lifespan=lifespan
 )
-
-# Add CORS middleware
-app.add_middleware(
-    CORSMiddleware,
-    allow_origin_regex="http://localhost:.*",  # Allow any port on localhost
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+@app.middleware("http")
+async def log_headers(request, call_next):
+    print(f"DEBUG: Incoming request from {request.headers.get('origin')} to {request.url.path}")
+    response = await call_next(request)
+    return response
 
 # Relax trusted host middleware for development
 app.add_middleware(
@@ -83,14 +85,27 @@ app.add_middleware(
     allowed_hosts=["*"],
 )
 
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[
+        "http://localhost:5173",
+        "http://127.0.0.1:5173",
+    ],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+    expose_headers=["*"],
+)
+
 # Include routes
 app.include_router(auth.router)
 # app.include_router(model.router)
 # app.include_router(damage.router)
-# app.include_router(crop_assessment.router)
+app.include_router(crop_assessment.router) # Enable crop assessment
 app.include_router(farmer.router)
 app.include_router(officer.router)
 app.include_router(scheme.router, prefix="/schemes", tags=["Schemes"]) # Scheme routes
+app.include_router(admin.router) # Admin routes
 
 @app.get("/", tags=["Health"])
 def root():

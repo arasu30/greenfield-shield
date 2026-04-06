@@ -1,9 +1,11 @@
 from fastapi import APIRouter, HTTPException, status, Depends
+from fastapi.responses import FileResponse
 from sqlalchemy.orm import Session
+import os
 
 from app.api.schemas.crop_assessment import CropDamageRequest, CropDamageResponse
 from app.database.session import get_db
-from app.services import crop_assessment_service
+from app.services import crop_assessment_service, report_service
 
 router = APIRouter(prefix="/assess", tags=["Crop Assessment"])
 
@@ -57,4 +59,42 @@ async def assess_crop_damage(
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Crop damage assessment failed: {str(e)}"
+        )
+
+
+@router.get(
+    "/report/{farm_id}",
+    status_code=status.HTTP_200_OK,
+)
+async def download_crop_report(
+    farm_id: int,
+    db: Session = Depends(get_db)
+):
+    """Generate and download a PDF crop report for a specific farm."""
+    try:
+        # Run assessment
+        result = crop_assessment_service.assess_crop_damage_for_farm(
+            db=db,
+            farm_id=farm_id
+        )
+        
+        # Generate PDF
+        pdf_path = report_service.generate_crop_report_pdf(result)
+        
+        # Return as file for download
+        return FileResponse(
+            path=pdf_path,
+            filename=f"CropReport_Farm_{farm_id}.pdf",
+            media_type="application/pdf"
+        )
+        
+    except ValueError as e:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=str(e)
+        )
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to generate report: {str(e)}"
         )

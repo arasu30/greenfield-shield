@@ -1,113 +1,56 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
-All colors MUST be HSL.
-*/
-
 @layer base {
   :root {
-    /* Agritech theme - Fresh greens with earthy tones */
-    --background: 0 0% 100%;
-    --foreground: 142 30% 15%;
+    --background: 222 47% 6%;
+    --foreground: 210 40% 98%;
 
-    --card: 0 0% 100%;
-    --card-foreground: 142 30% 15%;
+    --card: 222 47% 8%;
+    --card-foreground: 210 40% 98%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 142 30% 15%;
+    --popover: 222 47% 8%;
+    --popover-foreground: 210 40% 98%;
 
-    /* Primary: Agricultural green */
-    --primary: 142 76% 36%;
+    --primary: 160 84% 39%;
     --primary-foreground: 0 0% 100%;
-    --primary-hover: 142 76% 30%;
+    --primary-hover: 160 84% 34%;
 
-    /* Secondary: Earth tones */
-    --secondary: 25 70% 50%;
-    --secondary-foreground: 0 0% 100%;
+    --secondary: 217 33% 17%;
+    --secondary-foreground: 210 40% 98%;
 
-    /* Muted: Soft green backgrounds */
-    --muted: 120 20% 97%;
-    --muted-foreground: 142 20% 40%;
+    --muted: 217 33% 14%;
+    --muted-foreground: 215 20% 55%;
 
-    /* Accent: Sky blue for tech elements */
-    --accent: 200 95% 45%;
-    --accent-foreground: 0 0% 100%;
+    --accent: 217 33% 17%;
+    --accent-foreground: 210 40% 98%;
 
-    --destructive: 0 84% 60%;
+    --destructive: 0 72% 51%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 142 20% 88%;
-    --input: 142 20% 92%;
-    --ring: 142 76% 36%;
+    --border: 217 33% 14%;
+    --input: 217 33% 14%;
+    --ring: 160 84% 39%;
 
-    --radius: 0.75rem;
+    --radius: 0.625rem;
 
-    /* Success states */
-    --success: 142 76% 36%;
+    --success: 160 84% 39%;
     --success-foreground: 0 0% 100%;
 
-    /* Warning states */
-    --warning: 45 93% 47%;
+    --warning: 38 92% 50%;
     --warning-foreground: 0 0% 100%;
 
-    /* Info states */
-    --info: 200 95% 45%;
+    --info: 217 91% 60%;
     --info-foreground: 0 0% 100%;
 
-    /* Chart colors */
-    --chart-1: 142 76% 36%;
-    --chart-2: 200 95% 45%;
-    --chart-3: 45 93% 47%;
-    --chart-4: 25 70% 50%;
-    --chart-5: 280 60% 50%;
-  }
-
-  .dark {
-    --background: 142 30% 8%;
-    --foreground: 0 0% 98%;
-
-    --card: 142 25% 12%;
-    --card-foreground: 0 0% 98%;
-
-    --popover: 142 25% 12%;
-    --popover-foreground: 0 0% 98%;
-
-    --primary: 142 76% 36%;
-    --primary-foreground: 0 0% 100%;
-    --primary-hover: 142 76% 42%;
-
-    --secondary: 25 60% 40%;
-    --secondary-foreground: 0 0% 100%;
-
-    --muted: 142 20% 15%;
-    --muted-foreground: 142 10% 65%;
-
-    --accent: 200 95% 35%;
-    --accent-foreground: 0 0% 100%;
-
-    --destructive: 0 62% 45%;
-    --destructive-foreground: 0 0% 100%;
-
-    --border: 142 20% 20%;
-    --input: 142 20% 18%;
-    --ring: 142 76% 36%;
-
-    --success: 142 76% 36%;
-    --success-foreground: 0 0% 100%;
-
-    --warning: 45 93% 47%;
-    --warning-foreground: 0 0% 100%;
-
-    --info: 200 95% 45%;
-    --info-foreground: 0 0% 100%;
-
-    --chart-1: 142 76% 45%;
-    --chart-2: 200 95% 50%;
-    --chart-3: 45 93% 55%;
-    --chart-4: 25 70% 55%;
-    --chart-5: 280 60% 55%;
+    --chart-1: 160 84% 39%;
+    --chart-2: 217 91% 60%;
+    --chart-3: 38 92% 50%;
+    --chart-4: 280 68% 60%;
+    --chart-5: 0 72% 51%;
   }
 }
 
@@ -116,7 +59,53 @@ All colors MUST be HSL.
     @apply border-border;
   }
 
+  html {
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
   body {
-    @apply bg-background text-foreground;
+    @apply bg-[#0a0f1e] text-foreground;
+  }
+}
+
+@layer utilities {
+  /* Glass card effect */
+  .glass-card {
+    @apply bg-white/[0.04] border border-white/[0.06] backdrop-blur-sm;
+  }
+
+  .glass-card-hover {
+    @apply glass-card hover:bg-white/[0.06] hover:border-white/[0.09] transition-all duration-300;
+  }
+
+  /* Subtle text gradient */
+  .text-gradient-primary {
+    @apply bg-gradient-to-r from-emerald-400 to-teal-300 bg-clip-text text-transparent;
+  }
+
+  /* Page title styling */
+  .page-title {
+    @apply text-3xl font-semibold text-white tracking-tight;
+  }
+
+  .page-subtitle {
+    @apply text-base text-slate-400 mt-1;
+  }
+
+  /* Scrollbar styling */
+  .scrollbar-thin::-webkit-scrollbar {
+    width: 4px;
+  }
+  .scrollbar-thin::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .scrollbar-thin::-webkit-scrollbar-thumb {
+    background: rgba(255,255,255,0.08);
+    border-radius: 4px;
+  }
+  .scrollbar-thin::-webkit-scrollbar-thumb:hover {
+    background: rgba(255,255,255,0.14);
   }
 }

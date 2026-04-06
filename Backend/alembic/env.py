@@ -14,7 +14,7 @@ sys.path.insert(0, os.path.realpath(os.path.join(os.path.dirname(__file__), '..'
 from app.config import settings
 from app.database.base import Base
 # Import all models here to ensure they are registered with Base.metadata
-from app.models import User, Farm, Policy, Claim, Scheme
+from app.models import User, Farm, Policy, Claim, Scheme, InsuranceRate
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.

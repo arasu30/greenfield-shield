@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import DashboardLayout from "@/components/DashboardLayout";
 import { useNavigate } from "react-router-dom";
 import { User, Smartphone, Mail, Shield, Calendar, Edit2, BadgeCheck, Building2, Save, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -18,29 +17,17 @@ const Profile = () => {
     const fetchUserProfile = async () => {
         const token = localStorage.getItem('access_token');
         if (!token) return;
-
         try {
             const res = await fetch(`${import.meta.env.VITE_BACKEND_URL || 'http://localhost:8000'}/auth/me`, {
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                }
+                headers: { 'Authorization': `Bearer ${token}` }
             });
-
             if (res.ok) {
                 const data = await res.json();
                 setUser(data);
                 localStorage.setItem('user', JSON.stringify(data));
-                setEditData({
-                    full_name: data.full_name,
-                    phone: data.phone || "",
-                    address: data.address || "",
-                    department: data.department || "",
-                    officer_id: data.officer_id || ""
-                });
+                setEditData({ full_name: data.full_name, phone: data.phone || "", address: data.address || "", department: data.department || "", officer_id: data.officer_id || "" });
             }
-        } catch (err) {
-            console.error("Failed to fetch profile:", err);
-        }
+        } catch (err) { console.error("Failed to fetch profile:", err); }
     };
 
     useEffect(() => {
@@ -48,13 +35,7 @@ const Profile = () => {
         if (storedUser) {
             const parsed = JSON.parse(storedUser);
             setUser(parsed);
-            setEditData({
-                full_name: parsed.full_name,
-                phone: parsed.phone || "",
-                address: parsed.address || "",
-                department: parsed.department || "",
-                officer_id: parsed.officer_id || ""
-            });
+            setEditData({ full_name: parsed.full_name, phone: parsed.phone || "", address: parsed.address || "", department: parsed.department || "", officer_id: parsed.officer_id || "" });
         }
         fetchUserProfile();
     }, []);
@@ -62,40 +43,29 @@ const Profile = () => {
     const handleUpdateProfile = async () => {
         const token = localStorage.getItem('access_token');
         if (!token) return;
-
         setIsLoading(true);
         try {
             const res = await fetch(`${import.meta.env.VITE_BACKEND_URL || 'http://localhost:8000'}/auth/profile`, {
                 method: 'PATCH',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                },
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
                 body: JSON.stringify(editData)
             });
-
             if (res.ok) {
                 const updatedUser = await res.json();
                 setUser(updatedUser);
                 localStorage.setItem('user', JSON.stringify(updatedUser));
-                toast.success("Profile updated successfully!");
+                toast.success("Profile updated!");
                 setIsEditing(false);
-            } else {
-                const err = await res.text();
-                toast.error(`Update failed: ${err}`);
-            }
-        } catch (err) {
-            toast.error("Network error during update");
-        } finally {
-            setIsLoading(false);
-        }
+            } else { const err = await res.text(); toast.error(`Update failed: ${err}`); }
+        } catch (err) { toast.error("Network error during update"); }
+        finally { setIsLoading(false); }
     };
 
     if (!user) return null;
 
     const profileFields = [
-        { label: "Full Name", value: user.full_name, icon: User, color: "text-green-400" },
-        { label: "Phone Number", value: user.phone || "Not provided", icon: Smartphone, color: "text-cyan-400" },
+        { label: "Full Name", value: user.full_name, icon: User, color: "text-emerald-400" },
+        { label: "Phone Number", value: user.phone || "Not provided", icon: Smartphone, color: "text-blue-400" },
         { label: "Email Address", value: user.email, icon: Mail, color: "text-blue-400" },
         { label: "Account Role", value: user.role.toUpperCase(), icon: Shield, color: "text-purple-400" },
         { label: "Member Since", value: new Date(user.created_at).toLocaleDateString(), icon: Calendar, color: "text-amber-400" },
@@ -108,69 +78,50 @@ const Profile = () => {
         );
     }
 
+    const inputClass = "h-11 bg-white/[0.03] border-white/[0.08] text-slate-100 focus:border-emerald-500/40 rounded-lg";
+
     return (
-        <div className="max-w-4xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-8 duration-700 ease-out fill-mode-forward">
-            {/* Header Card */}
-            <div className="relative rounded-3xl overflow-hidden border border-slate-800 bg-slate-900/50 backdrop-blur-xl p-8">
-                <div className="absolute top-0 right-0 w-64 h-64 bg-green-500/10 rounded-full blur-[100px] -mr-32 -mt-32"></div>
-                <div className="absolute bottom-0 left-0 w-64 h-64 bg-cyan-500/10 rounded-full blur-[100px] -ml-32 -mb-32"></div>
+        <div className="max-w-4xl mx-auto space-y-6 animate-fade-up">
+            {/* Header */}
+            <div className="glass-card rounded-2xl p-8 relative overflow-hidden">
+                <div className="absolute -top-20 -right-20 w-48 h-48 bg-emerald-500/[0.07] rounded-full blur-[80px]" />
+                <div className="relative flex flex-col md:flex-row items-center gap-6">
+                    <Avatar className="w-24 h-24 border-2 border-white/[0.08]">
+                        <AvatarImage src="/placeholder-user.jpg" />
+                        <AvatarFallback className="bg-emerald-600 text-2xl font-semibold text-white">
+                            {user.full_name.substring(0, 2).toUpperCase()}
+                        </AvatarFallback>
+                    </Avatar>
 
-                <div className="relative flex flex-col md:flex-row items-center gap-8">
-                    <div className="relative group">
-                        <Avatar className="w-32 h-32 border-4 border-slate-800 shadow-2xl transition-transform duration-500 group-hover:scale-105">
-                            <AvatarImage src="/placeholder-user.jpg" />
-                            <AvatarFallback className="bg-gradient-to-br from-green-500 to-emerald-700 text-4xl font-bold text-white">
-                                {user.full_name.substring(0, 2).toUpperCase()}
-                            </AvatarFallback>
-                        </Avatar>
-                    </div>
-
-                    <div className="text-center md:text-left space-y-2">
+                    <div className="text-center md:text-left space-y-1.5">
                         <div className="flex items-center justify-center md:justify-start gap-2">
-                            <h1 className="text-3xl font-bold text-white">{user.full_name}</h1>
-                            <BadgeCheck className="w-6 h-6 text-cyan-400 shrink-0" />
+                            <h1 className="text-2xl font-semibold text-white">{user.full_name}</h1>
+                            <BadgeCheck className="w-5 h-5 text-blue-400" />
                         </div>
-                        <p className="text-slate-400 font-medium">Verified {user.role} Member</p>
-                        <div className="flex flex-wrap justify-center md:justify-start gap-3 mt-4">
-                            <div className="px-3 py-1 rounded-full bg-slate-800/50 border border-slate-700 text-xs text-slate-300">
+                        <p className="text-sm text-slate-500 font-medium">Verified {user.role} member</p>
+                        <div className="flex flex-wrap justify-center md:justify-start gap-2 mt-2">
+                            <span className="px-2.5 py-1 rounded-full bg-white/[0.04] border border-white/[0.06] text-[10px] text-slate-400">
                                 {user.id ? `ID: CS-${user.id.toString().padStart(4, '0')}` : 'ID: CS-NEW'}
-                            </div>
-                            <div className="px-3 py-1 rounded-full bg-green-500/10 border border-green-500/20 text-xs text-green-400">
-                                Status: Active
-                            </div>
+                            </span>
+                            <span className="px-2.5 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-[10px] text-emerald-400">
+                                Active
+                            </span>
                         </div>
                     </div>
 
                     <div className="md:ml-auto">
                         {!isEditing ? (
-                            <Button
-                                onClick={() => setIsEditing(true)}
-                                className="bg-white text-slate-950 hover:bg-slate-200 font-semibold rounded-xl px-6 h-11"
-                            >
-                                <Edit2 className="w-4 h-4 mr-2" />
-                                Edit Profile
+                            <Button onClick={() => setIsEditing(true)} variant="outline" className="border-white/[0.1] text-slate-300 hover:bg-white/[0.06] rounded-lg h-10">
+                                <Edit2 className="w-4 h-4 mr-2" /> Edit Profile
                             </Button>
                         ) : (
                             <div className="flex gap-2">
-                                <Button
-                                    onClick={() => setIsEditing(false)}
-                                    variant="outline"
-                                    className="border-slate-700 text-slate-300 hover:bg-slate-800 hover:text-white rounded-xl px-4 h-11"
-                                >
-                                    <X className="w-4 h-4 mr-2" />
-                                    Cancel
+                                <Button onClick={() => setIsEditing(false)} variant="outline" className="border-white/[0.1] text-slate-400 hover:bg-white/[0.06] rounded-lg h-10">
+                                    <X className="w-4 h-4 mr-2" /> Cancel
                                 </Button>
-                                <Button
-                                    onClick={handleUpdateProfile}
-                                    disabled={isLoading}
-                                    className="bg-green-600 hover:bg-green-700 text-white font-semibold rounded-xl px-6 h-11 shadow-lg shadow-green-500/20"
-                                >
-                                    {isLoading ? "Saving..." : (
-                                        <>
-                                            <Save className="w-4 h-4 mr-2" />
-                                            Save Changes
-                                        </>
-                                    )}
+                                <Button onClick={handleUpdateProfile} disabled={isLoading}
+                                    className="bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg h-10">
+                                    {isLoading ? "Saving..." : <><Save className="w-4 h-4 mr-2" /> Save</>}
                                 </Button>
                             </div>
                         )}
@@ -178,107 +129,79 @@ const Profile = () => {
                 </div>
             </div>
 
-            {/* Info Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Info */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                 {!isEditing ? (
                     <>
-                        <Card className="bg-slate-900/50 backdrop-blur-md border-slate-800 overflow-hidden group">
-                            <CardHeader className="border-b border-slate-800/50 bg-slate-900/30">
-                                <CardTitle className="text-lg font-semibold text-white flex items-center gap-2">
-                                    <User className="w-5 h-5 text-green-400" />
-                                    Personal Information
+                        <Card className="glass-card rounded-xl">
+                            <CardHeader className="pb-3 border-b border-white/[0.06]">
+                                <CardTitle className="text-sm font-medium text-white flex items-center gap-2">
+                                    <User className="w-4 h-4 text-emerald-400" /> Personal Info
                                 </CardTitle>
                             </CardHeader>
-                            <CardContent className="p-6 space-y-6">
+                            <CardContent className="p-4 space-y-1">
                                 {profileFields.slice(0, 3).map((field, i) => (
-                                    <div key={i} className="flex items-start gap-4 p-3 rounded-xl hover:bg-white/5 transition-colors">
-                                        <div className={`p-2 rounded-lg bg-slate-800 ${field.color}`}>
-                                            <field.icon className="w-5 h-5" />
+                                    <div key={i} className="flex items-center gap-3 p-3 rounded-lg hover:bg-white/[0.03] transition-colors">
+                                        <div className={`w-8 h-8 rounded-lg bg-white/[0.04] flex items-center justify-center ${field.color}`}>
+                                            <field.icon className="w-4 h-4" />
                                         </div>
                                         <div>
-                                            <p className="text-[10px] text-slate-500 uppercase tracking-widest font-bold mb-1">{field.label}</p>
-                                            <p className="text-slate-100 font-medium">{field.value}</p>
+                                            <p className="text-[10px] text-slate-600 uppercase tracking-wider font-medium">{field.label}</p>
+                                            <p className="text-sm text-slate-200">{field.value}</p>
                                         </div>
                                     </div>
                                 ))}
                             </CardContent>
                         </Card>
-
-                        <Card className="bg-slate-900/50 backdrop-blur-md border-slate-800 overflow-hidden">
-                            <CardHeader className="border-b border-slate-800/50 bg-slate-900/30">
-                                <CardTitle className="text-lg font-semibold text-white flex items-center gap-2">
-                                    <Shield className="w-5 h-5 text-purple-400" />
-                                    Account Details
+                        <Card className="glass-card rounded-xl">
+                            <CardHeader className="pb-3 border-b border-white/[0.06]">
+                                <CardTitle className="text-sm font-medium text-white flex items-center gap-2">
+                                    <Shield className="w-4 h-4 text-purple-400" /> Account Details
                                 </CardTitle>
                             </CardHeader>
-                            <CardContent className="p-6 space-y-6">
+                            <CardContent className="p-4 space-y-1">
                                 {profileFields.slice(3).map((field, i) => (
-                                    <div key={i} className="flex items-start gap-4 p-3 rounded-xl hover:bg-white/5 transition-colors">
-                                        <div className={`p-2 rounded-lg bg-slate-800 ${field.color}`}>
-                                            <field.icon className="w-5 h-5" />
+                                    <div key={i} className="flex items-center gap-3 p-3 rounded-lg hover:bg-white/[0.03] transition-colors">
+                                        <div className={`w-8 h-8 rounded-lg bg-white/[0.04] flex items-center justify-center ${field.color}`}>
+                                            <field.icon className="w-4 h-4" />
                                         </div>
                                         <div>
-                                            <p className="text-[10px] text-slate-500 uppercase tracking-widest font-bold mb-1">{field.label}</p>
-                                            <p className="text-slate-100 font-medium">{field.value}</p>
+                                            <p className="text-[10px] text-slate-600 uppercase tracking-wider font-medium">{field.label}</p>
+                                            <p className="text-sm text-slate-200">{field.value}</p>
                                         </div>
                                     </div>
                                 ))}
-                                <div className="mt-4 p-4 rounded-xl bg-gradient-to-r from-blue-500/10 to-cyan-500/10 border border-blue-500/20">
-                                    <p className="text-xs text-slate-300 leading-relaxed italic">
-                                        "Your profile information is used to personalize your experience and ensure accurate insurance claim processing."
-                                    </p>
-                                </div>
                             </CardContent>
                         </Card>
                     </>
                 ) : (
-                    <Card className="md:col-span-2 bg-slate-900/50 backdrop-blur-md border-slate-800 overflow-hidden">
-                        <CardHeader className="border-b border-slate-800/50 bg-slate-900/30">
-                            <CardTitle className="text-lg font-semibold text-white">Edit Profile Information</CardTitle>
+                    <Card className="md:col-span-2 glass-card rounded-xl">
+                        <CardHeader className="pb-3 border-b border-white/[0.06]">
+                            <CardTitle className="text-sm font-medium text-white">Edit Profile</CardTitle>
                         </CardHeader>
-                        <CardContent className="p-8">
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
+                        <CardContent className="p-6">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                                 <div className="space-y-2">
-                                    <Label className="text-slate-400">Full Name</Label>
-                                    <Input
-                                        value={editData.full_name}
-                                        onChange={(e) => setEditData({ ...editData, full_name: e.target.value })}
-                                        className="bg-slate-800 border-slate-700 text-white h-11"
-                                    />
+                                    <Label className="text-slate-400 text-sm">Full Name</Label>
+                                    <Input value={editData.full_name} onChange={(e) => setEditData({ ...editData, full_name: e.target.value })} className={inputClass} />
                                 </div>
                                 <div className="space-y-2">
-                                    <Label className="text-slate-400">Phone Number</Label>
-                                    <Input
-                                        value={editData.phone}
-                                        onChange={(e) => setEditData({ ...editData, phone: e.target.value })}
-                                        className="bg-slate-800 border-slate-700 text-white h-11"
-                                    />
+                                    <Label className="text-slate-400 text-sm">Phone Number</Label>
+                                    <Input value={editData.phone} onChange={(e) => setEditData({ ...editData, phone: e.target.value })} className={inputClass} />
                                 </div>
                                 <div className="space-y-2 md:col-span-2">
-                                    <Label className="text-slate-400">Address</Label>
-                                    <Input
-                                        value={editData.address}
-                                        onChange={(e) => setEditData({ ...editData, address: e.target.value })}
-                                        className="bg-slate-800 border-slate-700 text-white h-11"
-                                    />
+                                    <Label className="text-slate-400 text-sm">Address</Label>
+                                    <Input value={editData.address} onChange={(e) => setEditData({ ...editData, address: e.target.value })} className={inputClass} />
                                 </div>
                                 {user.role === 'officer' && (
                                     <>
                                         <div className="space-y-2">
-                                            <Label className="text-slate-400">Department</Label>
-                                            <Input
-                                                value={editData.department}
-                                                onChange={(e) => setEditData({ ...editData, department: e.target.value })}
-                                                className="bg-slate-800 border-slate-700 text-white h-11"
-                                            />
+                                            <Label className="text-slate-400 text-sm">Department</Label>
+                                            <Input value={editData.department} onChange={(e) => setEditData({ ...editData, department: e.target.value })} className={inputClass} />
                                         </div>
                                         <div className="space-y-2">
-                                            <Label className="text-slate-400">Officer ID</Label>
-                                            <Input
-                                                value={editData.officer_id}
-                                                onChange={(e) => setEditData({ ...editData, officer_id: e.target.value })}
-                                                className="bg-slate-800 border-slate-700 text-white h-11"
-                                            />
+                                            <Label className="text-slate-400 text-sm">Officer ID</Label>
+                                            <Input value={editData.officer_id} onChange={(e) => setEditData({ ...editData, officer_id: e.target.value })} className={inputClass} />
                                         </div>
                                     </>
                                 )}

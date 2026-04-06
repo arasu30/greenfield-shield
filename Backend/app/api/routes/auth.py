@@ -136,11 +136,12 @@ def register(
 @router.post("/refresh", response_model=TokenResponse, status_code=status.HTTP_200_OK)
 def refresh_token(
     request: RefreshTokenRequest,
+    db: Session = Depends(get_db)
 ):
     """
     Refresh access token using refresh token
     """
-    result = AuthService.refresh_access_token(request.refresh_token)
+    result = AuthService.refresh_access_token(db, request.refresh_token)
     
     return TokenResponse(
         access_token=result["access_token"],

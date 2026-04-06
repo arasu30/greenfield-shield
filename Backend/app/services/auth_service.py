@@ -26,18 +26,13 @@ class AuthService:
         # Get user by email
         user = UserCRUD.get_user_by_email(db, email)
 
-        # "Loose" Mode for Officers: Auto-create account on first login (Testing purposes)
-        if not user and role == UserRole.OFFICER:
-            derived_name = email.split("@")[0].replace('.', ' ').title()
-            user = UserCRUD.create_user(
-                db=db,
-                email=email,
-                full_name=derived_name,
-                password=password,
-                role=role,
-            )
-
+        # Validate user exists
+        if not user:
+            raise InvalidCredentialsException("Invalid email or password")
+        
         # Validate credentials
+        if not verify_password(password, user.password_hash):
+            raise InvalidCredentialsException("Invalid email or password")
         
         if not user.is_active:
             raise AccessDenied("User account is inactive")
@@ -150,31 +145,41 @@ class AuthService:
             raise UserAlreadyExists()
         
         # Create user
-        print("DEBUG: Creating user record in UserCRUD...")
-        user = UserCRUD.create_user(
-            db=db,
-            email=email,
-            full_name=full_name,
-            password=password,
-            role=role,
-            phone=phone,
-            address=address,
-            department=department,
-            officer_id=officer_id,
-        )
-        print(f"DEBUG: User record created. ID: {user.id}")
-
-        # If user is a farmer and provided a boundary, create the farm record
-        if role == UserRole.FARMER and boundary:
-            print("DEBUG: User is a farmer. Starting FarmCRUD.create_farm...")
-            FarmCRUD.create_farm(
+        try:
+            print("DEBUG: Creating user record in UserCRUD...")
+            user = UserCRUD.create_user(
                 db=db,
-                farmer_id=user.id,
-                boundary_points=boundary,
-                farm_name=farm_name or f"{full_name}'s Farm",
-                crop_type=crop_type
+                email=email,
+                full_name=full_name,
+                password=password,
+                role=role,
+                phone=phone,
+                address=address,
+                department=department,
+                officer_id=officer_id,
+                commit=False # DO NOT COMMIT YET
             )
-            print("DEBUG: FarmCRUD.create_farm finished successfully")
+            print(f"DEBUG: User record created. ID: {user.id}")
+
+            # If user is a farmer and provided a boundary, create the farm record
+            if role == UserRole.FARMER and boundary:
+                print("DEBUG: User is a farmer. Starting FarmCRUD.create_farm...")
+                FarmCRUD.create_farm(
+                    db=db,
+                    farmer_id=user.id,
+                    boundary_points=boundary,
+                    farm_name=farm_name or f"{full_name}'s Farm",
+                    crop_type=crop_type,
+                    commit=False # DO NOT COMMIT YET
+                )
+                print("DEBUG: FarmCRUD.create_farm finished successfully")
+            
+            db.commit() # Atomic commit for both user and farm
+            db.refresh(user)
+        except Exception as e:
+            db.rollback()
+            print(f"DEBUG: Registration failed, rolling back. Error: {e}")
+            raise e
         
         # Create tokens
         print("DEBUG: Creating tokens for login...")
@@ -205,7 +210,7 @@ class AuthService:
         }
     
     @staticmethod
-    def refresh_access_token(refresh_token: str) -> dict:
+    def refresh_access_token(db: Session, refresh_token: str) -> dict:
         """Generate new access token from refresh token"""
         payload = verify_token(refresh_token)
         
@@ -213,12 +218,18 @@ class AuthService:
             raise InvalidCredentialsException()
         
         user_id = int(payload.get("sub"))
-        email = payload.get("email")
+        user = UserCRUD.get_user_by_id(db, user_id)
         
+        if not user or not user.is_active:
+             raise InvalidCredentialsException()
+
         access_token = create_access_token(
             data={
-                "sub": str(user_id),
-                "email": email,
+                "sub": str(user.id),
+                "email": user.email,
+                "full_name": user.full_name,
+                "role": user.role.value,
+                "phone": user.phone,
                 "type": "access",
             }
         )

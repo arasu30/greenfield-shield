@@ -63,7 +63,7 @@ export const LocationMap = ({ currentPosition, boundary = [], isRecording, onMap
     const polygonPositions = boundary.map(p => [p.lat, p.lng] as [number, number]);
 
     return (
-        <div className="h-[300px] w-full rounded-lg overflow-hidden border border-cyan-500/30 shadow-lg relative z-0">
+        <div className="h-[300px] w-full rounded-lg overflow-hidden border border-white/[0.08] shadow-lg relative z-0">
             <MapContainer
                 center={[center.lat, center.lng]}
                 zoom={18}
@@ -91,11 +91,24 @@ export const LocationMap = ({ currentPosition, boundary = [], isRecording, onMap
                     </Marker>
                 )}
 
-                {/* The Boundary Polygon (fill when finished, line when recording might be better but polygon works) */}
+                {/* Draw markers for each point in the boundary to help with manual mapping */}
+                {onMapClick && boundary.map((p, idx) => (
+                    <Marker 
+                        key={`boundary-marker-${idx}`} 
+                        position={[p.lat, p.lng]}
+                    />
+                ))}
+
+                {/* The Boundary Polygon */}
                 {boundary.length > 1 && (
                     <Polygon
                         positions={polygonPositions}
-                        pathOptions={{ color: isRecording ? 'orange' : 'cyan', fillColor: isRecording ? 'transparent' : 'cyan', fillOpacity: 0.2 }}
+                        pathOptions={{ 
+                            color: isRecording ? '#f59e0b' : '#10b981', 
+                            fillColor: isRecording ? 'transparent' : '#10b981', 
+                            fillOpacity: 0.2,
+                            weight: 3
+                        }}
                     />
                 )}
 

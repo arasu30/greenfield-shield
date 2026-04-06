@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends, status, HTTPException
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 from app.database.session import get_db
 from app.api.routes.auth import get_current_user_dependency, require_role
 from app.api.schemas.claim import ClaimResponse, ClaimUpdate, OfficerDashboardStats
@@ -9,7 +9,7 @@ from app.crud.claim import ClaimCRUD
 from app.crud.farm import FarmCRUD
 from app.crud.user import UserCRUD
 from app.models.user import UserRole, User
-from app.models.claim import ClaimStatus
+from app.models.claim import ClaimStatus, Claim
 from app.models.policy import Policy
 from typing import List
 
@@ -21,11 +21,17 @@ def get_farmers(
     db: Session = Depends(get_db)
 ):
     """Get list of all farmers and their farm details"""
-    farmers = UserCRUD.get_farmers(db)
+    # Fix N+1: Use joinedload
+    farmers = db.query(User).filter(User.role == UserRole.FARMER).options(
+        joinedload(User.farms),
+        joinedload(User.policies)
+    ).all()
+    
     results = []
     
     for farmer in farmers:
-        farms = FarmCRUD.get_farms_by_farmer(db, farmer.id)
+        # Relationships are now pre-loaded
+        farms = farmer.farms
         
         # Manually construct to avoid validation error on implicit farms attribute
         farmer_data = FarmerListResponse(
@@ -52,10 +58,8 @@ def get_farmers(
             
         farmer_data.farms = enriched_farms
         
-        # Fetch policies
-        from app.crud.policy import PolicyCRUD
-        policies = PolicyCRUD.get_policies_by_farmer(db, farmer.id)
-        farmer_data.policies = [PolicyResponse.from_orm(p) for p in policies]
+        # Policies are already loaded
+        farmer_data.policies = [PolicyResponse.model_validate(p) for p in farmer.policies]
         
         results.append(farmer_data)
         
@@ -104,7 +108,7 @@ def get_all_policies(
     for policy in policies:
         # PolicyResponse from_orm works well, but if we need farmer names we might need to extend it
         # For now, PolicyResponse is enough as it has farmer_id
-        results.append(PolicyResponse.from_orm(policy))
+        results.append(PolicyResponse.model_validate(policy))
         
     return results
 
@@ -115,19 +119,23 @@ def get_claims(
     db: Session = Depends(get_db)
 ):
     """Get list of claims, optionally filtered by status"""
-    claims = ClaimCRUD.get_claims(db, status=status)
+    # Fix N+1: Use joinedload for farmer and policy
+    query = db.query(Claim).options(
+        joinedload(Claim.farmer),
+        joinedload(Claim.policy)
+    )
+    if status:
+        query = query.filter(Claim.status == status)
+    claims = query.order_by(Claim.created_at.desc()).all()
     
     # Enrich with farmer names
     results = []
     for claim in claims:
-        farmer = db.query(User).filter(User.id == claim.farmer_id).first()
-        policy = db.query(Policy).filter(Policy.id == claim.policy_id).first()
+        claim_resp = ClaimResponse.model_validate(claim)
+        claim_resp.farmer_name = claim.farmer.full_name if claim.farmer else "Unknown Farmer"
         
-        claim_resp = ClaimResponse.from_orm(claim)
-        claim_resp.farmer_name = farmer.full_name if farmer else "Unknown Farmer"
-        
-        if policy:
-            claim_resp.policy = PolicyResponse.from_orm(policy)
+        if claim.policy:
+            claim_resp.policy = PolicyResponse.model_validate(claim.policy)
             
         results.append(claim_resp)
         
@@ -148,10 +156,10 @@ def update_claim_status(
     farmer = db.query(User).filter(User.id == claim.farmer_id).first()
     policy = db.query(Policy).filter(Policy.id == claim.policy_id).first()
     
-    resp = ClaimResponse.from_orm(claim)
+    resp = ClaimResponse.model_validate(claim)
     resp.farmer_name = farmer.full_name if farmer else "Unknown Farmer"
     
     if policy:
-        resp.policy = PolicyResponse.from_orm(policy)
+        resp.policy = PolicyResponse.model_validate(policy)
         
     return resp

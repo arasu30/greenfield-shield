@@ -38,6 +38,14 @@ interface Farm {
     crop_type: string;
 }
 
+interface PremiumQuote {
+    premium: number;
+    coverage: number;
+    market_total: number;
+    subsidy_amount: number;
+    has_subsidy: boolean;
+}
+
 const BuyPolicy = () => {
     const navigate = useNavigate();
     const [searchParams] = useSearchParams();
@@ -54,10 +62,9 @@ const BuyPolicy = () => {
     const [selectedScheme, setSelectedScheme] = useState<Scheme | null>(null);
     const [proofsData, setProofsData] = useState<Record<string, string>>({});
     const [detectedBank, setDetectedBank] = useState<string>("");
-    const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
     
     const [isCalculating, setIsCalculating] = useState(false);
-    const [premium, setPremium] = useState<{ premium: number; coverage: number } | null>(null);
+    const [premium, setPremium] = useState<PremiumQuote | null>(null);
     const [isProcessing, setIsProcessing] = useState(false);
     const [isLoadingData, setIsLoadingData] = useState(true);
     const { t, lang } = useLanguage();
@@ -117,15 +124,6 @@ const BuyPolicy = () => {
 
     const handleProofInputChange = (doc: string, value: string) => {
         setProofsData(prev => ({ ...prev, [doc]: value }));
-        
-        // Clear error when typing
-        if (validationErrors[doc]) {
-            setValidationErrors(prev => {
-                const updated = { ...prev };
-                delete updated[doc];
-                return updated;
-            });
-        }
 
         // Mock IFSC Bank Detection
         if (doc === 'IFSC Code' && value.length >= 4) {
@@ -144,17 +142,16 @@ const BuyPolicy = () => {
     };
 
     const requiredDocs = ["Aadhaar (Last 4 digits)", "Account Number", "IFSC Code"];
-    
-    const isDocsComplete = selectedFarmId && requiredDocs.every(doc => proofsData[doc] && proofsData[doc].trim().length > 0) 
-                         && (proofsData["Aadhaar (Last 4 digits)"]?.length === 4);
+    const requiresSchemeDocuments = Boolean(selectedScheme);
+    const isDocsComplete = Boolean(selectedFarmId) && (
+        !requiresSchemeDocuments || (
+            requiredDocs.every(doc => proofsData[doc] && proofsData[doc].trim().length > 0) &&
+            (proofsData["Aadhaar (Last 4 digits)"]?.length === 4)
+        )
+    );
 
     const handleCalculate = async () => {
         if (!cropType || !season || !area) { toast.error("Please fill all fields"); return; }
-        
-        if (!selectedScheme) {
-            toast.error("Please select a Government Scheme to continue and access subsidies.");
-            return;
-        }
 
         setIsCalculating(true);
         try {
@@ -167,19 +164,25 @@ const BuyPolicy = () => {
             if (!res.ok) throw new Error("Calculation failed");
             
             const marketData = await res.json();
-            
-            // Apply 90% Government Subsidy (Industry Standard)
+
             const SUBSIDY_PERCENT = 0.90;
-            const subsidizedPremium = Math.round(marketData.premium * (1 - SUBSIDY_PERCENT));
-            
+            const hasSubsidy = Boolean(selectedScheme);
+            const subsidyAmount = hasSubsidy ? Math.round(marketData.premium * SUBSIDY_PERCENT) : 0;
+            const finalPremium = hasSubsidy ? Math.round(marketData.premium - subsidyAmount) : marketData.premium;
+
             setPremium({ 
-                premium: subsidizedPremium, 
+                premium: finalPremium,
                 coverage: marketData.coverage,
-                market_total: marketData.premium, // Keep track of the full cost for UI display
-                subsidy_amount: marketData.premium - subsidizedPremium
-            } as any);
+                market_total: marketData.premium,
+                subsidy_amount: subsidyAmount,
+                has_subsidy: hasSubsidy
+            });
             
-            toast.success(`Subsidized quote generated for ${area} Acres`);
+            toast.success(
+                hasSubsidy
+                    ? `Subsidized quote generated for ${area} Acres`
+                    : `Quote generated for ${area} Acres`
+            );
         } catch (err: any) { toast.error(err.message); }
         finally { setIsCalculating(false); }
     };
@@ -187,7 +190,11 @@ const BuyPolicy = () => {
     const handlePurchase = async () => {
         if (!premium) return;
         if (!isDocsComplete) {
-            toast.error("Please complete all documentation fields to proceed.");
+            toast.error(
+                requiresSchemeDocuments
+                    ? "Please complete all documentation fields to proceed."
+                    : "Please select a registered farm to proceed."
+            );
             return;
         }
 
@@ -204,7 +211,7 @@ const BuyPolicy = () => {
                     premium: premium.premium, 
                     coverage: premium.coverage,
                     scheme_id: selectedScheme ? selectedScheme.id : null,
-                    proofs: proofsData
+                    proofs: selectedScheme ? proofsData : null
                 }),
             });
             if (!res.ok) throw new Error("Failed to create payment");
@@ -221,7 +228,7 @@ const BuyPolicy = () => {
                         premium: premium.premium,
                         coverage: premium.coverage,
                         scheme_id: selectedScheme ? selectedScheme.id : null,
-                        proofs: proofsData
+                        proofs: selectedScheme ? proofsData : null
                     }
                 } 
             });
@@ -450,15 +457,23 @@ const BuyPolicy = () => {
                                     <div className="space-y-4">
                                         <div className="flex justify-between text-xs">
                                             <span className="text-slate-500">{t("buy.marketCost")}</span>
-                                            <span className="text-slate-300 line-through">₹{(premium as any).market_total.toLocaleString()}</span>
+                                            <span className={cn("text-slate-300", premium.has_subsidy && "line-through")}>
+                                                ₹{premium.market_total.toLocaleString()}
+                                            </span>
                                         </div>
-                                        <div className="flex justify-between text-xs">
-                                            <span className="text-emerald-500 font-medium italic">{t("buy.govtSubsidy")}</span>
-                                            <span className="text-emerald-500">-₹{(premium as any).subsidy_amount.toLocaleString()}</span>
-                                        </div>
-                                        <div className="h-px bg-white/[0.06]" />
+                                        {premium.has_subsidy && (
+                                            <>
+                                                <div className="flex justify-between text-xs">
+                                                    <span className="text-emerald-500 font-medium italic">{t("buy.govtSubsidy")}</span>
+                                                    <span className="text-emerald-500">-₹{premium.subsidy_amount.toLocaleString()}</span>
+                                                </div>
+                                                <div className="h-px bg-white/[0.06]" />
+                                            </>
+                                        )}
                                         <div className="space-y-1">
-                                            <p className="text-[10px] text-slate-500 uppercase tracking-wider font-semibold">{t("buy.yourPremium")}</p>
+                                            <p className="text-[10px] text-slate-500 uppercase tracking-wider font-semibold">
+                                                {premium.has_subsidy ? t("buy.yourPremium") : t("buy.marketCost")}
+                                            </p>
                                             <p className="text-4xl font-bold text-emerald-400">₹{premium.premium.toLocaleString()}</p>
                                         </div>
                                     </div>

@@ -201,13 +201,14 @@ def create_payment_intent(
     # Convert premium to cents for Stripe (assuming premium is in dollars)
     amount_in_cents = int(payment_data.premium * 100)
 
-    metadata = {
+    raw_metadata = {
         'farmer_id': str(current_user['id']),
         'crop_type': payment_data.crop_type,
         'season': payment_data.season,
         'scheme_id': str(payment_data.scheme_id) if payment_data.scheme_id else None,
         'proofs': str(payment_data.proofs) if payment_data.proofs else None
     }
+    metadata = {k: v for k, v in raw_metadata.items() if v is not None}
 
     try:
         payment_intent = StripeService.create_payment_intent(
